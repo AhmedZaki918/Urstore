@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Urstore</string>
+    <string name="search_anything">ابحث عن اى شئ</string>
+    <string name="order_now">أطلب الآن</string>
+    <string name="user_name">تينا اندرسون</string>
+    <string name="category">الفئة</string>
+    <string name="explore">استكشف</string>
+    <string name="cart">السلة</string>
+    <string name="wishlist">المفضلة</string>
+    <string name="my_order">طلباتى</string>
+    <string name="profile">حسابى</string>
+    <string name="popular_coffees">القهوة المفضلة</string>
+    <string name="see_all">شاهد الكل</string>
+</resources>

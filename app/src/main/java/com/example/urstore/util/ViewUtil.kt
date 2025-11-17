@@ -2,6 +2,7 @@ package com.example.urstore.util
 
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,13 +34,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.example.urstore.R
+import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -100,7 +106,36 @@ fun MyFloatingActionButton(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
-            modifier = Modifier.padding(iconPadding)
+            modifier = Modifier.padding(iconPadding),
+        )
+    }
+}
+
+
+@Composable
+fun CircleButton(
+    modifier: Modifier,
+    onClicked: () -> Unit,
+    text: String
+) {
+    FloatingActionButton(
+        modifier = modifier.size(30.dp),
+        onClick = onClicked,
+        containerColor = White,
+        contentColor = Black,
+        shape = CircleShape,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 8.dp,
+            pressedElevation = 12.dp
+        )
+    ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp
         )
     }
 }
@@ -121,7 +156,7 @@ fun SearchBar(
             .wrapContentWidth()
             .padding(8.dp),
         placeholder = {
-            Text("Search anything")
+            Text(stringResource(R.string.search_anything))
         },
         shape = RoundedCornerShape(LARGE_MARGIN),
         singleLine = true,
@@ -162,7 +197,7 @@ fun OfferBanner(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(190.dp)
             .padding(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
@@ -189,7 +224,7 @@ fun OfferBanner(
                 text = title,
                 modifier = Modifier.constrainAs(titleText) {
                     start.linkTo(offerImage.end, MEDIUM_MARGIN)
-                    end.linkTo(parent.end,SMALL_MARGIN)
+                    end.linkTo(parent.end, SMALL_MARGIN)
                     top.linkTo(parent.top, MEDIUM_MARGIN)
                 },
                 color = White,
@@ -199,11 +234,13 @@ fun OfferBanner(
 
             Text(
                 text = description,
-                modifier = Modifier.constrainAs(descriptionText) {
-                    start.linkTo(offerImage.end)
-                    end.linkTo(parent.end)
-                    top.linkTo(titleText.bottom, MEDIUM_MARGIN)
-                }.width(180.dp),
+                modifier = Modifier
+                    .constrainAs(descriptionText) {
+                        start.linkTo(offerImage.end)
+                        end.linkTo(parent.end)
+                        top.linkTo(titleText.bottom, 12.dp)
+                    }
+                    .width(180.dp),
                 overflow = TextOverflow.Ellipsis,
                 color = White,
                 fontSize = 20.sp,
@@ -213,12 +250,14 @@ fun OfferBanner(
 
 
             Button(
-                modifier = Modifier.constrainAs(orderButton) {
-                    start.linkTo(offerImage.end)
-                    end.linkTo(parent.end)
-                    top.linkTo(descriptionText.bottom)
-                    bottom.linkTo(parent.bottom)
-                }.height(35.dp),
+                modifier = Modifier
+                    .constrainAs(orderButton) {
+                        start.linkTo(offerImage.end)
+                        end.linkTo(parent.end)
+                        top.linkTo(descriptionText.bottom)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .height(35.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Dark_Yellow,
                     contentColor = White
@@ -231,11 +270,36 @@ fun OfferBanner(
                 Text(
                     text = buttonText,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 14.sp
                 )
             }
         }
     }
+}
+
+@Composable
+fun Title(
+    @StringRes id: Int,
+    modifier: Modifier
+) {
+    Text(
+        modifier = modifier,
+        text = stringResource(id),
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+    )
+}
+
+@Composable
+fun SubTitle(
+    @StringRes id: Int,
+    modifier: Modifier
+) {
+    Text(
+        modifier = modifier,
+        text = stringResource(id),
+        fontSize = 14.sp
+    )
 }
 
 

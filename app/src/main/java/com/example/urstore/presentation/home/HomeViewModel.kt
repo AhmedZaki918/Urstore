@@ -3,6 +3,7 @@ package com.example.urstore.presentation.home
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.homeCategoriesDummy
+import com.example.urstore.util.homePopularDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,7 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
 
     init {
         displayCategories()
+        displayPopular()
     }
 
 
@@ -33,6 +35,16 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
             _uiState.update {
                 it.copy(
                     homeCategories = homeCategoriesDummy()
+                )
+            }
+        }
+    }
+
+    private fun displayPopular() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    homePopular = homePopularDummy()
                 )
             }
         }

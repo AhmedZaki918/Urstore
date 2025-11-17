@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.home
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -9,8 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.urstore.R
@@ -39,6 +41,9 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.SearchBar
+import com.example.urstore.util.SubTitle
+import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Preview(showBackground = true)
 @Composable
@@ -47,22 +52,37 @@ fun HomeScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
 
-    LazyColumn(
+    LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
             .background(Beige),
-        contentPadding = PaddingValues(bottom = 80.dp)
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(bottom = 130.dp)
     ) {
-        item {
-            HomeHeader()
-            HomeCategoryUi(
-                categories = uiState.homeCategories,
-                onItemClicked = { id ->
-                    viewModel.onIntent(
-                        HomeIntent.OnCategoryClicked(id)
-                    )
-                }
-            )
+
+        item(
+            span = {
+                GridItemSpan(maxCurrentLineSpan)
+            }
+        ) {
+            Column(modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()) {
+                HomeHeader()
+                HomeCategoryUi(
+                    categories = uiState.homeCategories,
+                    onItemClicked = { id ->
+                        viewModel.onIntent(
+                            HomeIntent.OnCategoryClicked(id)
+                        )
+                    }
+                )
+                HomePopular()
+            }
+        }
+
+        items(uiState.homePopular) { popularItem ->
+            ListItemPopular(currentItem = popularItem)
         }
     }
 }
@@ -83,11 +103,7 @@ fun HomeHeader() {
             },
             icon = R.drawable.bell_icon,
             onClicked = {
-                Toast.makeText(
-                    context,
-                    "Notification Pressed",
-                    Toast.LENGTH_SHORT
-                ).show()
+                context.toast(message = "Notification Pressed")
             }
         )
 
@@ -99,11 +115,7 @@ fun HomeHeader() {
             icon = R.drawable.settings,
             iconPadding = 11.dp,
             onClicked = {
-                Toast.makeText(
-                    context,
-                    "Settings Pressed",
-                    Toast.LENGTH_SHORT
-                ).show()
+                context.toast(message = "Settings Pressed")
             }
         )
 
@@ -119,7 +131,7 @@ fun HomeHeader() {
         )
 
         Text(
-            text = "Tina Anderson",
+            text = stringResource(R.string.user_name),
             color = Black,
             fontWeight = FontWeight.Medium,
             modifier = Modifier
@@ -154,20 +166,15 @@ fun HomeHeader() {
                 .constrainAs(offerImage) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(searchBar.bottom, SMALL_MARGIN)
+                    top.linkTo(searchBar.bottom)
                 },
             image = R.drawable.cup,
             title = "Coffee Order Time 8:00 am - 3:00 pm",
             description = "Buy one,Get one for Free",
-            buttonText = "Order Now",
+            buttonText = stringResource(R.string.order_now),
             onBannerClicked = {
-                Toast.makeText(
-                    context,
-                    "Order Pressed",
-                    Toast.LENGTH_SHORT
-                ).show()
+                context.toast(message = "Order Pressed")
             }
-
         )
     }
 }
@@ -178,20 +185,21 @@ fun HomeCategoryUi(
     onItemClicked: (Int) -> Unit
 ) {
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()) {
 
-        Text(
+        Title(
             modifier = Modifier.padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
-            text = "Category",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            id = R.string.category,
         )
+
 
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN)
+                .padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN)
         ) {
             items(categories) { category ->
                 ListItemCategory(
@@ -202,5 +210,35 @@ fun HomeCategoryUi(
                 )
             }
         }
+    }
+}
+
+
+@Composable
+fun HomePopular() {
+
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (titleText, subTitleText, popularLazyRow) = createRefs()
+
+        Title(
+            modifier = Modifier
+                .constrainAs(titleText) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+                .padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
+            id = R.string.popular_coffees,
+        )
+
+        SubTitle(
+            modifier = Modifier
+                .constrainAs(subTitleText) {
+                    top.linkTo(titleText.top)
+                    bottom.linkTo(titleText.bottom)
+                    end.linkTo(parent.end)
+                }
+                .padding(end = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
+            id = R.string.see_all,
+        )
     }
 }
