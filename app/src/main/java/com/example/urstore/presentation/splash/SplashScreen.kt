@@ -23,7 +23,6 @@ import com.example.urstore.ui.theme.stashFont
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-
     Box(modifier = Modifier.fillMaxSize()) {
 
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -67,7 +66,7 @@ fun SplashScreen(navController: NavHostController) {
                 modifier = Modifier
                     .constrainAs(getStartedButton) {
                         end.linkTo(parent.end, CUSTOM_MARGIN)
-                        top.linkTo(titleText.bottom,CUSTOM_MARGIN)
+                        top.linkTo(titleText.bottom, CUSTOM_MARGIN)
                     }
                     .clickable {
                         navController.navigate(Screen.HOME_SCREEN.route)

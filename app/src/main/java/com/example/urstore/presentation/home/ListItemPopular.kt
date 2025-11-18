@@ -1,6 +1,7 @@
 package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.data.model.HomePopular
-import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
@@ -44,16 +46,23 @@ fun ListItemPopular(currentItem: HomePopular) {
                 .fillMaxWidth()
                 .height(230.dp)
                 .padding(top = 60.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Brown
-            ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 8.dp
             ),
             shape = RoundedCornerShape(MEDIUM_MARGIN)
         ) {
 
-            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            ConstraintLayout(modifier = Modifier.fillMaxSize()
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFFA86229), // Lighter (left)
+                            Color(0xFF7C4617), // Base
+                            Color(0xFF5A300F)  // Darker (right)
+                        )
+                    )
+
+            )) {
                 val (titleText, descriptionText, priceText, addButton) = createRefs()
 
                 Text(
