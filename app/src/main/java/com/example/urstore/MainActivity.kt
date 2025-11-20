@@ -35,6 +35,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.urstore.data.local.Constants.PRODUCT_ID
 import com.example.urstore.presentation.navigation.BottomBarScreen
 import com.example.urstore.presentation.navigation.NavGraph
 import com.example.urstore.presentation.navigation.Screen
@@ -59,8 +60,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainUi() {
     val navController = rememberNavController()
-    val startDestination = Screen.SPLASH_SCREEN.route
-    //val startDestination = Screen.HOME_SCREEN.route
+    //val startDestination = Screen.SPLASH_SCREEN.route
+    val startDestination = Screen.HOME_SCREEN.route
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
@@ -90,6 +91,7 @@ fun BottomBar(navController: NavHostController) {
 
     bottomBarState = when (currentDestination?.route) {
         Screen.SPLASH_SCREEN.route -> false
+        "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}" -> false
         else -> true
     }
 

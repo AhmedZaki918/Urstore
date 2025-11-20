@@ -11,4 +11,8 @@
     <string name="profile">Profile</string>
     <string name="popular_coffees">Popular Coffees</string>
     <string name="see_all">See all</string>
+    <string name="espersso">Espersso</string>
+    <string name="coffee_size">Coffee Size</string>
+    <string name="description">Description</string>
+    <string name="add_to_cart">Add to Cart</string>
 </resources>

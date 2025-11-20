@@ -30,6 +30,7 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
         }
     }
 
+
     private fun displayCategories() {
         viewModelScope.launch {
             _uiState.update {

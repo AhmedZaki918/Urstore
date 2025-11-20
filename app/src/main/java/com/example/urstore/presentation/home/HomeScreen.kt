@@ -26,12 +26,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.HomeCategory
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
@@ -45,10 +46,10 @@ import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
 import com.example.urstore.util.toast
 
-@Preview(showBackground = true)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
 
@@ -65,9 +66,11 @@ fun HomeScreen(
                 GridItemSpan(maxCurrentLineSpan)
             }
         ) {
-            Column(modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+            ) {
                 HomeHeader()
                 HomeCategoryUi(
                     categories = uiState.homeCategories,
@@ -77,12 +80,17 @@ fun HomeScreen(
                         )
                     }
                 )
-                HomePopular()
+                HomePopularUi()
             }
         }
 
         items(uiState.homePopular) { popularItem ->
-            ListItemPopular(currentItem = popularItem)
+            ListItemPopular(
+                currentItem = popularItem,
+                onItemClicked = { id ->
+                    navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
+                }
+            )
         }
     }
 }
@@ -185,9 +193,11 @@ fun HomeCategoryUi(
     onItemClicked: (Int) -> Unit
 ) {
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentHeight()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
 
         Title(
             modifier = Modifier.padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
@@ -215,7 +225,7 @@ fun HomeCategoryUi(
 
 
 @Composable
-fun HomePopular() {
+fun HomePopularUi() {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (titleText, subTitleText, popularLazyRow) = createRefs()

@@ -4,6 +4,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,17 +43,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
+import com.example.urstore.data.model.ProductSize
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
+import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
+import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 
 
@@ -59,7 +66,6 @@ fun ButtonShopApp(
     modifier: Modifier,
     label: String,
     isVisible: Boolean = true,
-    shape: Shape = ButtonDefaults.shape,
     onButtonClicked: () -> Unit
 ) {
     if (isVisible) {
@@ -67,18 +73,18 @@ fun ButtonShopApp(
             onClick = {
                 onButtonClicked()
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(LARGE_MARGIN),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red.copy(0.8f),
+                containerColor = Brown,
                 contentColor = Color.White
             ),
             modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .wrapContentWidth()
         ) {
             Text(
-                label.uppercase(),
-                fontWeight = FontWeight.Bold
+                modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
+                text = label,
+                fontSize = 16.sp
             )
         }
     }
@@ -280,12 +286,27 @@ fun OfferBanner(
 @Composable
 fun Title(
     @StringRes id: Int,
-    modifier: Modifier
+    modifier: Modifier,
+    fontSize: TextUnit = 18.sp
 ) {
     Text(
         modifier = modifier,
         text = stringResource(id),
-        fontSize = 18.sp,
+        fontSize = fontSize,
+        fontWeight = FontWeight.Bold,
+    )
+}
+
+@Composable
+fun Title(
+    title: String,
+    modifier: Modifier,
+    fontSize: TextUnit = 18.sp
+) {
+    Text(
+        modifier = modifier,
+        text = title,
+        fontSize = fontSize,
         fontWeight = FontWeight.Bold,
     )
 }
@@ -312,4 +333,83 @@ fun Context.toast(
         message,
         duration
     ).show()
+}
+
+
+@Composable
+fun QtyButton(
+    text: String,
+    onButtonClicked: () -> Unit
+) {
+    Text(
+        modifier = Modifier.clickable {
+            onButtonClicked()
+        },
+        text = text,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    )
+}
+
+@Composable
+fun SizeShape(
+    modifier: Modifier,
+    currentItem: ProductSize,
+    onItemClicked: () -> Unit
+) {
+
+    if (currentItem.isPressed) {
+        Text(
+            modifier = modifier
+                .border(
+                    width = 1.dp,
+                    color = Black,
+                    shape = RoundedCornerShape(CUSTOM_MARGIN)
+                )
+                .padding(vertical = 8.dp)
+                .clickable {
+                    onItemClicked()
+                },
+            text = currentItem.size,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+    } else {
+        Text(
+            modifier = modifier
+                .padding(vertical = 8.dp)
+                .clickable {
+                    onItemClicked()
+                },
+            text = currentItem.size,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+
+@Composable
+fun BackButton(
+    modifier: Modifier,
+    onBackClicked: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .wrapContentSize()
+            .clickable {
+                onBackClicked()
+            },
+    ) {
+        Image(
+            painter = painterResource(R.drawable.outline_arrow_back),
+            contentDescription = ""
+        )
+
+        Text(
+            modifier = Modifier.padding(top = VERY_SMALL_MARGIN),
+            text = "Back",
+            fontSize = 14.sp,
+        )
+    }
 }

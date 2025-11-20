@@ -2,6 +2,7 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,15 +32,19 @@ import com.example.urstore.ui.theme.White
 import com.example.urstore.util.CircleButton
 
 @Composable
-fun ListItemPopular(currentItem: HomePopular) {
-
+fun ListItemPopular(
+    currentItem: HomePopular,
+    onItemClicked: (Int) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = MEDIUM_MARGIN)
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .clickable {
+                onItemClicked(currentItem.id)
+            }
     ) {
-
 
         Card(
             modifier = Modifier
@@ -52,17 +57,20 @@ fun ListItemPopular(currentItem: HomePopular) {
             shape = RoundedCornerShape(MEDIUM_MARGIN)
         ) {
 
-            ConstraintLayout(modifier = Modifier.fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFFA86229), // Lighter (left)
-                            Color(0xFF7C4617), // Base
-                            Color(0xFF5A300F)  // Darker (right)
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xFFA86229), // Lighter (left)
+                                Color(0xFF7C4617), // Base
+                                Color(0xFF5A300F)  // Darker (right)
+                            )
                         )
-                    )
 
-            )) {
+                    )
+            ) {
                 val (titleText, descriptionText, priceText, addButton) = createRefs()
 
                 Text(
@@ -88,7 +96,7 @@ fun ListItemPopular(currentItem: HomePopular) {
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
-                    text = currentItem.description,
+                    text = currentItem.caption,
                     color = White,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
