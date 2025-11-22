@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,19 +79,21 @@ fun HomeScreen(
                         viewModel.onIntent(
                             HomeIntent.OnCategoryClicked(id)
                         )
+                        navController.navigate(Screen.SEE_ALL_SCREEN.route)
                     }
                 )
                 HomePopularUi()
             }
         }
 
-        items(uiState.homePopular) { popularItem ->
-            ListItemPopular(
-                currentItem = popularItem,
-                onItemClicked = { id ->
-                    navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
-                }
-            )
+        itemsIndexed(uiState.homePopular) { index, popularItem ->
+            if (index < 2)
+                ListItemPopular(
+                    currentItem = popularItem,
+                    onItemClicked = { id ->
+                        navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
+                    }
+                )
         }
     }
 }

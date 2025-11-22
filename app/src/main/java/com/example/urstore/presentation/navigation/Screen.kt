@@ -7,5 +7,6 @@ enum class Screen(val route: String) {
     WISHLIST_SCREEN("wishlist_screen"),
     PROFILE_SCREEN("profile_screen"),
     ORDER_SCREEN("order_screen"),
-    DETAIL_SCREEN("detail_screen")
+    DETAIL_SCREEN("detail_screen"),
+    SEE_ALL_SCREEN("see_all_screen")
 }

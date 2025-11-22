@@ -16,6 +16,7 @@ import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
 import com.example.urstore.presentation.order.OrderScreen
 import com.example.urstore.presentation.profile.ProfileScreen
+import com.example.urstore.presentation.see_all.SeeAllScreen
 import com.example.urstore.presentation.splash.SplashScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
 
@@ -52,6 +53,9 @@ fun NavGraph(
             ProfileScreen()
         }
 
+        composable(route = Screen.SEE_ALL_SCREEN.route){
+            SeeAllScreen(navController = navController)
+        }
 
         composable(
             route = "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}",

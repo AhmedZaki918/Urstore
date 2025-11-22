@@ -1,4 +1,4 @@
-package com.example.urstore.presentation.home
+package com.example.urstore.presentation.see_all
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,8 +15,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.data.model.HomePopular
+import com.example.urstore.ui.theme.Black
+import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
@@ -32,14 +32,18 @@ import com.example.urstore.ui.theme.White
 import com.example.urstore.util.CircleButton
 
 @Composable
-fun ListItemPopular(
+fun ListItemSeeAll(
     currentItem: HomePopular,
     onItemClicked: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = MEDIUM_MARGIN)
+            .padding(
+                start = MEDIUM_MARGIN,
+                end = MEDIUM_MARGIN,
+                top = MEDIUM_MARGIN
+            )
             .wrapContentHeight()
             .clickable {
                 onItemClicked(currentItem.id)
@@ -60,16 +64,7 @@ fun ListItemPopular(
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFFA86229), // Lighter (left)
-                                Color(0xFF7C4617), // Base
-                                Color(0xFF5A300F)  // Darker (right)
-                            )
-                        )
-
-                    )
+                    .background(White)
             ) {
                 val (titleText, descriptionText, priceText, addButton) = createRefs()
 
@@ -80,7 +75,6 @@ fun ListItemPopular(
                         top.linkTo(parent.top, 80.dp)
                     },
                     text = currentItem.title,
-                    color = White,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -97,7 +91,6 @@ fun ListItemPopular(
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     text = currentItem.caption,
-                    color = White,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
                 )
@@ -110,7 +103,7 @@ fun ListItemPopular(
                         bottom.linkTo(addButton.bottom)
                     },
                     text = "$${currentItem.price}",
-                    color = White,
+                    color = Dark_Yellow,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -122,7 +115,9 @@ fun ListItemPopular(
                     onClicked = {
 
                     },
-                    text = "+"
+                    text = "+",
+                    containerColor = Black,
+                    contentColor = White
                 )
             }
         }

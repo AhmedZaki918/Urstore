@@ -122,13 +122,15 @@ fun MyFloatingActionButton(
 fun CircleButton(
     modifier: Modifier,
     onClicked: () -> Unit,
-    text: String
+    text: String,
+    containerColor: Color = White,
+    contentColor: Color = Black,
 ) {
     FloatingActionButton(
         modifier = modifier.size(30.dp),
         onClick = onClicked,
-        containerColor = White,
-        contentColor = Black,
+        containerColor = containerColor,
+        contentColor = contentColor,
         shape = CircleShape,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 8.dp,

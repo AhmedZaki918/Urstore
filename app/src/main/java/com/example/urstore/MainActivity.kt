@@ -1,5 +1,6 @@
 package com.example.urstore
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainUi() {
     val navController = rememberNavController()
@@ -72,7 +74,6 @@ fun MainUi() {
         )
     }
 }
-
 
 
 @Composable
@@ -92,6 +93,7 @@ fun BottomBar(navController: NavHostController) {
     bottomBarState = when (currentDestination?.route) {
         Screen.SPLASH_SCREEN.route -> false
         "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}" -> false
+        Screen.SEE_ALL_SCREEN.route -> false
         else -> true
     }
 
