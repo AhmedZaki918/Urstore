@@ -38,7 +38,7 @@ fun NavGraph(
         }
 
         composable(route = Screen.CART_SCREEN.route) {
-            CartScreen()
+            CartScreen(navController = navController)
         }
 
         composable(route = Screen.WISHLIST_SCREEN.route) {

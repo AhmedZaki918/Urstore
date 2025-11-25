@@ -63,7 +63,7 @@ import com.example.urstore.ui.theme.White
 
 @Composable
 fun ButtonShopApp(
-    modifier: Modifier,
+    modifier: Modifier = Modifier.wrapContentWidth(),
     label: String,
     isVisible: Boolean = true,
     onButtonClicked: () -> Unit
@@ -79,7 +79,6 @@ fun ButtonShopApp(
                 contentColor = Color.White
             ),
             modifier = modifier
-                .wrapContentWidth()
         ) {
             Text(
                 modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
@@ -125,15 +124,18 @@ fun CircleButton(
     text: String,
     containerColor: Color = White,
     contentColor: Color = Black,
+    floatingActionSize : Dp = 30.dp,
+    textFontSize : TextUnit = 18.sp,
+    floatingDefaultElevation: Dp = 8.dp,
 ) {
     FloatingActionButton(
-        modifier = modifier.size(30.dp),
+        modifier = modifier.size(floatingActionSize),
         onClick = onClicked,
         containerColor = containerColor,
         contentColor = contentColor,
         shape = CircleShape,
         elevation = FloatingActionButtonDefaults.elevation(
-            defaultElevation = 8.dp,
+            defaultElevation = floatingDefaultElevation,
             pressedElevation = 12.dp
         )
     ) {
@@ -143,7 +145,7 @@ fun CircleButton(
                 .wrapContentHeight(),
             text = text,
             textAlign = TextAlign.Center,
-            fontSize = 18.sp
+            fontSize = textFontSize
         )
     }
 }

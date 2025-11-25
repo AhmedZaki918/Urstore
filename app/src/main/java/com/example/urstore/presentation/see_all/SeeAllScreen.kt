@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -32,6 +33,7 @@ fun SeeAllScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .wrapContentSize()
+            .navigationBarsPadding()
             .background(Beige)
             .padding(top = EXTRA_LARGE_MARGIN),
     ) {
@@ -43,7 +45,7 @@ fun SeeAllScreen(navController: NavHostController) {
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = BIG_MARGIN)
+            contentPadding = PaddingValues(bottom = EXTRA_LARGE_MARGIN)
         ) {
             items(homePopularDummy()) { item ->
                 ListItemSeeAll(

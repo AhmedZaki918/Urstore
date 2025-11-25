@@ -20,3 +20,5 @@ val Dark_Beige = Color(0xFFeeb389)
 
 val Light_Brown = Color(0xFF806b58)
 val Dark_Yellow = Color(0xFFeeb460)
+
+val Very_Light_Beige = Color(0xFFf6f6f5)

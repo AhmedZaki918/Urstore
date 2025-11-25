@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -45,7 +44,6 @@ import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.SearchBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
-import com.example.urstore.util.toast
 
 @Composable
 fun HomeScreen(
@@ -114,7 +112,6 @@ fun HomeHeader() {
             },
             icon = R.drawable.bell_icon,
             onClicked = {
-                context.toast(message = "Notification Pressed")
             }
         )
 
@@ -126,7 +123,6 @@ fun HomeHeader() {
             icon = R.drawable.settings,
             iconPadding = 11.dp,
             onClicked = {
-                context.toast(message = "Settings Pressed")
             }
         )
 
@@ -184,7 +180,6 @@ fun HomeHeader() {
             description = "Buy one,Get one for Free",
             buttonText = stringResource(R.string.order_now),
             onBannerClicked = {
-                context.toast(message = "Order Pressed")
             }
         )
     }

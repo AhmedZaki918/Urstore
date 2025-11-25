@@ -1,11 +1,60 @@
 package com.example.urstore.util
 
 import com.example.urstore.R
+import com.example.urstore.data.model.Cart
 import com.example.urstore.data.model.HomeCategory
 import com.example.urstore.data.model.HomePopular
 import com.example.urstore.data.model.ProductSize
 
 
+fun cartDummy(): List<Cart> {
+    val cartData = ArrayList<Cart>()
+
+    cartData.add(
+        Cart(
+            id = 0,
+            image = R.drawable.drink_1,
+            title = "Cappuccino",
+            caption = "Cappuccino, Milk Foam, Cocoa Powder",
+            description = "Experience the perfect cappuccino in every cup. Bold, rich, and aromatic, our cappuccino is crafted to awaken your senses and give you that instant boost of energy. Whether you’re starting your day or taking a well-deserved break.",
+            unitPrice = 4.5,
+            totalPrice = 9.0,
+            qty = 2,
+            rate = 4.0
+        )
+    )
+
+    cartData.add(
+        Cart(
+            id = 1,
+            image = R.drawable.drink_2,
+            title = "Espresso",
+            caption = "Espresso, Bold, Rich",
+            description = "Experience the perfect espresso in every cup. Bold, Bold, and aromatic, our espresso is crafted to awaken your senses and give you that instant boost of energy",
+            unitPrice = 2.5,
+            totalPrice = 2.5,
+            qty = 1,
+            rate = 4.5
+        ),
+    )
+
+
+    cartData.add(
+        Cart(
+            id = 2,
+            image = R.drawable.drink_3,
+            title = "Pumpkin Latte",
+            caption = "Pumpkin latte, steamed milk, pumpkin spice syrup, cinnamon",
+            description = "Experience the perfect pumpkin latte in every cup. Bold, rich, and aromatic, our perfect pumpkin is crafted to awaken your senses and give you that instant boost of energy. Whether you’re starting your day or taking a well-deserved break.",
+            unitPrice =  5.5,
+            totalPrice = 5.5,
+            qty = 1,
+            rate = 4.6
+        ),
+    )
+
+    return cartData
+}
 fun homePopularDummy(): List<HomePopular> {
     val homePopular = ArrayList<HomePopular>()
 
@@ -85,6 +134,9 @@ fun homePopularDummy(): List<HomePopular> {
     )
     return homePopular
 }
+
+
+
 
 
 fun productSizeDummy(): List<ProductSize> {

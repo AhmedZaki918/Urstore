@@ -12,4 +12,7 @@
     <string name="profile">حسابى</string>
     <string name="popular_coffees">القهوة المفضلة</string>
     <string name="see_all">شاهد الكل</string>
+    <string name="coffee_size">حجم القهوة</string>
+    <string name="description">الوصف</string>
+    <string name="add_to_cart">اضف الى السلة</string>
 </resources>
