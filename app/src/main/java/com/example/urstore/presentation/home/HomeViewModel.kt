@@ -1,7 +1,10 @@
 package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.util.BaseViewModel
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.homeCategoriesDummy
 import com.example.urstore.util.homePopularDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
+class HomeViewModel @Inject constructor(
+    private val cartRepo: CartRepo
+) : BaseViewModel<HomeIntent>() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -25,8 +30,16 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
 
 
     override fun onIntent(intent: HomeIntent) {
-        if (intent is HomeIntent.OnCategoryClicked) {
-            setCategoryActive(intent.id)
+        when (intent) {
+            is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
+            is HomeIntent.AddToCart -> addToCart(intent.item)
+            is HomeIntent.RevertAddedToCartStateToIdle -> {
+                _uiState.update {
+                    it.copy(
+                        addedToCartState = RequestState.IDLE
+                    )
+                }
+            }
         }
     }
 
@@ -62,6 +75,27 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeIntent>() {
                             category.copy(isClicked = false)
                         }
                     })
+            }
+        }
+    }
+
+
+    private fun addToCart(item: HomePopular) {
+        viewModelScope.launch {
+
+            if (!cartRepo.isItemInCart(item.id)) {
+                cartRepo.addToCart(item)
+                _uiState.update {
+                    it.copy(
+                        addedToCartState = RequestState.SUCCESS
+                    )
+                }
+            } else if (cartRepo.isItemInCart(item.id)) {
+                _uiState.update {
+                    it.copy(
+                        addedToCartState = RequestState.ERROR
+                    )
+                }
             }
         }
     }

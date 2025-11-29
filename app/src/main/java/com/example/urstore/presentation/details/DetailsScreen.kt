@@ -49,8 +49,10 @@ import com.example.urstore.ui.theme.White
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.QtyButton
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SizeShape
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Composable
 fun DetailsScreen(
@@ -60,6 +62,16 @@ fun DetailsScreen(
 
     val uiState = viewModel.uiState.collectAsState().value
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    if (uiState.addedToCartState == RequestState.SUCCESS) {
+        context.toast("Added to cart")
+        viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
+
+    } else if (uiState.addedToCartState == RequestState.ERROR) {
+        context.toast("Already Exist")
+        viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
+    }
 
     Column(
         modifier = Modifier
@@ -81,7 +93,12 @@ fun DetailsScreen(
         )
         QtyAndRating(uiState.popularItem)
         Description(uiState.popularItem)
-        AddToCart(uiState.popularItem)
+        AddToCart(
+            popularItem = uiState.popularItem,
+            onAddToCartClicked = {
+                viewModel.onIntent(DetailsIntent.AddToCart(uiState.popularItem))
+            }
+        )
     }
 }
 
@@ -309,7 +326,10 @@ fun Description(popularItem: HomePopular) {
 
 
 @Composable
-fun AddToCart(popularItem: HomePopular) {
+fun AddToCart(
+    popularItem: HomePopular,
+    onAddToCartClicked: () -> Unit
+) {
 
     Row(
         modifier = Modifier
@@ -322,7 +342,9 @@ fun AddToCart(popularItem: HomePopular) {
 
         ButtonShopApp(
             modifier = Modifier.wrapContentSize(),
-            onButtonClicked = {},
+            onButtonClicked = {
+                onAddToCartClicked()
+            },
             label = stringResource(R.string.add_to_cart)
         )
 

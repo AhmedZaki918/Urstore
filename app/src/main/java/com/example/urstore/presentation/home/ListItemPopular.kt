@@ -34,7 +34,8 @@ import com.example.urstore.util.CircleButton
 @Composable
 fun ListItemPopular(
     currentItem: HomePopular,
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (Int) -> Unit,
+    onPlusClicked: (HomePopular) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -120,7 +121,7 @@ fun ListItemPopular(
                         end.linkTo(parent.end, SMALL_MARGIN)
                     },
                     onClicked = {
-
+                        onPlusClicked(currentItem)
                     },
                     text = "+"
                 )

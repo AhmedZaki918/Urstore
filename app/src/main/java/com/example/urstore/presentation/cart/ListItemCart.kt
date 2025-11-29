@@ -31,8 +31,12 @@ import com.example.urstore.util.QtyButton
 
 
 @Composable
-fun ListItemCart(currentItem: Cart) {
-
+fun ListItemCart(
+    currentItem: Cart,
+    onDeleteClicked: (Cart) -> Unit,
+    onIncreaseClicked: (Int) -> Unit,
+    onDecreaseClicked: (Int) -> Unit
+) {
 
     Card(
         modifier = Modifier
@@ -96,6 +100,7 @@ fun ListItemCart(currentItem: Cart) {
                     top.linkTo(parent.top, SMALL_MARGIN)
                 },
                 onClicked = {
+                    onDeleteClicked(currentItem)
                 },
                 text = "x",
                 containerColor = Black,
@@ -123,6 +128,7 @@ fun ListItemCart(currentItem: Cart) {
                 QtyButton(
                     text = "-",
                     onButtonClicked = {
+                        onDecreaseClicked(currentItem.id)
                     })
 
                 Text(
@@ -136,6 +142,7 @@ fun ListItemCart(currentItem: Cart) {
                 QtyButton(
                     text = "+",
                     onButtonClicked = {
+                        onIncreaseClicked(currentItem.id)
                     })
             }
         }

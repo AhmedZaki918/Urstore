@@ -7,7 +7,7 @@ data class Cart(
     val description: String = "",
     val image: Int,
     val unitPrice: Double =0.0,
-    val totalPrice : Double = 0.0,
+    var totalPrice : Double = 0.0,
     val rate : Double = 0.0,
-    val qty : Int = 0
+    var qty : Int = 0
 )

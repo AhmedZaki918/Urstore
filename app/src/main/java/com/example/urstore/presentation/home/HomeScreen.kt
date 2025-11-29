@@ -41,9 +41,11 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.OfferBanner
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SearchBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Composable
 fun HomeScreen(
@@ -51,6 +53,18 @@ fun HomeScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+
+    if (uiState.addedToCartState == RequestState.SUCCESS) {
+        context.toast("Added to cart")
+        viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
+
+    } else if (uiState.addedToCartState == RequestState.ERROR) {
+        context.toast("Already Exist")
+        viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
+    }
+
 
     LazyVerticalGrid(
         modifier = Modifier
@@ -90,6 +104,11 @@ fun HomeScreen(
                     currentItem = popularItem,
                     onItemClicked = { id ->
                         navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
+                    },
+                    onPlusClicked = { product ->
+                        viewModel.onIntent(
+                            HomeIntent.AddToCart(product)
+                        )
                     }
                 )
         }
@@ -99,7 +118,6 @@ fun HomeScreen(
 
 @Composable
 fun HomeHeader() {
-    val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -226,7 +244,7 @@ fun HomeCategoryUi(
 fun HomePopularUi() {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (titleText, subTitleText, popularLazyRow) = createRefs()
+        val (titleText, subTitleText) = createRefs()
 
         Title(
             modifier = Modifier

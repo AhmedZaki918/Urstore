@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
@@ -34,11 +36,15 @@ import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.Very_Light_Beige
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
-import com.example.urstore.util.cartDummy
 
 
 @Composable
-fun CartScreen(navController: NavHostController) {
+fun CartScreen(
+    viewModel: CartViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+
 
     Column(
         modifier = Modifier
@@ -61,12 +67,36 @@ fun CartScreen(navController: NavHostController) {
                     })
             }
 
-            items(cartDummy()) {  item ->
-                ListItemCart(currentItem = item)
+
+            if (uiState.cartItems.isNotEmpty()) {
+                items(uiState.cartItems) { item ->
+                    ListItemCart(
+                        currentItem = item,
+                        onDeleteClicked = {
+                            viewModel.onIntent(
+                                CartIntent.RemoveItem(item)
+                            )
+                        },
+                        onDecreaseClicked = {
+                            viewModel.onIntent(
+                                CartIntent.DecreaseQuantity(item.id)
+                            )
+                        },
+                        onIncreaseClicked = {
+                            viewModel.onIntent(
+                                CartIntent.IncreaseQuantity(item.id)
+                            )
+                        }
+                    )
+                }
             }
+
         }
 
-        CheckoutSection()
+
+        if (uiState.cartItems.isNotEmpty()) {
+            CheckoutSection()
+        }
     }
 }
 
@@ -114,15 +144,13 @@ fun CartHeader(
 @Composable
 fun CheckoutSection() {
 
-
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-
         val (discountRow, checkoutColumn) = createRefs()
 
-
+        // Discount code
         Row(
             modifier = Modifier
-                .constrainAs(discountRow){
+                .constrainAs(discountRow) {
                     bottom.linkTo(checkoutColumn.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -136,7 +164,6 @@ fun CheckoutSection() {
                 .background(Beige),
             Arrangement.SpaceBetween
         ) {
-
             Text(
                 modifier = Modifier.padding(
                     start = MEDIUM_MARGIN,
@@ -153,16 +180,13 @@ fun CheckoutSection() {
                 onButtonClicked = {},
                 label = "Apply"
             )
-
-
         }
 
 
-
-
+        // Checkout
         Column(
             modifier = Modifier
-                .constrainAs(checkoutColumn){
+                .constrainAs(checkoutColumn) {
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -221,7 +245,6 @@ fun CheckoutSection() {
                 label = "Proceed to Checkout"
             )
         }
-
     }
 }
 
@@ -231,7 +254,6 @@ fun CheckoutItem(
     value: String,
     paddingTop: Dp
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
