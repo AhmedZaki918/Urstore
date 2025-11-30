@@ -23,6 +23,7 @@ class CartViewModel @Inject constructor(
 
     init {
         fetchCart()
+        calculateSubTotal()
     }
 
     override fun onIntent(intent: CartIntent) {
@@ -109,6 +110,20 @@ class CartViewModel @Inject constructor(
                 )
             }
             cartRepo.decreaseQuantity(id)
+        }
+    }
+
+    fun calculateSubTotal() {
+        viewModelScope.launch {
+            var updatedSubTotal = 0.0
+            for (item in uiState.value.cartItems) {
+                updatedSubTotal += item.totalPrice
+            }
+            _uiState.update {
+                it.copy(
+                    subtotal = updatedSubTotal
+                )
+            }
         }
     }
 }

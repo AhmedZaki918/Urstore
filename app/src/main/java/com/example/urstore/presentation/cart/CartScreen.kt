@@ -95,7 +95,7 @@ fun CartScreen(
 
 
         if (uiState.cartItems.isNotEmpty()) {
-            CheckoutSection()
+            CheckoutSection(uiState.subtotal)
         }
     }
 }
@@ -142,7 +142,7 @@ fun CartHeader(
 
 
 @Composable
-fun CheckoutSection() {
+fun CheckoutSection(subtotal: Double) {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (discountRow, checkoutColumn) = createRefs()
@@ -200,7 +200,7 @@ fun CheckoutSection() {
 
             CheckoutItem(
                 "Subtotal",
-                "$17",
+                "$$subtotal",
                 EXTRA_LARGE_MARGIN
             )
 
@@ -228,7 +228,7 @@ fun CheckoutSection() {
 
             CheckoutItem(
                 "Total",
-                "$17.1",
+                "$${(subtotal + 0.1)}",
                 0.dp
             )
 
