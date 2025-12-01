@@ -60,7 +60,8 @@ class CartViewModel @Inject constructor(
                         )
                     )
                         .toMutableMap(),
-                    cartItems = updatedCart
+                    cartItems = updatedCart,
+                    subtotal = it.subtotal - cartItem.totalPrice
                 )
             }
 
@@ -70,6 +71,8 @@ class CartViewModel @Inject constructor(
 
     fun increaseQuantity(id: Int) {
         viewModelScope.launch {
+            var unitPrice = 0.0
+
             _uiState.update {
                 it.copy(
                     plusState = it.plusState.plus(Pair(id.toString(), RequestState.LOADING))
@@ -77,13 +80,15 @@ class CartViewModel @Inject constructor(
 
                     cartItems = it.cartItems.map { cartItem ->
                         if (cartItem.id == id) {
+                            unitPrice = cartItem.unitPrice
                             val updatedQty = cartItem.qty + 1
                             cartItem.copy(
                                 qty = updatedQty,
                                 totalPrice = (updatedQty * cartItem.unitPrice)
                             )
                         } else cartItem
-                    }
+                    },
+                    subtotal = it.subtotal + unitPrice
                 )
             }
             cartRepo.increaseQuantity(id)
@@ -92,6 +97,8 @@ class CartViewModel @Inject constructor(
 
     fun decreaseQuantity(id: Int) {
         viewModelScope.launch {
+            var unitPrice = 0.0
+
             _uiState.update {
                 it.copy(
                     minusState = it.minusState.plus(Pair(id.toString(), RequestState.LOADING))
@@ -99,6 +106,7 @@ class CartViewModel @Inject constructor(
 
                     cartItems = it.cartItems.map { cartItem ->
                         if (cartItem.id == id && cartItem.qty > 1) {
+                            unitPrice = cartItem.unitPrice
                             val updatedQty = cartItem.qty - 1
                             cartItem.copy(
                                 qty = updatedQty,
@@ -106,7 +114,8 @@ class CartViewModel @Inject constructor(
 
                             )
                         } else cartItem
-                    }
+                    },
+                    subtotal = it.subtotal - unitPrice
                 )
             }
             cartRepo.decreaseQuantity(id)
