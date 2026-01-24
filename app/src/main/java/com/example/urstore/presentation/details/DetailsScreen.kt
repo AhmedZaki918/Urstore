@@ -59,19 +59,21 @@ fun DetailsScreen(
     navController: NavHostController,
     viewModel: DetailsViewModel
 ) {
-
     val uiState = viewModel.uiState.collectAsState().value
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
-    if (uiState.addedToCartState == RequestState.SUCCESS) {
-        context.toast("Added to cart")
-        viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
+    UpdateAddToCartState(
+        viewModel = viewModel,
+        uiState = uiState,
+        onSuccess = {
+            context.toast(stringResource(R.string.added_to_cart))
+        },
+        onError = {
+            context.toast(stringResource(R.string.already_exist))
+        }
+    )
 
-    } else if (uiState.addedToCartState == RequestState.ERROR) {
-        context.toast("Already Exist")
-        viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
-    }
 
     Column(
         modifier = Modifier
@@ -210,8 +212,6 @@ fun ProductSizeBar(
                     onItemClicked(productSize[2].id)
                 }
             )
-
-
         }
     }
 }
@@ -219,11 +219,9 @@ fun ProductSizeBar(
 
 @Composable
 fun QtyAndRating(popularItem: HomePopular) {
-    val context = LocalContext.current
     var quantityState by remember {
         mutableIntStateOf(1)
     }
-
 
     ConstraintLayout(
         modifier = Modifier
@@ -240,7 +238,7 @@ fun QtyAndRating(popularItem: HomePopular) {
                 top.linkTo(parent.top, SMALL_MARGIN)
             },
             fontWeight = FontWeight.Bold,
-            text = "Qty.",
+            text = stringResource(R.string.qty),
             fontSize = 16.sp
         )
 
@@ -308,7 +306,6 @@ fun QtyAndRating(popularItem: HomePopular) {
 
 @Composable
 fun Description(popularItem: HomePopular) {
-
     Title(
         modifier = Modifier
             .wrapContentSize()
@@ -359,3 +356,18 @@ fun AddToCart(
     }
 }
 
+
+@Composable
+fun UpdateAddToCartState(
+    uiState: DetailsUiState,
+    onSuccess: @Composable () -> Unit,
+    onError: @Composable () -> Unit,
+    viewModel: DetailsViewModel
+) {
+    if (uiState.addedToCartState == RequestState.SUCCESS) {
+        onSuccess.invoke()
+    } else if (uiState.addedToCartState == RequestState.ERROR) {
+        onError.invoke()
+    }
+    viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
+}

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.urstore.R
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -44,7 +46,6 @@ fun CartScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
-
 
     Column(
         modifier = Modifier
@@ -90,7 +91,6 @@ fun CartScreen(
                     )
                 }
             }
-
         }
 
 
@@ -133,7 +133,7 @@ fun CartHeader(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-            text = "Cart",
+            text = stringResource(R.string.cart),
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp
         )
@@ -170,7 +170,7 @@ fun CheckoutSection(subtotal: Double) {
                     top = MEDIUM_MARGIN,
                     bottom = MEDIUM_MARGIN
                 ),
-                text = "Enter Your Discount Code",
+                text = stringResource(R.string.discount_code),
                 fontSize = 12.sp
             )
 
@@ -178,7 +178,7 @@ fun CheckoutSection(subtotal: Double) {
             ButtonShopApp(
                 modifier = Modifier.padding(end = VERY_SMALL_MARGIN),
                 onButtonClicked = {},
-                label = "Apply"
+                label = stringResource(R.string.apply)
             )
         }
 
@@ -199,19 +199,19 @@ fun CheckoutSection(subtotal: Double) {
         ) {
 
             CheckoutItem(
-                "Subtotal",
+                stringResource(R.string.subtotal),
                 "$$subtotal",
                 EXTRA_LARGE_MARGIN
             )
 
             CheckoutItem(
-                "Delivery",
+                stringResource(R.string.delivery),
                 "$0.0",
                 MEDIUM_MARGIN
             )
 
             CheckoutItem(
-                "Total Tax",
+                stringResource(R.string.total_tax),
                 "$0.1",
                 MEDIUM_MARGIN
             )
@@ -227,7 +227,7 @@ fun CheckoutSection(subtotal: Double) {
 
 
             CheckoutItem(
-                "Total",
+                stringResource(R.string.total),
                 "$${(subtotal + 0.1)}",
                 0.dp
             )
@@ -242,7 +242,7 @@ fun CheckoutSection(subtotal: Double) {
                         end = MEDIUM_MARGIN
                     ),
                 onButtonClicked = {},
-                label = "Proceed to Checkout"
+                label = stringResource(R.string.proceed_to_checkout)
             )
         }
     }

@@ -55,15 +55,16 @@ fun HomeScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
 
-
-    if (uiState.addedToCartState == RequestState.SUCCESS) {
-        context.toast("Added to cart")
-        viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
-
-    } else if (uiState.addedToCartState == RequestState.ERROR) {
-        context.toast("Already Exist")
-        viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
-    }
+    UpdateAddToCartState(
+        viewModel = viewModel,
+        uiState = uiState,
+        onSuccess = {
+            context.toast(stringResource(R.string.added_to_cart))
+        },
+        onError = {
+            context.toast(stringResource(R.string.already_exist))
+        }
+    )
 
 
     LazyVerticalGrid(
@@ -267,4 +268,19 @@ fun HomePopularUi() {
             id = R.string.see_all,
         )
     }
+}
+
+@Composable
+fun UpdateAddToCartState(
+    uiState: HomeUiState,
+    onSuccess: @Composable () -> Unit,
+    onError: @Composable () -> Unit,
+    viewModel: HomeViewModel
+) {
+    if (uiState.addedToCartState == RequestState.SUCCESS) {
+        onSuccess.invoke()
+    } else if (uiState.addedToCartState == RequestState.ERROR) {
+        onError.invoke()
+    }
+    viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
 }
