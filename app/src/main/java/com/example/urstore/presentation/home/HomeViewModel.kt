@@ -1,12 +1,13 @@
 package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.homeCategoriesDummy
-import com.example.urstore.util.homePopularDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val cartRepo: CartRepo
+    private val cartRepo: CartRepo,
+    private val homeRepo: HomeRepo
 ) : BaseViewModel<HomeIntent>() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -56,10 +58,23 @@ class HomeViewModel @Inject constructor(
 
     private fun displayPopular() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    homePopular = homePopularDummy()
-                )
+            initLoading()
+            val homeResponse = homeRepo.getAllDrinks()
+
+            if (homeResponse is Resource.Success) {
+                _uiState.update {
+                    it.copy(
+                        popularResponse = homeResponse.data,
+                        homeState = RequestState.SUCCESS
+                    )
+                }
+
+            } else {
+                _uiState.update {
+                    it.copy(
+                        homeState = RequestState.ERROR
+                    )
+                }
             }
         }
     }
@@ -80,7 +95,7 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    private fun addToCart(item: HomePopular) {
+    private fun addToCart(item: DrinksDataDto) {
         viewModelScope.launch {
 
             if (!cartRepo.isItemInCart(item.id)) {
@@ -97,6 +112,14 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun initLoading() {
+        _uiState.update {
+            it.copy(
+                homeState = RequestState.LOADING
+            )
         }
     }
 }

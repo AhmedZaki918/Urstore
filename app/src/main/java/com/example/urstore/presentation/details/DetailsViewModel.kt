@@ -1,9 +1,8 @@
 package com.example.urstore.presentation.details
 
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.repository.CartRepo
-import com.example.urstore.presentation.home.HomeIntent
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.homePopularDummy
@@ -83,7 +82,7 @@ class DetailsViewModel @Inject constructor(
     }
 
 
-    private fun addToCart(item: HomePopular) {
+    private fun addToCart(item: DrinksDataDto) {
         viewModelScope.launch {
 
             if (!cartRepo.isItemInCart(item.id)) {

@@ -2,6 +2,7 @@ package com.example.urstore.presentation.cart
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -28,6 +30,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
+import com.example.urstore.data.model.Cart
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -52,50 +55,52 @@ fun CartScreen(
             .fillMaxSize()
             .navigationBarsPadding()
             .background(Very_Light_Beige)
+            .padding(top = EXTRA_LARGE_MARGIN)
     ) {
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight(0.60f)
-                .fillMaxWidth()
-                .padding(top = EXTRA_LARGE_MARGIN, bottom = LARGE_MARGIN)
-
-        ) {
-            item {
-                CartHeader(
-                    onBackClicked = {
-                        navController.popBackStack()
-                    })
+        CartHeader(
+            onBackClicked = {
+                navController.popBackStack()
             }
+        )
+        EmptyCart(uiState.cartItems)
+        CartItems(uiState.cartItems, viewModel)
+        CheckoutSection(uiState)
+    }
+}
 
 
-            if (uiState.cartItems.isNotEmpty()) {
-                items(uiState.cartItems) { item ->
-                    ListItemCart(
-                        currentItem = item,
-                        onDeleteClicked = {
-                            viewModel.onIntent(
-                                CartIntent.RemoveItem(item)
-                            )
-                        },
-                        onDecreaseClicked = {
-                            viewModel.onIntent(
-                                CartIntent.DecreaseQuantity(item.id)
-                            )
-                        },
-                        onIncreaseClicked = {
-                            viewModel.onIntent(
-                                CartIntent.IncreaseQuantity(item.id)
-                            )
-                        }
-                    )
-                }
+@Composable
+fun CartItems(
+    cartContent: List<Cart>,
+    viewModel: CartViewModel
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxHeight(0.60f)
+            .fillMaxWidth()
+            .padding(bottom = LARGE_MARGIN)
+    ) {
+        if (cartContent.isNotEmpty()) {
+            items(cartContent) { item ->
+                ListItemCart(
+                    currentItem = item,
+                    onDeleteClicked = {
+                        viewModel.onIntent(
+                            CartIntent.RemoveItem(item)
+                        )
+                    },
+                    onDecreaseClicked = {
+                        viewModel.onIntent(
+                            CartIntent.DecreaseQuantity(item.id)
+                        )
+                    },
+                    onIncreaseClicked = {
+                        viewModel.onIntent(
+                            CartIntent.IncreaseQuantity(item.id)
+                        )
+                    }
+                )
             }
-        }
-
-
-        if (uiState.cartItems.isNotEmpty()) {
-            CheckoutSection(uiState.subtotal)
         }
     }
 }
@@ -142,108 +147,110 @@ fun CartHeader(
 
 
 @Composable
-fun CheckoutSection(subtotal: Double) {
+fun CheckoutSection(uiState: CartUiState) {
 
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (discountRow, checkoutColumn) = createRefs()
+    if (uiState.cartItems.isNotEmpty()) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (discountRow, checkoutColumn) = createRefs()
 
-        // Discount code
-        Row(
-            modifier = Modifier
-                .constrainAs(discountRow) {
-                    bottom.linkTo(checkoutColumn.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(
-                    horizontal = MEDIUM_MARGIN
-                )
-                .clip(RoundedCornerShape(LARGE_MARGIN))
-                .background(Beige),
-            Arrangement.SpaceBetween
-        ) {
-            Text(
-                modifier = Modifier.padding(
-                    start = MEDIUM_MARGIN,
-                    top = MEDIUM_MARGIN,
-                    bottom = MEDIUM_MARGIN
-                ),
-                text = stringResource(R.string.discount_code),
-                fontSize = 12.sp
-            )
-
-
-            ButtonShopApp(
-                modifier = Modifier.padding(end = VERY_SMALL_MARGIN),
-                onButtonClicked = {},
-                label = stringResource(R.string.apply)
-            )
-        }
-
-
-        // Checkout
-        Column(
-            modifier = Modifier
-                .constrainAs(checkoutColumn) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = MEDIUM_MARGIN)
-                .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
-                .background(Beige)
-        ) {
-
-            CheckoutItem(
-                stringResource(R.string.subtotal),
-                "$$subtotal",
-                EXTRA_LARGE_MARGIN
-            )
-
-            CheckoutItem(
-                stringResource(R.string.delivery),
-                "$0.0",
-                MEDIUM_MARGIN
-            )
-
-            CheckoutItem(
-                stringResource(R.string.total_tax),
-                "$0.1",
-                MEDIUM_MARGIN
-            )
-
-
-            HorizontalDivider(
+            // Discount code
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
-                thickness = 1.dp,
-                color = Black
-            )
-
-
-            CheckoutItem(
-                stringResource(R.string.total),
-                "$${(subtotal + 0.1)}",
-                0.dp
-            )
-
-            ButtonShopApp(
-                modifier = Modifier
+                    .constrainAs(discountRow) {
+                        bottom.linkTo(checkoutColumn.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(
-                        top = CUSTOM_MARGIN,
+                        horizontal = MEDIUM_MARGIN
+                    )
+                    .clip(RoundedCornerShape(LARGE_MARGIN))
+                    .background(Beige),
+                Arrangement.SpaceBetween
+            ) {
+                Text(
+                    modifier = Modifier.padding(
                         start = MEDIUM_MARGIN,
-                        end = MEDIUM_MARGIN
+                        top = MEDIUM_MARGIN,
+                        bottom = MEDIUM_MARGIN
                     ),
-                onButtonClicked = {},
-                label = stringResource(R.string.proceed_to_checkout)
-            )
+                    text = stringResource(R.string.discount_code),
+                    fontSize = 12.sp
+                )
+
+
+                ButtonShopApp(
+                    modifier = Modifier.padding(end = VERY_SMALL_MARGIN),
+                    onButtonClicked = {},
+                    label = stringResource(R.string.apply)
+                )
+            }
+
+
+            // Checkout
+            Column(
+                modifier = Modifier
+                    .constrainAs(checkoutColumn) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = MEDIUM_MARGIN)
+                    .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+                    .background(Beige)
+            ) {
+
+                CheckoutItem(
+                    stringResource(R.string.subtotal),
+                    "$${uiState.subtotal}",
+                    EXTRA_LARGE_MARGIN
+                )
+
+                CheckoutItem(
+                    stringResource(R.string.delivery),
+                    "$0.0",
+                    MEDIUM_MARGIN
+                )
+
+                CheckoutItem(
+                    stringResource(R.string.total_tax),
+                    "$0.1",
+                    MEDIUM_MARGIN
+                )
+
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
+                    thickness = 1.dp,
+                    color = Black
+                )
+
+
+                CheckoutItem(
+                    stringResource(R.string.total),
+                    "$${(uiState.subtotal + 0.1)}",
+                    0.dp
+                )
+
+                ButtonShopApp(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            top = CUSTOM_MARGIN,
+                            start = MEDIUM_MARGIN,
+                            end = MEDIUM_MARGIN
+                        ),
+                    onButtonClicked = {},
+                    label = stringResource(R.string.proceed_to_checkout)
+                )
+            }
         }
     }
 }
@@ -272,5 +279,21 @@ fun CheckoutItem(
             text = value,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+
+@Composable
+fun EmptyCart(cartItems: List<Cart>) {
+    if (cartItems.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_data_found),
+                fontSize = 16.sp
+            )
+        }
     }
 }

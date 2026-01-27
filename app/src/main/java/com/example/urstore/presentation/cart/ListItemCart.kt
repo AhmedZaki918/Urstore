@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.cart
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
@@ -13,12 +12,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.urstore.R
+import coil.compose.AsyncImage
 import com.example.urstore.data.model.Cart
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -52,7 +50,9 @@ fun ListItemCart(
         ) {
             val (productImage, titleText, unitPriceText, totalPriceText, deleteButton, qtyRow) = createRefs()
 
-            Image(
+
+            AsyncImage(
+                model = currentItem.image,
                 modifier = Modifier
                     .constrainAs(productImage) {
                         start.linkTo(parent.start, SMALL_MARGIN)
@@ -60,8 +60,7 @@ fun ListItemCart(
                         bottom.linkTo(parent.bottom)
                     }
                     .padding(vertical = SMALL_MARGIN),
-                contentDescription = "",
-                painter = painterResource(currentItem.image)
+                contentDescription = ""
             )
 
             Text(

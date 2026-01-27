@@ -98,7 +98,7 @@ fun DetailsScreen(
         AddToCart(
             popularItem = uiState.popularItem,
             onAddToCartClicked = {
-                viewModel.onIntent(DetailsIntent.AddToCart(uiState.popularItem))
+                //viewModel.onIntent(DetailsIntent.AddToCart(uiState.popularItem))
             }
         )
     }

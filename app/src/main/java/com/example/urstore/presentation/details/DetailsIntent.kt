@@ -1,7 +1,6 @@
 package com.example.urstore.presentation.details
 
-import com.example.urstore.data.model.HomePopular
-import com.example.urstore.presentation.home.HomeIntent
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 
 sealed class DetailsIntent {
     data class OnSizeClicked(
@@ -13,7 +12,7 @@ sealed class DetailsIntent {
     ) : DetailsIntent()
 
     data class AddToCart(
-        val item: HomePopular
+        val item: DrinksDataDto
     ) : DetailsIntent()
 
     object RevertAddedToCartStateToIdle : DetailsIntent()

@@ -71,7 +71,7 @@ class CartViewModel @Inject constructor(
 
     fun increaseQuantity(id: Int) {
         viewModelScope.launch {
-            var unitPrice = 0.0
+            var unitPrice = 0
 
             _uiState.update {
                 it.copy(
@@ -97,7 +97,7 @@ class CartViewModel @Inject constructor(
 
     fun decreaseQuantity(id: Int) {
         viewModelScope.launch {
-            var unitPrice = 0.0
+            var unitPrice = 0
 
             _uiState.update {
                 it.copy(

@@ -1,15 +1,15 @@
 package com.example.urstore.data.repository
 
 import com.example.urstore.data.model.Cart
-import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 
 class CartRepo {
     val cartData = ArrayList<Cart>()
 
-    fun addToCart(item: HomePopular) {
+    fun addToCart(item: DrinksDataDto) {
         cartData.add(
             Cart(
-                image = item.image,
+                image = item.imageName,
                 qty = 1,
                 unitPrice = item.price,
                 totalPrice = item.price,
@@ -17,7 +17,7 @@ class CartRepo {
                 title = item.title,
                 rate = item.rate,
                 description = item.description,
-                caption = item.caption
+                caption = ""
             )
         )
     }
@@ -67,8 +67,8 @@ class CartRepo {
 
     private fun calculateTotalPricePerItem(
         qty: Int,
-        unitPrice: Double
-    ): Double {
+        unitPrice: Int
+    ): Int {
         return (qty * unitPrice)
     }
 }

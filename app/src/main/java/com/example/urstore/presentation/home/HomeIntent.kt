@@ -1,6 +1,6 @@
 package com.example.urstore.presentation.home
 
-import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 
 sealed class HomeIntent {
     data class OnCategoryClicked(
@@ -8,7 +8,7 @@ sealed class HomeIntent {
     ) : HomeIntent()
 
     data class AddToCart(
-        val item: HomePopular
+        val item: DrinksDataDto
     ) : HomeIntent()
 
     object RevertAddedToCartStateToIdle : HomeIntent()
