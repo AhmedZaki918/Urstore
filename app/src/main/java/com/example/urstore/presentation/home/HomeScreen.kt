@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
@@ -31,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.HomeCategory
@@ -52,7 +52,7 @@ import com.example.urstore.util.toast
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel,
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -69,7 +69,6 @@ fun HomeScreen(
         }
     )
 
-
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
@@ -79,9 +78,7 @@ fun HomeScreen(
     ) {
 
         item(
-            span = {
-                GridItemSpan(maxCurrentLineSpan)
-            }
+            span = { GridItemSpan(maxCurrentLineSpan) }
         ) {
             Column(
                 modifier = Modifier
@@ -98,43 +95,58 @@ fun HomeScreen(
                         navController.navigate(Screen.SEE_ALL_SCREEN.route)
                     }
                 )
-                HomePopularUi()
+                PopularTitle()
             }
         }
 
-        // Popular Coffees
-        when (uiState.homeState) {
-            RequestState.SUCCESS -> {
-                itemsIndexed(uiState.popularResponse.data) { index, popularItem ->
-                    if (index < 2)
-                        ListItemPopular(
-                            currentItem = popularItem,
-                            onItemClicked = { id ->
-                                navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
-                            },
-                            onPlusClicked = { product ->
-                                viewModel.onIntent(
-                                    HomeIntent.AddToCart(product)
-                                )
-                            }
-                        )
-                }
-            }
+        popularCoffees(
+            uiState,
+            viewModel,
+            navController
+        )
+    }
+}
 
-            RequestState.ERROR -> {
-                item(
-                    span = { GridItemSpan(maxCurrentLineSpan) }
-                ) { ErrorUi() }
-            }
 
-            RequestState.LOADING -> {
-                item(
-                    span = { GridItemSpan(maxCurrentLineSpan) }
-                ) { LoadingIndicator() }
+fun LazyGridScope.popularCoffees(
+    uiState: HomeUiState,
+    viewModel: HomeViewModel,
+    navController: NavHostController
+) {
+    when (uiState.homeState) {
+        RequestState.SUCCESS -> {
+            itemsIndexed(uiState.popularResponse.data) { index, popularItem ->
+                if (index < 2)
+                    ListItemPopular(
+                        currentItem = popularItem,
+                        onItemClicked = {
+                            viewModel.onIntent(
+                                HomeIntent.OnPopularClicked(popularItem)
+                            )
+                            navController.navigate(Screen.DETAIL_SCREEN.route)
+                        },
+                        onPlusClicked = { product ->
+                            viewModel.onIntent(
+                                HomeIntent.AddToCart(product)
+                            )
+                        }
+                    )
             }
-
-            else -> Unit
         }
+
+        RequestState.ERROR -> {
+            item(
+                span = { GridItemSpan(maxCurrentLineSpan) }
+            ) { ErrorUi() }
+        }
+
+        RequestState.LOADING -> {
+            item(
+                span = { GridItemSpan(maxCurrentLineSpan) }
+            ) { LoadingIndicator() }
+        }
+
+        else -> Unit
     }
 }
 
@@ -264,7 +276,7 @@ fun HomeCategoryUi(
 
 
 @Composable
-fun HomePopularUi() {
+fun PopularTitle() {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (titleText, subTitleText) = createRefs()

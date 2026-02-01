@@ -14,6 +14,7 @@ import com.example.urstore.presentation.details.DetailsIntent
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
+import com.example.urstore.presentation.home.HomeViewModel
 import com.example.urstore.presentation.order.OrderScreen
 import com.example.urstore.presentation.profile.ProfileScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
@@ -22,15 +23,19 @@ import com.example.urstore.presentation.wishlist.WishlistScreen
 
 @Composable
 fun NavGraph(
+    homeViewModel: HomeViewModel = hiltViewModel(),
     currentDest: String,
-    navController: NavHostController,
+    navController: NavHostController
 ) {
+
     NavHost(
         navController = navController,
         startDestination = currentDest
     ) {
         composable(route = Screen.HOME_SCREEN.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(
+                viewModel = homeViewModel,
+                navController = navController)
         }
 
         composable(route = Screen.SPLASH_SCREEN.route) {
@@ -53,30 +58,18 @@ fun NavGraph(
             ProfileScreen()
         }
 
-        composable(route = Screen.SEE_ALL_SCREEN.route){
+        composable(route = Screen.SEE_ALL_SCREEN.route) {
             SeeAllScreen(navController = navController)
         }
 
         composable(
-            route = "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}",
-            arguments = listOf(
-                navArgument(name = PRODUCT_ID) {
-                    type = NavType.IntType
-                }
-            )
+            route = Screen.DETAIL_SCREEN.route
         ) {
             val viewModel: DetailsViewModel = hiltViewModel()
-            val productId = it.arguments?.getInt(PRODUCT_ID)
-
-            if (productId != null) {
-                LaunchedEffect(true) {
-                    viewModel.onIntent(DetailsIntent.DisplayProductDetails(productId))
-                }
-            }
-
             DetailsScreen(
-                viewModel = viewModel,
-                navController = navController,
+                homeViewModel = homeViewModel,
+                detailsViewModel = viewModel,
+                navController = navController
             )
         }
     }

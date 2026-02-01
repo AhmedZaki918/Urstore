@@ -36,9 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.urstore.R
-import com.example.urstore.data.model.HomePopular
+import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.ProductSize
+import com.example.urstore.presentation.home.HomeViewModel
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -56,15 +58,17 @@ import com.example.urstore.util.toast
 
 @Composable
 fun DetailsScreen(
-    navController: NavHostController,
-    viewModel: DetailsViewModel
+    homeViewModel: HomeViewModel ,
+    detailsViewModel: DetailsViewModel,
+    navController: NavHostController
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState = detailsViewModel.uiState.collectAsState().value
+    val product = homeViewModel.uiState.collectAsState().value.itemDetails
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
     UpdateAddToCartState(
-        viewModel = viewModel,
+        viewModel = detailsViewModel,
         uiState = uiState,
         onSuccess = {
             context.toast(stringResource(R.string.added_to_cart))
@@ -83,20 +87,20 @@ fun DetailsScreen(
     ) {
         DetailsHeader(
             navController,
-            uiState.popularItem
+            product
         )
         ProductSizeBar(
             uiState.productSize,
             onItemClicked = {
-                viewModel.onIntent(
+                detailsViewModel.onIntent(
                     DetailsIntent.OnSizeClicked(it)
                 )
             }
         )
-        QtyAndRating(uiState.popularItem)
-        Description(uiState.popularItem)
+        QtyAndRating(product)
+        Description(product)
         AddToCart(
-            popularItem = uiState.popularItem,
+            popularItem = product,
             onAddToCartClicked = {
                 //viewModel.onIntent(DetailsIntent.AddToCart(uiState.popularItem))
             }
@@ -106,7 +110,10 @@ fun DetailsScreen(
 
 
 @Composable
-fun DetailsHeader(navController: NavHostController, popularItem: HomePopular) {
+fun DetailsHeader(
+    navController: NavHostController,
+    productDetails: ItemDetails
+) {
 
     ConstraintLayout(
         modifier = Modifier
@@ -141,15 +148,16 @@ fun DetailsHeader(navController: NavHostController, popularItem: HomePopular) {
         }
 
 
-        Image(
+        AsyncImage(
+            model = productDetails.imageName,
+            contentDescription = "",
             modifier = Modifier.constrainAs(productImage) {
                 top.linkTo(parent.top, BIG_MARGIN)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            painter = painterResource(id = popularItem.image),
-            contentDescription = ""
         )
+
 
         Title(
             modifier = Modifier.constrainAs(tileText) {
@@ -157,7 +165,7 @@ fun DetailsHeader(navController: NavHostController, popularItem: HomePopular) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            title = popularItem.title,
+            title = productDetails.title,
             fontSize = 24.sp
         )
     }
@@ -218,7 +226,7 @@ fun ProductSizeBar(
 
 
 @Composable
-fun QtyAndRating(popularItem: HomePopular) {
+fun QtyAndRating(popularItem: ItemDetails) {
     var quantityState by remember {
         mutableIntStateOf(1)
     }
@@ -305,7 +313,7 @@ fun QtyAndRating(popularItem: HomePopular) {
 }
 
 @Composable
-fun Description(popularItem: HomePopular) {
+fun Description(popularItem: ItemDetails) {
     Title(
         modifier = Modifier
             .wrapContentSize()
@@ -324,7 +332,7 @@ fun Description(popularItem: HomePopular) {
 
 @Composable
 fun AddToCart(
-    popularItem: HomePopular,
+    popularItem: ItemDetails,
     onAddToCartClicked: () -> Unit
 ) {
 

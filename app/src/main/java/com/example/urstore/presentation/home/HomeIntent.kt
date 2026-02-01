@@ -11,5 +11,9 @@ sealed class HomeIntent {
         val item: DrinksDataDto
     ) : HomeIntent()
 
+    data class OnPopularClicked(
+        val item: DrinksDataDto
+    ): HomeIntent()
+
     object RevertAddedToCartStateToIdle : HomeIntent()
 }

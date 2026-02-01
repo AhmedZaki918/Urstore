@@ -5,3 +5,12 @@ data class ProductSize(
     val id: Int = 0,
     val size: String = ""
 )
+
+data class ItemDetails(
+    val description: String = "",
+    val id: Int = 0,
+    val imageName: String = "",
+    val price: Int = 0,
+    val rate: Double = 0.0,
+    val title: String = ""
+)

@@ -5,7 +5,6 @@ import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.homePopularDummy
 import com.example.urstore.util.productSizeDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +30,6 @@ class DetailsViewModel @Inject constructor(
     override fun onIntent(intent: DetailsIntent) {
         when (intent) {
             is DetailsIntent.OnSizeClicked -> setSizeActive(intent.id)
-            is DetailsIntent.DisplayProductDetails -> displayProductDetails(intent.id)
             is DetailsIntent.AddToCart -> addToCart(intent.item)
             is DetailsIntent.RevertAddedToCartStateToIdle -> {
                 _uiState.update {
@@ -39,17 +37,6 @@ class DetailsViewModel @Inject constructor(
                         addedToCartState = RequestState.IDLE
                     )
                 }
-            }
-        }
-    }
-
-
-    private fun displayProductDetails(id: Int) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    popularItem = homePopularDummy()[id]
-                )
             }
         }
     }

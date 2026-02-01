@@ -51,7 +51,7 @@ fun SeeAllScreen(navController: NavHostController) {
                 ListItemSeeAll(
                     currentItem = item,
                     onItemClicked = { id ->
-                        navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
+                        //navController.navigate("${Screen.DETAIL_SCREEN.route}/${id}")
                     }
                 )
             }
