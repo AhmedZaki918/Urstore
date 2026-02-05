@@ -1,7 +1,6 @@
 package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
@@ -36,30 +35,12 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
             is HomeIntent.AddToCart -> addToCart(intent.item)
-            is HomeIntent.OnPopularClicked -> savePopularItem(intent.item)
             is HomeIntent.RevertAddedToCartStateToIdle -> {
                 _uiState.update {
                     it.copy(
                         addedToCartState = RequestState.IDLE
                     )
                 }
-            }
-        }
-    }
-
-    private fun savePopularItem(item: DrinksDataDto) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    itemDetails = ItemDetails(
-                        description = item.description,
-                        imageName = item.imageName,
-                        id = item.id,
-                        rate = item.rate,
-                        price = item.price,
-                        title = item.title
-                    )
-                )
             }
         }
     }

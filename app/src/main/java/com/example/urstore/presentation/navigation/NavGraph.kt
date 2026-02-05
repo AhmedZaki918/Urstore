@@ -1,29 +1,24 @@
 package com.example.urstore.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.example.urstore.data.local.Constants.PRODUCT_ID
 import com.example.urstore.presentation.cart.CartScreen
-import com.example.urstore.presentation.details.DetailsIntent
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
-import com.example.urstore.presentation.home.HomeViewModel
 import com.example.urstore.presentation.order.OrderScreen
 import com.example.urstore.presentation.profile.ProfileScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
 import com.example.urstore.presentation.splash.SplashScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
+import com.example.urstore.util.ProductSharedViewModel
 
 @Composable
 fun NavGraph(
-    homeViewModel: HomeViewModel = hiltViewModel(),
+    productSharedViewModel: ProductSharedViewModel = hiltViewModel(),
     currentDest: String,
     navController: NavHostController
 ) {
@@ -34,8 +29,9 @@ fun NavGraph(
     ) {
         composable(route = Screen.HOME_SCREEN.route) {
             HomeScreen(
-                viewModel = homeViewModel,
-                navController = navController)
+                productSharedViewModel = productSharedViewModel,
+                navController = navController
+            )
         }
 
         composable(route = Screen.SPLASH_SCREEN.route) {
@@ -67,7 +63,7 @@ fun NavGraph(
         ) {
             val viewModel: DetailsViewModel = hiltViewModel()
             DetailsScreen(
-                homeViewModel = homeViewModel,
+                productSharedViewModel = productSharedViewModel,
                 detailsViewModel = viewModel,
                 navController = navController
             )

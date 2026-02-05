@@ -40,7 +40,6 @@ import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.ProductSize
-import com.example.urstore.presentation.home.HomeViewModel
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -50,6 +49,7 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.QtyButton
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SizeShape
@@ -58,12 +58,12 @@ import com.example.urstore.util.toast
 
 @Composable
 fun DetailsScreen(
-    homeViewModel: HomeViewModel ,
+    productSharedViewModel: ProductSharedViewModel,
     detailsViewModel: DetailsViewModel,
     navController: NavHostController
 ) {
     val uiState = detailsViewModel.uiState.collectAsState().value
-    val product = homeViewModel.uiState.collectAsState().value.itemDetails
+    val product = productSharedViewModel.itemDetails.collectAsState().value
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 

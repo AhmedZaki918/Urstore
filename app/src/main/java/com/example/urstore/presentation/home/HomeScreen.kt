@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.HomeCategory
@@ -44,6 +45,8 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.OfferBanner
+import com.example.urstore.util.ProductIntent
+import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SearchBar
 import com.example.urstore.util.SubTitle
@@ -52,8 +55,9 @@ import com.example.urstore.util.toast
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
-    navController: NavHostController
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavHostController,
+    productSharedViewModel: ProductSharedViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
@@ -102,6 +106,7 @@ fun HomeScreen(
         popularCoffees(
             uiState,
             viewModel,
+            productSharedViewModel,
             navController
         )
     }
@@ -111,6 +116,7 @@ fun HomeScreen(
 fun LazyGridScope.popularCoffees(
     uiState: HomeUiState,
     viewModel: HomeViewModel,
+    productSharedViewModel: ProductSharedViewModel,
     navController: NavHostController
 ) {
     when (uiState.homeState) {
@@ -120,8 +126,8 @@ fun LazyGridScope.popularCoffees(
                     ListItemPopular(
                         currentItem = popularItem,
                         onItemClicked = {
-                            viewModel.onIntent(
-                                HomeIntent.OnPopularClicked(popularItem)
+                            productSharedViewModel.onIntent(
+                                ProductIntent.OnProductClicked(popularItem)
                             )
                             navController.navigate(Screen.DETAIL_SCREEN.route)
                         },
