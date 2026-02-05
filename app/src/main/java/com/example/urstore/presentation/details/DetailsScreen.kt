@@ -40,6 +40,7 @@ import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.ProductSize
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -102,7 +103,18 @@ fun DetailsScreen(
         AddToCart(
             popularItem = product,
             onAddToCartClicked = {
-                //viewModel.onIntent(DetailsIntent.AddToCart(uiState.popularItem))
+                detailsViewModel.onIntent(
+                    DetailsIntent.AddToCart(
+                        DrinksDataDto(
+                            title = product.title,
+                            rate = product.rate,
+                            id = product.id,
+                            price = product.price,
+                            description = product.description,
+                            imageName = product.imageName
+                        )
+                    )
+                )
             }
         )
     }

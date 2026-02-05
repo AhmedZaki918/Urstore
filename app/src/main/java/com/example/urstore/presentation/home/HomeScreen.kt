@@ -2,7 +2,6 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,6 +40,8 @@ import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
+import com.example.urstore.util.ErrorUi
+import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.ProductIntent
@@ -323,32 +322,4 @@ fun UpdateAddToCartState(
         onError.invoke()
     }
     viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
-}
-
-
-@Composable
-fun LoadingIndicator() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            color = Black
-        )
-    }
-}
-
-@Composable
-fun ErrorUi() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            color = Black,
-            text = "Something went wrong!!",
-        )
-    }
 }

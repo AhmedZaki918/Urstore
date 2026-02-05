@@ -55,7 +55,10 @@ fun NavGraph(
         }
 
         composable(route = Screen.SEE_ALL_SCREEN.route) {
-            SeeAllScreen(navController = navController)
+            SeeAllScreen(
+                productSharedViewModel = productSharedViewModel,
+                navController = navController,
+            )
         }
 
         composable(

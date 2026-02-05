@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.see_all
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,14 +14,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.urstore.data.model.HomePopular
+import coil.compose.AsyncImage
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -33,7 +32,7 @@ import com.example.urstore.util.CircleButton
 
 @Composable
 fun ListItemSeeAll(
-    currentItem: HomePopular,
+    currentItem: DrinksDataDto,
     onItemClicked: (Int) -> Unit
 ) {
     Box(
@@ -90,7 +89,7 @@ fun ListItemSeeAll(
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
-                    text = currentItem.caption,
+                    text = currentItem.description,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
                 )
@@ -122,11 +121,10 @@ fun ListItemSeeAll(
             }
         }
 
-
-        Image(
-            modifier = Modifier.padding(horizontal = MEDIUM_MARGIN),
-            painter = painterResource(currentItem.image),
+        AsyncImage(
+            model = currentItem.imageName,
             contentDescription = "",
+            modifier = Modifier.padding(horizontal = MEDIUM_MARGIN),
         )
     }
 }

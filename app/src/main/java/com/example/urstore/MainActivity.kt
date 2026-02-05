@@ -92,7 +92,7 @@ fun BottomBar(navController: NavHostController) {
 
     bottomBarState = when (currentDestination?.route) {
         Screen.SPLASH_SCREEN.route -> false
-        "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}" -> false
+        Screen.DETAIL_SCREEN.route -> false
         Screen.SEE_ALL_SCREEN.route -> false
         Screen.CART_SCREEN.route -> false
         else -> true
