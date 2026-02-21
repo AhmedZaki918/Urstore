@@ -3,6 +3,7 @@ package com.example.urstore.util
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,15 +37,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation.Companion
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -127,8 +143,8 @@ fun CircleButton(
     text: String,
     containerColor: Color = White,
     contentColor: Color = Black,
-    floatingActionSize : Dp = 30.dp,
-    textFontSize : TextUnit = 18.sp,
+    floatingActionSize: Dp = 30.dp,
+    textFontSize: TextUnit = 18.sp,
     floatingDefaultElevation: Dp = 8.dp,
 ) {
     FloatingActionButton(
@@ -155,6 +171,84 @@ fun CircleButton(
 
 
 @Composable
+fun TextFieldShopApp(
+    input: String,
+    onInputChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier,
+    leadingIcon: ImageVector,
+    keyboardType: KeyboardType
+) {
+
+    TextField(
+        value = input,
+        onValueChange = onInputChange,
+        placeholder = { Text(placeholder) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null
+            )
+        },
+        shape = RoundedCornerShape(16.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFF7F2ED),
+            unfocusedContainerColor = Color(0xFFF7F2ED),
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
+    )
+}
+
+@Composable
+fun TextFieldShopApp(
+    input: String,
+    onInputChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier,
+    leadingIcon: ImageVector,
+    trailingIcon: ImageVector? = null,
+    keyboardType: KeyboardType
+) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    TextField(
+        value = input,
+        onValueChange = onInputChange,
+        placeholder = { Text(placeholder) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null
+            )
+        },
+        shape = RoundedCornerShape(16.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFF7F2ED),
+            unfocusedContainerColor = Color(0xFFF7F2ED),
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            if (trailingIcon != null) {
+                Icon(
+                    modifier = Modifier.clickable {
+                        passwordVisible = !passwordVisible
+                    },
+                    imageVector = trailingIcon,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
+@Composable
 fun SearchBar(
     query: String,
     modifier: Modifier,
@@ -163,7 +257,6 @@ fun SearchBar(
 ) {
     OutlinedTextField(
         value = query,
-
         onValueChange = onQueryChange,
         modifier = modifier
             .wrapContentWidth()
@@ -301,6 +394,7 @@ fun Title(
         text = stringResource(id),
         fontSize = fontSize,
         fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center
     )
 }
 
@@ -319,14 +413,37 @@ fun Title(
 }
 
 @Composable
-fun SubTitle(
+fun UnderlineText(
     @StringRes id: Int,
-    modifier: Modifier
+    modifier: Modifier,
+    fontSize: TextUnit = 14.sp,
+    color: Color = Black
 ) {
     Text(
         modifier = modifier,
         text = stringResource(id),
-        fontSize = 14.sp
+        textAlign = TextAlign.Center,
+        style = TextStyle(
+            fontSize = fontSize,
+            color = color,
+            textDecoration = TextDecoration.Underline
+        )
+    )
+}
+
+@Composable
+fun SubTitle(
+    @StringRes id: Int,
+    modifier: Modifier,
+    fontSize: TextUnit = 14.sp,
+    color: Color = Black
+) {
+    Text(
+        modifier = modifier,
+        text = stringResource(id),
+        fontSize = fontSize,
+        textAlign = TextAlign.Center,
+        color = color
     )
 }
 
@@ -399,7 +516,8 @@ fun SizeShape(
 @Composable
 fun BackButton(
     modifier: Modifier,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    isBackTextVisible: Boolean = true
 ) {
     Row(
         modifier = modifier
@@ -413,11 +531,13 @@ fun BackButton(
             contentDescription = ""
         )
 
-        Text(
-            modifier = Modifier.padding(top = VERY_SMALL_MARGIN),
-            text = "Back",
-            fontSize = 14.sp,
-        )
+        if (isBackTextVisible) {
+            Text(
+                modifier = Modifier.padding(top = VERY_SMALL_MARGIN),
+                text = "Back",
+                fontSize = 14.sp,
+            )
+        }
     }
 }
 

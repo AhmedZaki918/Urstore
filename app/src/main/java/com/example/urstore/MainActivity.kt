@@ -95,6 +95,9 @@ fun BottomBar(navController: NavHostController) {
         Screen.DETAIL_SCREEN.route -> false
         Screen.SEE_ALL_SCREEN.route -> false
         Screen.CART_SCREEN.route -> false
+        Screen.LOGIN_SCREEN.route -> false
+        Screen.SIGNUP_SCREEN.route -> false
+        Screen.PROFILE_SCREEN.route -> false
         else -> true
     }
 
