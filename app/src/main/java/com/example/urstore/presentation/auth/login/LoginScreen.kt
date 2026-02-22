@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -91,10 +89,7 @@ fun LoginScreen(navController: NavHostController) {
             placeholder = "Email Address",
             leadingIcon = Icons.Outlined.Email,
             keyboardType = KeyboardType.Email,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = CUSTOM_MARGIN)
-                .shadow(2.dp, RoundedCornerShape(16.dp))
+            topPadding = CUSTOM_MARGIN
         )
 
         TextFieldShopApp(
@@ -105,11 +100,7 @@ fun LoginScreen(navController: NavHostController) {
             placeholder = "Password",
             leadingIcon = Icons.Outlined.Lock,
             trailingIcon = Icons.Outlined.RemoveRedEye,
-            keyboardType = KeyboardType.Password,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = SMALL_MARGIN)
-                .shadow(2.dp, RoundedCornerShape(16.dp))
+            keyboardType = KeyboardType.Password
         )
 
 

@@ -75,6 +75,7 @@ import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
+import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
@@ -175,11 +176,10 @@ fun TextFieldShopApp(
     input: String,
     onInputChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier,
     leadingIcon: ImageVector,
-    keyboardType: KeyboardType
+    keyboardType: KeyboardType,
+    topPadding : Dp = SMALL_MARGIN
 ) {
-
     TextField(
         value = input,
         onValueChange = onInputChange,
@@ -192,12 +192,15 @@ fun TextFieldShopApp(
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFF7F2ED),
-            unfocusedContainerColor = Color(0xFFF7F2ED),
+            focusedContainerColor = Off_White,
+            unfocusedContainerColor = Off_White,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = topPadding)
+            .shadow(2.dp, RoundedCornerShape(16.dp)),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
@@ -207,10 +210,10 @@ fun TextFieldShopApp(
     input: String,
     onInputChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier,
     leadingIcon: ImageVector,
     trailingIcon: ImageVector? = null,
-    keyboardType: KeyboardType
+    keyboardType: KeyboardType,
+    topPadding : Dp = SMALL_MARGIN
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -226,12 +229,15 @@ fun TextFieldShopApp(
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFF7F2ED),
-            unfocusedContainerColor = Color(0xFFF7F2ED),
+            focusedContainerColor = Off_White,
+            unfocusedContainerColor = Off_White,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = topPadding)
+            .shadow(2.dp, RoundedCornerShape(16.dp)),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
