@@ -1,5 +1,6 @@
 package com.example.urstore.presentation.auth.signup
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -9,20 +10,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
@@ -34,14 +37,35 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.RequestState
+import com.example.urstore.util.SignupField
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
 import com.example.urstore.util.UnderlineText
+import com.example.urstore.util.toast
 
 
 @Composable
-fun SignupScreen(navController: NavHostController) {
+fun SignupScreen(
+    viewModel: SignupViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+
+    when (uiState.signupState) {
+        RequestState.ERROR -> {
+            context.toast(stringResource(R.string.invalid_input))
+            viewModel.onIntent(SignupIntent.ClearErrorState)
+        }
+
+        RequestState.SUCCESS -> navController.navigate(Screen.LOGIN_SCREEN.route)
+        else -> {}
+    }
+
 
     Column(
         modifier = Modifier
@@ -50,11 +74,6 @@ fun SignupScreen(navController: NavHostController) {
             .padding(top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var fullName by remember { mutableStateOf("") }
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        var confirmPassword by remember { mutableStateOf("") }
-
 
         BackButton(
             modifier = Modifier
@@ -77,32 +96,62 @@ fun SignupScreen(navController: NavHostController) {
 
 
         TextFieldShopApp(
-            input = fullName,
-            onInputChange = {
-                fullName = it
+            input = uiState.fullName,
+            onInputChange = { fullName ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.NAME, fullName)
+                )
             },
-            placeholder = "Full Name",
+            placeholder = stringResource(R.string.full_name),
             leadingIcon = Icons.Outlined.Person,
             keyboardType = KeyboardType.Text,
             topPadding = CUSTOM_MARGIN
         )
 
         TextFieldShopApp(
-            input = email,
-            onInputChange = {
-                email = it
+            input = uiState.email,
+            onInputChange = { email ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.EMAIL, email)
+                )
             },
-            placeholder = "Email Address",
+            placeholder = stringResource(R.string.email_address),
             leadingIcon = Icons.Outlined.Email,
             keyboardType = KeyboardType.Email
         )
 
         TextFieldShopApp(
-            input = password,
-            onInputChange = {
-                password = it
+            input = uiState.phoneNumber,
+            onInputChange = { phoneNumber ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.PHONE, phoneNumber)
+                )
             },
-            placeholder = "Password",
+            placeholder = stringResource(R.string.phone_number),
+            leadingIcon = Icons.Outlined.Phone,
+            keyboardType = KeyboardType.Phone
+        )
+
+        TextFieldShopApp(
+            input = uiState.address,
+            onInputChange = { address ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.ADDRESS, address)
+                )
+            },
+            placeholder = stringResource(R.string.address),
+            leadingIcon = Icons.Outlined.LocationOn,
+            keyboardType = KeyboardType.Text
+        )
+
+        TextFieldShopApp(
+            input = uiState.password,
+            onInputChange = { password ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.PASSWORD, password)
+                )
+            },
+            placeholder = stringResource(R.string.password),
             leadingIcon = Icons.Outlined.Lock,
             trailingIcon = Icons.Outlined.RemoveRedEye,
             keyboardType = KeyboardType.Password
@@ -110,26 +159,34 @@ fun SignupScreen(navController: NavHostController) {
 
 
         TextFieldShopApp(
-            input = confirmPassword,
-            onInputChange = {
-                confirmPassword = it
+            input = uiState.confirmPassword,
+            onInputChange = { confirmPassword ->
+                viewModel.onIntent(
+                    SignupIntent.UpdateTextField(SignupField.CONFIRM_PASSWORD, confirmPassword)
+                )
             },
-            placeholder = "Confirm Password",
+            placeholder = stringResource(R.string.confirm_password),
             leadingIcon = Icons.Outlined.Lock,
             trailingIcon = Icons.Outlined.RemoveRedEye,
             keyboardType = KeyboardType.Password
         )
 
 
+
         ButtonShopApp(
+            isVisible = uiState.signupState != RequestState.LOADING,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = CUSTOM_MARGIN),
-            label = "Sign Up",
+            label = stringResource(R.string.sign_up),
             onButtonClicked = {
-
+                viewModel.onIntent(
+                    SignupIntent.Signup
+                )
             }
         )
+
+        LoadingIndicator(isVisible = uiState.signupState == RequestState.LOADING)
 
 
         SubTitle(
@@ -155,3 +212,30 @@ fun SignupScreen(navController: NavHostController) {
         )
     }
 }
+
+
+//@Composable
+//fun UpdateSignupUiState(
+//    uiState: SignupUiState,
+//    viewModel: SignupViewModel,
+//    context: Context,
+//    navController: NavHostController
+//) {
+//    when (uiState.signupState) {
+//        RequestState.ERROR -> {
+//            context.toast(stringResource(R.string.invalid_input))
+//            viewModel.onIntent(SignupIntent.ClearErrorState)
+//        }
+//
+//        RequestState.SUCCESS -> navController.navigate(Screen.LOGIN_SCREEN.route)
+//        else -> {}
+//    }
+//}
+
+
+//    UpdateSignupUiState(
+//        uiState,
+//        viewModel,
+//        context,
+//        navController
+//    )

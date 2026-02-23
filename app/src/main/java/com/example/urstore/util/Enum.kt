@@ -6,3 +6,12 @@ enum class RequestState {
     SUCCESS,
     ERROR
 }
+
+enum class SignupField{
+    NAME,
+    EMAIL,
+    PHONE,
+    ADDRESS,
+    PASSWORD,
+    CONFIRM_PASSWORD
+}

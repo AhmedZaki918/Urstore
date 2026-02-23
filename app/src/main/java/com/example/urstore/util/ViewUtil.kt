@@ -3,7 +3,6 @@ package com.example.urstore.util
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +24,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -57,7 +55,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation.Companion
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -178,7 +175,7 @@ fun TextFieldShopApp(
     placeholder: String,
     leadingIcon: ImageVector,
     keyboardType: KeyboardType,
-    topPadding : Dp = SMALL_MARGIN
+    topPadding: Dp = SMALL_MARGIN
 ) {
     TextField(
         value = input,
@@ -213,7 +210,7 @@ fun TextFieldShopApp(
     leadingIcon: ImageVector,
     trailingIcon: ImageVector? = null,
     keyboardType: KeyboardType,
-    topPadding : Dp = SMALL_MARGIN
+    topPadding: Dp = SMALL_MARGIN
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -549,14 +546,16 @@ fun BackButton(
 
 
 @Composable
-fun LoadingIndicator() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            color = Black
-        )
+fun LoadingIndicator(isVisible: Boolean = true) {
+    if (isVisible) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Black
+            )
+        }
     }
 }
 
