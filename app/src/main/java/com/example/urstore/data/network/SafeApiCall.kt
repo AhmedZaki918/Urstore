@@ -1,5 +1,7 @@
 package com.example.urstore.data.network
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -13,6 +15,7 @@ interface SafeApiCall {
             try {
                 Resource.Success(apiCall.invoke())
             } catch (throwable: Throwable) {
+                Log.d(TAG, "safeApiCall: ${throwable.message}")
                 when (throwable) {
                     is HttpException -> {
                         Resource.Failure(false, throwable.code(), throwable.response()?.errorBody())

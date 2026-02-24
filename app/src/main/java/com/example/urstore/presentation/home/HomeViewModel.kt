@@ -1,17 +1,22 @@
 package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.data.local.Constants.F_NAME_KEY
+import com.example.urstore.data.local.Constants.L_NAME_KEY
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.util.BaseViewModel
+import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.homeCategoriesDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,13 +24,15 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val cartRepo: CartRepo,
-    private val homeRepo: HomeRepo
+    private val homeRepo: HomeRepo,
+    private val dataStore: DataStoreRepo
 ) : BaseViewModel<HomeIntent>() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        getUserData()
         displayCategories()
         displayPopular()
     }
@@ -42,6 +49,8 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+
+            is HomeIntent.Logout -> logout()
         }
     }
 
@@ -120,6 +129,35 @@ class HomeViewModel @Inject constructor(
             it.copy(
                 homeState = RequestState.LOADING
             )
+        }
+    }
+
+    private fun getUserData() {
+        viewModelScope.launch {
+            val firstName = async {
+                dataStore.readString(F_NAME_KEY).collectLatest { value ->
+                    _uiState.update {
+                        it.copy(firstName = value)
+                    }
+                }
+            }
+
+            val lastName = async {
+                dataStore.readString(L_NAME_KEY).collectLatest { value ->
+                    _uiState.update {
+                        it.copy(lastName = value)
+                    }
+                }
+            }
+
+            firstName.await()
+            lastName.await()
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            dataStore.clearAllData()
         }
     }
 }

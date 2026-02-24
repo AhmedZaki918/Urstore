@@ -12,4 +12,6 @@ sealed class HomeIntent {
     ) : HomeIntent()
 
     object RevertAddedToCartStateToIdle : HomeIntent()
+
+    object Logout : HomeIntent()
 }

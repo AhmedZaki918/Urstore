@@ -5,7 +5,7 @@ import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.SignupField
+import com.example.urstore.util.AuthField
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,13 +26,7 @@ class SignupViewModel @Inject constructor(
 
     override fun onIntent(intent: SignupIntent) {
         when (intent) {
-            is SignupIntent.UpdateTextField -> {
-                updateTextField(
-                    intent.textFieldType,
-                    intent.value
-                )
-            }
-
+            is SignupIntent.UpdateTextField -> updateTextField(intent.textFieldType, intent.value)
             is SignupIntent.Signup -> checkUserInput()
             is SignupIntent.ClearErrorState -> updateState(RequestState.IDLE)
         }
@@ -40,42 +34,42 @@ class SignupViewModel @Inject constructor(
 
 
     fun updateTextField(
-        textFieldType: SignupField,
+        textFieldType: AuthField,
         value: String
     ) {
         viewModelScope.launch {
             when (textFieldType) {
-                SignupField.NAME -> {
+                AuthField.NAME -> {
                     _uiState.update {
                         it.copy(fullName = value)
                     }
                 }
 
-                SignupField.EMAIL -> {
+                AuthField.EMAIL -> {
                     _uiState.update {
                         it.copy(email = value)
                     }
                 }
 
-                SignupField.PHONE -> {
+                AuthField.PHONE -> {
                     _uiState.update {
                         it.copy(phoneNumber = value)
                     }
                 }
 
-                SignupField.ADDRESS -> {
+                AuthField.ADDRESS -> {
                     _uiState.update {
                         it.copy(address = value)
                     }
                 }
 
-                SignupField.PASSWORD -> {
+                AuthField.PASSWORD -> {
                     _uiState.update {
                         it.copy(password = value)
                     }
                 }
 
-                SignupField.CONFIRM_PASSWORD -> {
+                AuthField.CONFIRM_PASSWORD -> {
                     _uiState.update {
                         it.copy(confirmPassword = value)
                     }
@@ -88,18 +82,18 @@ class SignupViewModel @Inject constructor(
     fun checkUserInput() {
         viewModelScope.launch {
             updateState(RequestState.LOADING)
-            val hashMap = HashMap<SignupField, String>()
+            val hashMap = HashMap<AuthField, String>()
 
             uiState.value.apply {
-                hashMap[SignupField.NAME] = fullName
-                hashMap[SignupField.EMAIL] = email
-                hashMap[SignupField.PHONE] = phoneNumber
-                hashMap[SignupField.ADDRESS] = address
-                hashMap[SignupField.PASSWORD] = password
-                hashMap[SignupField.CONFIRM_PASSWORD] = confirmPassword
+                hashMap[AuthField.NAME] = fullName
+                hashMap[AuthField.EMAIL] = email
+                hashMap[AuthField.PHONE] = phoneNumber
+                hashMap[AuthField.ADDRESS] = address
+                hashMap[AuthField.PASSWORD] = password
+                hashMap[AuthField.CONFIRM_PASSWORD] = confirmPassword
             }
 
-            authRepo.isInputValid(
+            authRepo.isInputValidOnSignup(
                 map = hashMap,
                 onSuccess = {
                     signup(hashMap)
@@ -112,7 +106,7 @@ class SignupViewModel @Inject constructor(
     }
 
 
-    private fun signup(hashmap: HashMap<SignupField, String>) {
+    private fun signup(hashmap: HashMap<AuthField, String>) {
         viewModelScope.launch {
             val response = authRepo.signup(hashmap)
 

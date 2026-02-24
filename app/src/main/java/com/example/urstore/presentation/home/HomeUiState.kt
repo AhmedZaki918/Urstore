@@ -9,5 +9,7 @@ data class HomeUiState(
     val homeState: RequestState = RequestState.IDLE,
     val homeCategories: List<HomeCategory> = emptyList(),
     val popularResponse: DrinksDto = DrinksDto(),
-    val addedToCartState: RequestState = RequestState.IDLE
+    val addedToCartState: RequestState = RequestState.IDLE,
+    var firstName : String = "",
+    var lastName : String = ""
 )

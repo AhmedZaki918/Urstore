@@ -18,18 +18,18 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
@@ -39,13 +39,38 @@ import com.example.urstore.ui.theme.Light_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
+import com.example.urstore.util.AuthField
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+
+    when (uiState.loginState) {
+        RequestState.ERROR -> {
+            context.toast(stringResource(R.string.invalid_input))
+            viewModel.onIntent(LoginIntent.ClearErrorState)
+        }
+
+        RequestState.SUCCESS -> {
+            context.toast(uiState.responseMessage)
+            navController.navigate(Screen.HOME_SCREEN.route)
+        }
+
+        else -> Unit
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,9 +78,6 @@ fun LoginScreen(navController: NavHostController) {
             .padding(top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-
 
         Image(
             painter = painterResource(id = R.drawable.cup),
@@ -82,9 +104,11 @@ fun LoginScreen(navController: NavHostController) {
         )
 
         TextFieldShopApp(
-            input = email,
-            onInputChange = {
-                email = it
+            input = uiState.email,
+            onInputChange = { email ->
+                viewModel.onIntent(
+                    LoginIntent.UpdateTextField(AuthField.EMAIL, email)
+                )
             },
             placeholder = "Email Address",
             leadingIcon = Icons.Outlined.Email,
@@ -93,9 +117,11 @@ fun LoginScreen(navController: NavHostController) {
         )
 
         TextFieldShopApp(
-            input = password,
-            onInputChange = {
-                password = it
+            input = uiState.password,
+            onInputChange = { password ->
+                viewModel.onIntent(
+                    LoginIntent.UpdateTextField(AuthField.PASSWORD, password)
+                )
             },
             placeholder = "Password",
             leadingIcon = Icons.Outlined.Lock,
@@ -114,13 +140,18 @@ fun LoginScreen(navController: NavHostController) {
         )
 
         ButtonShopApp(
+            isVisible = uiState.loginState != RequestState.LOADING,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = MEDIUM_MARGIN),
             label = "Login",
             onButtonClicked = {
+                viewModel.onIntent(LoginIntent.Login)
             }
         )
+
+        LoadingIndicator(isVisible = uiState.loginState == RequestState.LOADING)
+
 
         Row(
             modifier = Modifier

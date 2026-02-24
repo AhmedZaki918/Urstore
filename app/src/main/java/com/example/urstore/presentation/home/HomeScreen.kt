@@ -1,9 +1,8 @@
 package com.example.urstore.presentation.home
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -90,7 +89,10 @@ fun HomeScreen(
                     .wrapContentHeight()
                     .fillMaxWidth()
             ) {
-                HomeHeader()
+                HomeHeader(
+                    uiState,
+                    viewModel
+                )
                 HomeCategoryUi(
                     categories = uiState.homeCategories,
                     onItemClicked = { id ->
@@ -159,7 +161,7 @@ fun LazyGridScope.popularCoffees(
 
 
 @Composable
-fun HomeHeader() {
+fun HomeHeader(uiState: HomeUiState, viewModel: HomeViewModel) {
     var searchQuery by remember { mutableStateOf("") }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -195,10 +197,13 @@ fun HomeHeader() {
                     start.linkTo(parent.start, MEDIUM_MARGIN)
                     top.linkTo(parent.top, LARGE_MARGIN)
                 }
+                .clickable {
+                    viewModel.onIntent(HomeIntent.Logout)
+                }
         )
 
         Text(
-            text = stringResource(R.string.user_name),
+            text = uiState.firstName + " " + uiState.lastName,
             color = Black,
             fontWeight = FontWeight.Medium,
             modifier = Modifier

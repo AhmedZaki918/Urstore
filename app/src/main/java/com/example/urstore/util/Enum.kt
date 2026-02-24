@@ -7,7 +7,7 @@ enum class RequestState {
     ERROR
 }
 
-enum class SignupField{
+enum class AuthField{
     NAME,
     EMAIL,
     PHONE,

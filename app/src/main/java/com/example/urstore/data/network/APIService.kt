@@ -1,5 +1,7 @@
 package com.example.urstore.data.network
 
+import com.example.urstore.data.model.auth_dto.login.LoginDto
+import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterDto
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
 import com.example.urstore.data.model.drinks_dto.DrinksDto
@@ -19,4 +21,9 @@ interface APIService {
     suspend fun register(
         @Body body: RegisterRequest
     ): RegisterDto
+
+    @POST("account/login")
+    suspend fun login(
+        @Body body: LoginRequest
+    ) : LoginDto
 }

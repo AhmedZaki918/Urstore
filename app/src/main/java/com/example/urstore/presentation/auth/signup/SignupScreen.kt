@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.auth.signup
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -39,7 +38,7 @@ import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.SignupField
+import com.example.urstore.util.AuthField
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
@@ -63,7 +62,7 @@ fun SignupScreen(
         }
 
         RequestState.SUCCESS -> navController.navigate(Screen.LOGIN_SCREEN.route)
-        else -> {}
+        else -> Unit
     }
 
 
@@ -99,7 +98,7 @@ fun SignupScreen(
             input = uiState.fullName,
             onInputChange = { fullName ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.NAME, fullName)
+                    SignupIntent.UpdateTextField(AuthField.NAME, fullName)
                 )
             },
             placeholder = stringResource(R.string.full_name),
@@ -112,7 +111,7 @@ fun SignupScreen(
             input = uiState.email,
             onInputChange = { email ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.EMAIL, email)
+                    SignupIntent.UpdateTextField(AuthField.EMAIL, email)
                 )
             },
             placeholder = stringResource(R.string.email_address),
@@ -124,7 +123,7 @@ fun SignupScreen(
             input = uiState.phoneNumber,
             onInputChange = { phoneNumber ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.PHONE, phoneNumber)
+                    SignupIntent.UpdateTextField(AuthField.PHONE, phoneNumber)
                 )
             },
             placeholder = stringResource(R.string.phone_number),
@@ -136,7 +135,7 @@ fun SignupScreen(
             input = uiState.address,
             onInputChange = { address ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.ADDRESS, address)
+                    SignupIntent.UpdateTextField(AuthField.ADDRESS, address)
                 )
             },
             placeholder = stringResource(R.string.address),
@@ -148,7 +147,7 @@ fun SignupScreen(
             input = uiState.password,
             onInputChange = { password ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.PASSWORD, password)
+                    SignupIntent.UpdateTextField(AuthField.PASSWORD, password)
                 )
             },
             placeholder = stringResource(R.string.password),
@@ -162,7 +161,7 @@ fun SignupScreen(
             input = uiState.confirmPassword,
             onInputChange = { confirmPassword ->
                 viewModel.onIntent(
-                    SignupIntent.UpdateTextField(SignupField.CONFIRM_PASSWORD, confirmPassword)
+                    SignupIntent.UpdateTextField(AuthField.CONFIRM_PASSWORD, confirmPassword)
                 )
             },
             placeholder = stringResource(R.string.confirm_password),
