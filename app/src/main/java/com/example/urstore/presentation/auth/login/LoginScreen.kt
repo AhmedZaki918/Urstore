@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
@@ -150,7 +152,9 @@ fun LoginScreen(
             }
         )
 
-        LoadingIndicator(isVisible = uiState.loginState == RequestState.LOADING)
+        LoadingIndicator(
+            modifier = Modifier.height(55.dp).wrapContentWidth(),
+            isVisible = uiState.loginState == RequestState.LOADING)
 
 
         Row(
@@ -179,7 +183,5 @@ fun LoginScreen(
                 color = Brown
             )
         }
-
-
     }
 }

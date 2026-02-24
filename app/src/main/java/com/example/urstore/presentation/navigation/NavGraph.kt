@@ -12,8 +12,8 @@ import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
 import com.example.urstore.presentation.order.OrderScreen
+import com.example.urstore.presentation.profile.ProfileScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
-import com.example.urstore.presentation.splash.SplashScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
 import com.example.urstore.util.ProductSharedViewModel
 
@@ -43,10 +43,6 @@ fun NavGraph(
             )
         }
 
-        composable(route = Screen.SPLASH_SCREEN.route) {
-            SplashScreen(navController = navController)
-        }
-
         composable(route = Screen.CART_SCREEN.route) {
             CartScreen(navController = navController)
         }
@@ -60,8 +56,7 @@ fun NavGraph(
         }
 
         composable(route = Screen.PROFILE_SCREEN.route) {
-            LoginScreen(navController = navController)
-            //ProfileScreen()
+            ProfileScreen()
         }
 
         composable(route = Screen.SEE_ALL_SCREEN.route) {

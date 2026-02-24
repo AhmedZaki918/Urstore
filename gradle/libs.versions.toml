@@ -1,6 +1,6 @@
 
 [versions]
-agp = "9.0.0"
+agp = "9.0.1"
 coilCompose = "2.7.0"
 constraintlayoutCompose = "1.1.1"
 converterGson = "3.0.0"

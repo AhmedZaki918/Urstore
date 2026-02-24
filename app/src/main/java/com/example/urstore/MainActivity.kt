@@ -2,15 +2,15 @@ package com.example.urstore
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,7 +39,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.urstore.data.local.Constants.PRODUCT_ID
+import com.example.urstore.presentation.main.MainViewModel
 import com.example.urstore.presentation.navigation.BottomBarScreen
 import com.example.urstore.presentation.navigation.NavGraph
 import com.example.urstore.presentation.navigation.Screen
@@ -46,34 +47,48 @@ import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.White
+import com.example.urstore.util.LoadingIndicator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ForceLightSystemBars()
-            MainUi()
+            MainUi(viewModel)
         }
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainUi() {
-    val navController = rememberNavController()
-    //val startDestination = Screen.SPLASH_SCREEN.route
-    val startDestination = Screen.HOME_SCREEN.route
+fun MainUi(viewModel: MainViewModel) {
 
-    Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
-    ) {
-        NavGraph(
-            currentDest = startDestination,
-            navController = navController
-        )
+    val uiState = viewModel.uiState.collectAsState().value
+    val navController = rememberNavController()
+
+    val startDestination = if (uiState.userToken == "") {
+        Screen.LOGIN_SCREEN.route
+    } else {
+        Screen.HOME_SCREEN.route
+    }
+
+
+    if (uiState.isLoading) {
+        LoadingIndicator(modifier = Modifier.fillMaxSize())
+    } else {
+        Scaffold(
+            bottomBar = { BottomBar(navController = navController) }
+        ) {
+            NavGraph(
+                currentDest = startDestination,
+                navController = navController
+            )
+        }
     }
 }
 
@@ -93,13 +108,11 @@ fun BottomBar(navController: NavHostController) {
     var bottomBarState by rememberSaveable { (mutableStateOf(true)) }
 
     bottomBarState = when (currentDestination?.route) {
-        Screen.SPLASH_SCREEN.route -> false
         Screen.DETAIL_SCREEN.route -> false
         Screen.SEE_ALL_SCREEN.route -> false
         Screen.CART_SCREEN.route -> false
         Screen.LOGIN_SCREEN.route -> false
         Screen.SIGNUP_SCREEN.route -> false
-        Screen.PROFILE_SCREEN.route -> false
         else -> true
     }
 

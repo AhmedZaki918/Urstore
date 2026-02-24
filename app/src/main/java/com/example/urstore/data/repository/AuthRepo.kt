@@ -11,7 +11,6 @@ import com.example.urstore.data.network.SafeApiCall
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.DataStoreRepo
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.collectLatest
 
 class AuthRepo @Inject constructor(
     private val api: APIService,
@@ -83,10 +82,12 @@ class AuthRepo @Inject constructor(
         )
     }
 
-    suspend fun saveUserData(loginResponse: LoginData) {
-        dataStore.writeString(F_NAME_KEY, loginResponse.firstName)
-        dataStore.writeString(L_NAME_KEY, loginResponse.lastName)
-        dataStore.writeString(TOKEN, loginResponse.token)
+    suspend fun saveUserData(loginResponse: LoginData?) {
+        dataStore.apply {
+            writeString(F_NAME_KEY, loginResponse?.firstName.toString())
+            writeString(L_NAME_KEY, loginResponse?.lastName.toString())
+            writeString(TOKEN, loginResponse?.token.toString())
+        }
     }
 
     fun returnFirstName(fullName: String): String {

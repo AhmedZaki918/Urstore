@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.LocationOn
@@ -185,7 +187,9 @@ fun SignupScreen(
             }
         )
 
-        LoadingIndicator(isVisible = uiState.signupState == RequestState.LOADING)
+        LoadingIndicator(
+            modifier = Modifier.height(55.dp).wrapContentWidth(),
+            isVisible = uiState.signupState == RequestState.LOADING)
 
 
         SubTitle(

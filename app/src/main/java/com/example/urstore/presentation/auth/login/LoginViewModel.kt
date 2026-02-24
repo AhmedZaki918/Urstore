@@ -3,9 +3,8 @@ package com.example.urstore.presentation.auth.login
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
-import com.example.urstore.presentation.auth.signup.SignupIntent
-import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.AuthField
+import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

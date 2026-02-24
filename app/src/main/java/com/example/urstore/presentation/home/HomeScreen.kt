@@ -152,7 +152,11 @@ fun LazyGridScope.popularCoffees(
         RequestState.LOADING -> {
             item(
                 span = { GridItemSpan(maxCurrentLineSpan) }
-            ) { LoadingIndicator() }
+            ) {
+                LoadingIndicator(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         else -> Unit

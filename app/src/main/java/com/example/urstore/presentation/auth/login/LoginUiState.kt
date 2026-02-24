@@ -5,7 +5,7 @@ import com.example.urstore.util.RequestState
 
 data class LoginUiState(
     val loginState: RequestState = RequestState.IDLE,
-    val loginResponse: LoginData = LoginData(),
+    val loginResponse: LoginData? = LoginData(),
     val responseMessage : String = "",
     var password : String = "",
     var email : String = ""
