@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,18 +23,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -73,6 +83,7 @@ import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.Off_White
+import com.example.urstore.ui.theme.Off_White_2
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
@@ -578,3 +589,240 @@ fun ErrorUi() {
         )
     }
 }
+
+
+
+@Composable
+fun SettingItem(
+    title: String,
+    leadingIcon: ImageVector,
+    secondTitle: String,
+    secondLeadingIcon: ImageVector,
+    settingName: String
+) {
+
+    Column(modifier = Modifier.wrapContentSize()) {
+
+        Text(
+            modifier = Modifier.padding(start = MEDIUM_MARGIN),
+            text = settingName,
+            color = Brown.copy(alpha = 0.8f)
+        )
+
+
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            ),
+            shape = RoundedCornerShape(MEDIUM_MARGIN),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp)
+                .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = SMALL_MARGIN),
+            colors = CardDefaults.cardColors(
+                containerColor = Off_White_2,
+            )
+        ) {
+
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                val (iconImage, titleText, arrowImage, lineDivider,
+                    secondIconImage, secondTitleText, secondArrowImage) = createRefs()
+
+                Icon(
+                    modifier = Modifier.constrainAs(iconImage) {
+                        start.linkTo(parent.start, MEDIUM_MARGIN)
+                        top.linkTo(parent.top, MEDIUM_MARGIN)
+                    },
+                    imageVector = leadingIcon,
+                    contentDescription = ""
+                )
+
+                Text(
+                    modifier = Modifier.constrainAs(titleText) {
+                        start.linkTo(iconImage.end, MEDIUM_MARGIN)
+                        top.linkTo(iconImage.top)
+                        bottom.linkTo(iconImage.bottom)
+                    },
+                    text = title,
+                )
+
+
+                Icon(
+                    modifier = Modifier.constrainAs(arrowImage) {
+                        end.linkTo(parent.end, MEDIUM_MARGIN)
+                        top.linkTo(titleText.top)
+                        bottom.linkTo(titleText.bottom)
+                    },
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
+                    contentDescription = "",
+                    tint = Color.LightGray
+                )
+
+
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .constrainAs(lineDivider) {
+                            top.linkTo(iconImage.bottom, SMALL_MARGIN)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(
+                            vertical = VERY_SMALL_MARGIN,
+                            horizontal = MEDIUM_MARGIN
+                        ),
+                    color = Color.Gray.copy(alpha = 0.3f)
+                )
+
+
+                Icon(
+                    modifier = Modifier.constrainAs(secondIconImage) {
+                        start.linkTo(parent.start, MEDIUM_MARGIN)
+                        top.linkTo(lineDivider.bottom, SMALL_MARGIN)
+                    },
+                    imageVector = secondLeadingIcon,
+                    contentDescription = ""
+                )
+
+
+                Text(
+                    modifier = Modifier.constrainAs(secondTitleText) {
+                        start.linkTo(secondIconImage.end, MEDIUM_MARGIN)
+                        top.linkTo(secondIconImage.top)
+                        bottom.linkTo(secondIconImage.bottom)
+                    },
+                    text = secondTitle,
+                )
+
+
+                Icon(
+                    modifier = Modifier.constrainAs(secondArrowImage) {
+                        end.linkTo(parent.end, MEDIUM_MARGIN)
+                        top.linkTo(secondTitleText.top)
+                        bottom.linkTo(secondTitleText.bottom)
+                    },
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
+                    contentDescription = "",
+                    tint = Color.LightGray
+                )
+
+
+            }
+
+
+        }
+    }
+}
+
+
+@Composable
+fun SettingItem(
+    title: String,
+    leadingIcon: ImageVector,
+    settingName: String = "",
+    isToggleButtonExist: Boolean = false,
+    isArrowExist: Boolean = true,
+    isSettingNameExist : Boolean = true
+) {
+    Column(modifier = Modifier.wrapContentSize()) {
+
+        if (isSettingNameExist){
+            Text(
+                modifier = Modifier.padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
+                text = settingName,
+                color = Brown.copy(alpha = 0.8f)
+            )
+        }
+
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            ),
+            shape = RoundedCornerShape(MEDIUM_MARGIN),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = SMALL_MARGIN),
+            colors = CardDefaults.cardColors(
+                containerColor = Off_White_2,
+            )
+        ) {
+
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                val (iconImage, titleText, arrowImage, toggleButton) = createRefs()
+
+                Icon(
+                    modifier = Modifier.constrainAs(iconImage) {
+                        start.linkTo(parent.start, MEDIUM_MARGIN)
+                        top.linkTo(parent.top, MEDIUM_MARGIN)
+                    },
+                    imageVector = leadingIcon,
+                    contentDescription = ""
+                )
+
+                Text(
+                    modifier = Modifier.constrainAs(titleText) {
+                        start.linkTo(iconImage.end, MEDIUM_MARGIN)
+                        top.linkTo(iconImage.top)
+                        bottom.linkTo(iconImage.bottom)
+                    },
+                    text = title,
+                )
+
+
+
+                if (isToggleButtonExist){
+                    var checked by remember { mutableStateOf(true) }
+
+                    Switch(
+                        modifier = Modifier.constrainAs(toggleButton) {
+                            end.linkTo(parent.end, MEDIUM_MARGIN)
+                            top.linkTo(titleText.top)
+                            bottom.linkTo(titleText.bottom)
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = Brown,
+                        ),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                        }
+                    )
+
+
+                } else {
+                    if (isArrowExist){
+                        Icon(
+                            modifier = Modifier.constrainAs(arrowImage) {
+                                end.linkTo(parent.end, MEDIUM_MARGIN)
+                                top.linkTo(titleText.top)
+                                bottom.linkTo(titleText.bottom)
+                            },
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
+                            contentDescription = "",
+                            tint = Color.LightGray
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SettingContent(
+    title: String,
+    leadingIcon: ImageVector
+) {
+
+}
+

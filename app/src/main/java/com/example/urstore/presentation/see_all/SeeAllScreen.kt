@@ -98,7 +98,7 @@ fun LazyGridScope.seeAllContent(
             item(
                 span = { GridItemSpan(maxCurrentLineSpan) }
             ) {
-                LoadingIndicator(modifier = Modifier.fillMaxSize())
+                LoadingIndicator(modifier = Modifier.wrapContentSize())
             }
         }
         else -> Unit
@@ -109,7 +109,6 @@ fun LazyGridScope.seeAllContent(
 @Composable
 fun SeeAllHeader(
     onBackClicked: () -> Unit
-
 ) {
     ConstraintLayout(
         modifier = Modifier
