@@ -2,7 +2,6 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,10 +88,7 @@ fun HomeScreen(
                     .wrapContentHeight()
                     .fillMaxWidth()
             ) {
-                HomeHeader(
-                    uiState,
-                    viewModel
-                )
+                HomeHeader(uiState)
                 HomeCategoryUi(
                     categories = uiState.homeCategories,
                     onItemClicked = { id ->
@@ -165,7 +161,7 @@ fun LazyGridScope.popularCoffees(
 
 
 @Composable
-fun HomeHeader(uiState: HomeUiState, viewModel: HomeViewModel) {
+fun HomeHeader(uiState: HomeUiState) {
     var searchQuery by remember { mutableStateOf("") }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -200,9 +196,6 @@ fun HomeHeader(uiState: HomeUiState, viewModel: HomeViewModel) {
                 .constrainAs(profileImage) {
                     start.linkTo(parent.start, MEDIUM_MARGIN)
                     top.linkTo(parent.top, LARGE_MARGIN)
-                }
-                .clickable {
-                    viewModel.onIntent(HomeIntent.Logout)
                 }
         )
 

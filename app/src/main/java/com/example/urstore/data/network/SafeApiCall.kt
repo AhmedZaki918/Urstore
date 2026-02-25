@@ -18,7 +18,11 @@ interface SafeApiCall {
                 Log.d(TAG, "safeApiCall: ${throwable.message}")
                 when (throwable) {
                     is HttpException -> {
-                        Resource.Failure(false, throwable.code(), throwable.response()?.errorBody())
+                        Resource.Failure(
+                            false,
+                            throwable.code(),
+                            throwable.response()?.errorBody()
+                        )
                     }
                     else -> {
                         Resource.Failure(true, null, null)

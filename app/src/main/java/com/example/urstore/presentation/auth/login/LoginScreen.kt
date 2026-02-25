@@ -61,7 +61,7 @@ fun LoginScreen(
 
     when (uiState.loginState) {
         RequestState.ERROR -> {
-            context.toast(stringResource(R.string.invalid_input))
+            context.toast(uiState.responseMessage)
             viewModel.onIntent(LoginIntent.ClearErrorState)
         }
 

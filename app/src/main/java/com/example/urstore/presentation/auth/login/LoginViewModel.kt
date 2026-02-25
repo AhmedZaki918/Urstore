@@ -90,7 +90,14 @@ class LoginViewModel @Inject constructor(
                 }
                 authRepo.saveUserData(response.data.data)
                 updateState(RequestState.SUCCESS)
-            } else {
+
+            } else if (response is Resource.Failure){
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.errorCode.toString()
+                    )
+                }
+
                 updateState(RequestState.ERROR)
             }
         }

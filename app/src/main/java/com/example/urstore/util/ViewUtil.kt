@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -591,7 +593,6 @@ fun ErrorUi() {
 }
 
 
-
 @Composable
 fun SettingItem(
     title: String,
@@ -606,7 +607,8 @@ fun SettingItem(
         Text(
             modifier = Modifier.padding(start = MEDIUM_MARGIN),
             text = settingName,
-            color = Brown.copy(alpha = 0.8f)
+            color = Brown.copy(alpha = 0.8f),
+            fontSize = 12.sp
         )
 
 
@@ -726,15 +728,23 @@ fun SettingItem(
     settingName: String = "",
     isToggleButtonExist: Boolean = false,
     isArrowExist: Boolean = true,
-    isSettingNameExist : Boolean = true
+    isSettingNameExist: Boolean = true,
+    onItemClicked: () -> Unit
 ) {
-    Column(modifier = Modifier.wrapContentSize()) {
+    Column(
+        modifier = Modifier
+            .wrapContentSize()
+            .clickable {
+                onItemClicked.invoke()
+            }
+    ) {
 
-        if (isSettingNameExist){
+        if (isSettingNameExist) {
             Text(
                 modifier = Modifier.padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
                 text = settingName,
-                color = Brown.copy(alpha = 0.8f)
+                color = Brown.copy(alpha = 0.8f),
+                fontSize = 12.sp
             )
         }
 
@@ -742,27 +752,32 @@ fun SettingItem(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 2.dp
             ),
-            shape = RoundedCornerShape(MEDIUM_MARGIN),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = SMALL_MARGIN),
             colors = CardDefaults.cardColors(
                 containerColor = Off_White_2,
-            )
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(
+                    start = MEDIUM_MARGIN,
+                    end = MEDIUM_MARGIN,
+                    top = SMALL_MARGIN
+                ),
+            shape = RoundedCornerShape(MEDIUM_MARGIN),
         ) {
 
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
+                    .padding(horizontal = MEDIUM_MARGIN, vertical = SMALL_MARGIN)
             ) {
                 val (iconImage, titleText, arrowImage, toggleButton) = createRefs()
 
                 Icon(
                     modifier = Modifier.constrainAs(iconImage) {
-                        start.linkTo(parent.start, MEDIUM_MARGIN)
-                        top.linkTo(parent.top, MEDIUM_MARGIN)
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
                     },
                     imageVector = leadingIcon,
                     contentDescription = ""
@@ -779,15 +794,17 @@ fun SettingItem(
 
 
 
-                if (isToggleButtonExist){
+                if (isToggleButtonExist) {
                     var checked by remember { mutableStateOf(true) }
 
                     Switch(
-                        modifier = Modifier.constrainAs(toggleButton) {
-                            end.linkTo(parent.end, MEDIUM_MARGIN)
-                            top.linkTo(titleText.top)
-                            bottom.linkTo(titleText.bottom)
-                        },
+                        modifier = Modifier
+                            .constrainAs(toggleButton) {
+                                end.linkTo(parent.end)
+                                top.linkTo(titleText.top)
+                                bottom.linkTo(titleText.bottom)
+                            }
+                            .scale(0.7f),
                         colors = SwitchDefaults.colors(
                             checkedTrackColor = Brown,
                         ),
@@ -799,10 +816,10 @@ fun SettingItem(
 
 
                 } else {
-                    if (isArrowExist){
+                    if (isArrowExist) {
                         Icon(
                             modifier = Modifier.constrainAs(arrowImage) {
-                                end.linkTo(parent.end, MEDIUM_MARGIN)
+                                end.linkTo(parent.end)
                                 top.linkTo(titleText.top)
                                 bottom.linkTo(titleText.bottom)
                             },

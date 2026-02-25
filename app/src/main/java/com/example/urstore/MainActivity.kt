@@ -113,6 +113,7 @@ fun BottomBar(navController: NavHostController) {
         Screen.CART_SCREEN.route -> false
         Screen.LOGIN_SCREEN.route -> false
         Screen.SIGNUP_SCREEN.route -> false
+        Screen.PROFILE_SCREEN.route -> false
         else -> true
     }
 

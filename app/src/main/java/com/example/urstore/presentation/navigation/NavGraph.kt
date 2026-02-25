@@ -56,7 +56,9 @@ fun NavGraph(
         }
 
         composable(route = Screen.PROFILE_SCREEN.route) {
-            ProfileScreen()
+            ProfileScreen(
+                navController = navController
+            )
         }
 
         composable(route = Screen.SEE_ALL_SCREEN.route) {
