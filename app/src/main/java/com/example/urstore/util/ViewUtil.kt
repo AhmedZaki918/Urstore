@@ -4,12 +4,13 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,11 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,8 +38,9 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -74,6 +73,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
 import com.example.urstore.data.model.ProductSize
@@ -601,7 +601,6 @@ fun SettingItem(
     secondLeadingIcon: ImageVector,
     settingName: String
 ) {
-
     Column(modifier = Modifier.wrapContentSize()) {
 
         Text(
@@ -711,11 +710,7 @@ fun SettingItem(
                     contentDescription = "",
                     tint = Color.LightGray
                 )
-
-
             }
-
-
         }
     }
 }
@@ -836,10 +831,79 @@ fun SettingItem(
 
 
 @Composable
-fun SettingContent(
+fun AlertDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    isVisible: Boolean,
     title: String,
-    leadingIcon: ImageVector
+    description: String,
+    confirmTitle: String,
+    dismissTitle: String,
+    icon: ImageVector
 ) {
+    if (isVisible) {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Off_White
+                ),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = ""
+                    )
+
+                    Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
+
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Spacer(modifier = Modifier.height(SMALL_MARGIN))
+
+                    Text(
+                        text = description,
+                        fontSize = 14.sp,
+                        color = Color.Black.copy(alpha = 0.5f)
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = MEDIUM_MARGIN)
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(dismissTitle)
+                        }
+
+                        Spacer(modifier = Modifier.width(SMALL_MARGIN))
+
+                        Button(
+                            onClick = onConfirm,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Brown
+                            )
+                        ) {
+                            Text(confirmTitle)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

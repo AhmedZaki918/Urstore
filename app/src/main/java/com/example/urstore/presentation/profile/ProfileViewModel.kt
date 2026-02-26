@@ -1,13 +1,13 @@
 package com.example.urstore.presentation.profile
 
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.presentation.home.HomeUiState
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +22,8 @@ class ProfileViewModel @Inject constructor(
     override fun onIntent(intent: ProfileIntent) {
         if (intent is ProfileIntent.Logout) {
             logout()
+        } else if (intent is ProfileIntent.ShowDialog) {
+            editDialogVisibility(intent.isActive)
         }
     }
 
@@ -29,6 +31,16 @@ class ProfileViewModel @Inject constructor(
     private fun logout() {
         viewModelScope.launch {
             dataStore.clearAllData()
+        }
+    }
+
+    private fun editDialogVisibility(isActive: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoginDialogActive = isActive
+                )
+            }
         }
     }
 }

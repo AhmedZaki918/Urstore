@@ -26,6 +26,7 @@ materialIconsExtended = "1.7.8"
 retrofit = "3.0.0"
 uiGraphics = "1.9.4"
 foundationLayout = "1.9.4"
+ui = "1.10.3"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -60,6 +61,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
