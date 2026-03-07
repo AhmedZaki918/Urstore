@@ -120,7 +120,7 @@ fun LazyGridScope.popularCoffees(
 ) {
     when (uiState.homeState) {
         RequestState.SUCCESS -> {
-            itemsIndexed(uiState.popularResponse.data) { index, popularItem ->
+            itemsIndexed(uiState.popularResponse) { index, popularItem ->
                 if (index < 2)
                     ListItemPopular(
                         currentItem = popularItem,

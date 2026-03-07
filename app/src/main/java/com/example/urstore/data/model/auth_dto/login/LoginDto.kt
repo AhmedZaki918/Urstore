@@ -1,7 +1,12 @@
 package com.example.urstore.data.model.auth_dto.login
 
 data class LoginDto(
-    val data: LoginData? = LoginData(),
-    val message: String = "",
-    val status: Int = 0
+    val address: String? = "",
+    val clientId: String? = "",
+    val displayName: String? = "",
+    val email: String? = "",
+    val firstName: String? = "",
+    val lastName: String? = "",
+    val phone: String? = "",
+    val token: String? = ""
 )

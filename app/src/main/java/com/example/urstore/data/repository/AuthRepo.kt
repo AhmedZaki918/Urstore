@@ -3,7 +3,7 @@ package com.example.urstore.data.repository
 import com.example.urstore.data.local.Constants.F_NAME_KEY
 import com.example.urstore.data.local.Constants.L_NAME_KEY
 import com.example.urstore.data.local.Constants.TOKEN
-import com.example.urstore.data.model.auth_dto.login.LoginData
+import com.example.urstore.data.model.auth_dto.login.LoginDto
 import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
 import com.example.urstore.data.network.APIService
@@ -82,7 +82,7 @@ class AuthRepo @Inject constructor(
         )
     }
 
-    suspend fun saveUserData(loginResponse: LoginData?) {
+    suspend fun saveUserData(loginResponse: LoginDto?) {
         dataStore.apply {
             writeString(F_NAME_KEY, loginResponse?.firstName.toString())
             writeString(L_NAME_KEY, loginResponse?.lastName.toString())

@@ -75,7 +75,7 @@ fun LazyGridScope.seeAllContent(
 ) {
     when (uiState.seeAllState) {
         RequestState.SUCCESS -> {
-            items(uiState.seeAllResponse.data) { product ->
+            items(uiState.seeAllResponse) { product ->
                 ListItemSeeAll(
                     currentItem = product,
                     onItemClicked = {

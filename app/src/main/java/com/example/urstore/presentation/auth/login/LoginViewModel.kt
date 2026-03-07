@@ -84,17 +84,16 @@ class LoginViewModel @Inject constructor(
             if (response is Resource.Success) {
                 _uiState.update {
                     it.copy(
-                        loginResponse = response.data.data,
-                        responseMessage = response.data.message
+                        loginResponse = response.data
                     )
                 }
-                authRepo.saveUserData(response.data.data)
+                authRepo.saveUserData(response.data)
                 updateState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure){
                 _uiState.update {
                     it.copy(
-                        responseMessage = response.errorCode.toString()
+                        responseMessage = response.message.orEmpty()
                     )
                 }
 
