@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
@@ -24,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,12 +60,11 @@ fun LoginScreen(
 
     when (uiState.loginState) {
         RequestState.ERROR -> {
-            context.toast(stringResource(R.string.invalid_input))
+            context.toast(uiState.responseMessage)
             viewModel.onIntent(LoginIntent.ClearErrorState)
         }
 
         RequestState.SUCCESS -> {
-            context.toast(uiState.responseMessage)
             navController.navigate(Screen.HOME_SCREEN.route)
         }
 
@@ -150,7 +150,9 @@ fun LoginScreen(
             }
         )
 
-        LoadingIndicator(isVisible = uiState.loginState == RequestState.LOADING)
+        LoadingIndicator(
+            modifier = Modifier.height(55.dp).wrapContentWidth(),
+            isVisible = uiState.loginState == RequestState.LOADING)
 
 
         Row(
@@ -179,7 +181,5 @@ fun LoginScreen(
                 color = Brown
             )
         }
-
-
     }
 }

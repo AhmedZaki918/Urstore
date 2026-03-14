@@ -49,8 +49,6 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
-
-            is HomeIntent.Logout -> logout()
         }
     }
 
@@ -152,12 +150,6 @@ class HomeViewModel @Inject constructor(
 
             firstName.await()
             lastName.await()
-        }
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            dataStore.clearAllData()
         }
     }
 }

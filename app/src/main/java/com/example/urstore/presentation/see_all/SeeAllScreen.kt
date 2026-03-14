@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.urstore.presentation.home.ListItemPopular
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
@@ -76,7 +75,7 @@ fun LazyGridScope.seeAllContent(
 ) {
     when (uiState.seeAllState) {
         RequestState.SUCCESS -> {
-            items(uiState.seeAllResponse.data) { product ->
+            items(uiState.seeAllResponse) { product ->
                 ListItemSeeAll(
                     currentItem = product,
                     onItemClicked = {
@@ -98,7 +97,9 @@ fun LazyGridScope.seeAllContent(
         RequestState.LOADING -> {
             item(
                 span = { GridItemSpan(maxCurrentLineSpan) }
-            ) { LoadingIndicator() }
+            ) {
+                LoadingIndicator(modifier = Modifier.wrapContentSize())
+            }
         }
         else -> Unit
     }
@@ -108,7 +109,6 @@ fun LazyGridScope.seeAllContent(
 @Composable
 fun SeeAllHeader(
     onBackClicked: () -> Unit
-
 ) {
     ConstraintLayout(
         modifier = Modifier

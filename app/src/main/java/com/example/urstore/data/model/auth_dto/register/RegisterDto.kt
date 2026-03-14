@@ -1,7 +1,12 @@
 package com.example.urstore.data.model.auth_dto.register
 
 data class RegisterDto(
-    val data: Data = Data(),
-    val message: String = "",
-    val status: Int = 0
+    val address: String = "",
+    val clientId: String = "",
+    val displayName: String = "",
+    val email: String? = "",
+    val firstName: String = "",
+    val lastName: String = "",
+    val phone: String = "",
+    val token: String = ""
 )

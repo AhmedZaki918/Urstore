@@ -3,9 +3,8 @@ package com.example.urstore.presentation.auth.login
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
-import com.example.urstore.presentation.auth.signup.SignupIntent
-import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.AuthField
+import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,13 +84,19 @@ class LoginViewModel @Inject constructor(
             if (response is Resource.Success) {
                 _uiState.update {
                     it.copy(
-                        loginResponse = response.data.data,
-                        responseMessage = response.data.message
+                        loginResponse = response.data
                     )
                 }
-                authRepo.saveUserData(response.data.data)
+                authRepo.saveUserData(response.data)
                 updateState(RequestState.SUCCESS)
-            } else {
+
+            } else if (response is Resource.Failure){
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.message.orEmpty()
+                    )
+                }
+
                 updateState(RequestState.ERROR)
             }
         }

@@ -16,6 +16,7 @@ val Black = Color(0xFF000000)
 
 val White = Color(0xFFFFFFFF)
 val Off_White = Color(0xFFf7f5f3)
+val Off_White_2 = Color(0xFFf4f0ef)
 
 val Dark_Beige = Color(0xFFeeb389)
 
