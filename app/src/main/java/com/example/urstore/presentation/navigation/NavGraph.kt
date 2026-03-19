@@ -12,6 +12,9 @@ import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
 import com.example.urstore.presentation.order.OrderScreen
+import com.example.urstore.presentation.password_reset.enter_code.EnterCodeScreen
+import com.example.urstore.presentation.password_reset.forget_password.ForgotPasswordScreen
+import com.example.urstore.presentation.password_reset.reset_password.ResetPassword
 import com.example.urstore.presentation.profile.ProfileScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
@@ -34,6 +37,18 @@ fun NavGraph(
 
         composable(route = Screen.SIGNUP_SCREEN.route) {
             SignupScreen(navController = navController)
+        }
+
+        composable(route = Screen.FORGOT_PASSWORD_SCREEN.route) {
+            ForgotPasswordScreen(navController = navController)
+        }
+
+        composable(route = Screen.ENTER_CODE_SCREEN.route) {
+            EnterCodeScreen(navController = navController)
+        }
+
+        composable(route = Screen.RESET_PASSWORD_SCREEN.route){
+            ResetPassword(navController)
         }
 
         composable(route = Screen.HOME_SCREEN.route) {

@@ -9,5 +9,8 @@ enum class Screen(val route: String) {
     DETAIL_SCREEN("detail_screen"),
     SEE_ALL_SCREEN("see_all_screen"),
     LOGIN_SCREEN("login_screen"),
-    SIGNUP_SCREEN("signup_screen")
+    SIGNUP_SCREEN("signup_screen"),
+    FORGOT_PASSWORD_SCREEN("forgot_screen"),
+    ENTER_CODE_SCREEN("enter_code_screen"),
+    RESET_PASSWORD_SCREEN("reset_password_screen")
 }

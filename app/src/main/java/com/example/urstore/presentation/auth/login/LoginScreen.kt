@@ -75,14 +75,15 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Light_Beige)
-            .padding(top = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(top = 24.dp)
     ) {
 
         Image(
             painter = painterResource(id = R.drawable.cup),
             contentDescription = "",
-            modifier = Modifier.size(160.dp)
+            modifier = Modifier
+                .size(160.dp)
+                .align(Alignment.CenterHorizontally)
         )
 
         Title(
@@ -133,9 +134,12 @@ fun LoginScreen(
         Text(
             text = "Forgot password?",
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = MEDIUM_MARGIN, end = CUSTOM_MARGIN),
-            textAlign = TextAlign.End,
+                .wrapContentWidth()
+                .padding(top = MEDIUM_MARGIN, end = CUSTOM_MARGIN)
+                .align(Alignment.End)
+                .clickable {
+                    navController.navigate(Screen.FORGOT_PASSWORD_SCREEN.route)
+                },
             fontSize = 14.sp
         )
 
@@ -151,16 +155,16 @@ fun LoginScreen(
         )
 
         LoadingIndicator(
-            modifier = Modifier.height(55.dp).wrapContentWidth(),
-            isVisible = uiState.loginState == RequestState.LOADING)
+            modifier = Modifier
+                .height(55.dp)
+                .wrapContentWidth(),
+            isVisible = uiState.loginState == RequestState.LOADING
+        )
 
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    navController.navigate(Screen.SIGNUP_SCREEN.route)
-                },
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             SubTitle(
@@ -176,7 +180,10 @@ fun LoginScreen(
                 id = R.string.signup,
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(top = MEDIUM_MARGIN),
+                    .padding(top = MEDIUM_MARGIN)
+                    .clickable {
+                        navController.navigate(Screen.SIGNUP_SCREEN.route)
+                    },
                 fontSize = 16.sp,
                 color = Brown
             )

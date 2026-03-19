@@ -108,13 +108,10 @@ fun BottomBar(navController: NavHostController) {
     var bottomBarState by rememberSaveable { (mutableStateOf(true)) }
 
     bottomBarState = when (currentDestination?.route) {
-        Screen.DETAIL_SCREEN.route -> false
-        Screen.SEE_ALL_SCREEN.route -> false
-        Screen.CART_SCREEN.route -> false
-        Screen.LOGIN_SCREEN.route -> false
-        Screen.SIGNUP_SCREEN.route -> false
-        Screen.PROFILE_SCREEN.route -> false
-        else -> true
+        Screen.HOME_SCREEN.route -> true
+        Screen.WISHLIST_SCREEN.route -> true
+        Screen.ORDER_SCREEN.route -> true
+        else -> false
     }
 
 

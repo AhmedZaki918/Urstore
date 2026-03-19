@@ -75,7 +75,7 @@ interface SafeApiCall {
         var error: String? = null
         try {
             if (!errorString.isNullOrEmpty()) {
-                val jsonObject = JSONObject(errorString
+                val jsonObject = JSONObject(errorString)
                 error = jsonObject.getString("message")
             }
         } catch (e: Exception) {

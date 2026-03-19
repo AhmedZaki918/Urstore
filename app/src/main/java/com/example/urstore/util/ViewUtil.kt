@@ -39,6 +39,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -71,6 +72,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnit.Companion
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -183,6 +185,7 @@ fun CircleButton(
 
 @Composable
 fun TextFieldShopApp(
+    modifier: Modifier = Modifier,
     input: String,
     onInputChange: (String) -> Unit,
     placeholder: String,
@@ -207,7 +210,7 @@ fun TextFieldShopApp(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = topPadding)
             .shadow(2.dp, RoundedCornerShape(16.dp)),
@@ -217,6 +220,7 @@ fun TextFieldShopApp(
 
 @Composable
 fun TextFieldShopApp(
+    modifier: Modifier = Modifier,
     input: String,
     onInputChange: (String) -> Unit,
     placeholder: String,
@@ -244,7 +248,7 @@ fun TextFieldShopApp(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = topPadding)
             .shadow(2.dp, RoundedCornerShape(16.dp)),
@@ -452,14 +456,43 @@ fun SubTitle(
     @StringRes id: Int,
     modifier: Modifier,
     fontSize: TextUnit = 14.sp,
-    color: Color = Black
+    color: Color = Black,
+    fontWeight: FontWeight? =  null,
+    lineHeight : TextUnit = TextUnit.Unspecified,
+    style: TextStyle = LocalTextStyle.current
 ) {
     Text(
         modifier = modifier,
         text = stringResource(id),
         fontSize = fontSize,
         textAlign = TextAlign.Center,
-        color = color
+        color = color,
+        fontWeight = fontWeight,
+        lineHeight = lineHeight,
+        style = style
+    )
+}
+
+
+@Composable
+fun SubTitle(
+    title: String,
+    modifier: Modifier,
+    fontSize: TextUnit = 14.sp,
+    color: Color = Black,
+    fontWeight: FontWeight? =  null,
+    lineHeight : TextUnit = TextUnit.Unspecified,
+    style: TextStyle = LocalTextStyle.current
+) {
+    Text(
+        modifier = modifier,
+        text = title,
+        fontSize = fontSize,
+        textAlign = TextAlign.Center,
+        color = color,
+        fontWeight = fontWeight,
+        lineHeight = lineHeight,
+        style = style
     )
 }
 

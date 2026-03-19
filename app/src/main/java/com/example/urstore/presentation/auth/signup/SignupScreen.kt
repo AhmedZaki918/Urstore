@@ -215,30 +215,3 @@ fun SignupScreen(
         )
     }
 }
-
-
-//@Composable
-//fun UpdateSignupUiState(
-//    uiState: SignupUiState,
-//    viewModel: SignupViewModel,
-//    context: Context,
-//    navController: NavHostController
-//) {
-//    when (uiState.signupState) {
-//        RequestState.ERROR -> {
-//            context.toast(stringResource(R.string.invalid_input))
-//            viewModel.onIntent(SignupIntent.ClearErrorState)
-//        }
-//
-//        RequestState.SUCCESS -> navController.navigate(Screen.LOGIN_SCREEN.route)
-//        else -> {}
-//    }
-//}
-
-
-//    UpdateSignupUiState(
-//        uiState,
-//        viewModel,
-//        context,
-//        navController
-//    )
