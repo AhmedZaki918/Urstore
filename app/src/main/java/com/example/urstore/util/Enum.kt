@@ -13,5 +13,6 @@ enum class AuthField{
     PHONE,
     ADDRESS,
     PASSWORD,
-    CONFIRM_PASSWORD
+    CONFIRM_PASSWORD,
+    VERIFICATION_CODE
 }

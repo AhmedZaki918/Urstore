@@ -73,7 +73,7 @@ class SignupViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(confirmPassword = value)
                     }
-                }
+                } else -> Unit
             }
         }
     }

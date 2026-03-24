@@ -17,13 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -33,9 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -46,11 +46,24 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Composable
-fun EnterCodeScreen(navController: NavHostController) {
+fun EnterCodeScreen(
+    viewModel: EnterCodeViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+    if (uiState.enterCodeState == RequestState.SUCCESS) {
+        context.toast(uiState.otp)
+        viewModel.onIntent(EnterCodeIntent.RevertStateToIdle)
+    }
+
 
     Column(
         modifier = Modifier
@@ -60,12 +73,16 @@ fun EnterCodeScreen(navController: NavHostController) {
                 top = 50.dp
             ),
     ) {
-        EnterCodeUi(navController)
+        EnterCodeUi(navController, uiState, viewModel)
     }
 }
 
 @Composable
-fun EnterCodeUi(navController: NavHostController) {
+fun EnterCodeUi(
+    navController: NavHostController,
+    uiState: EnterCodeUiState,
+    viewModel: EnterCodeViewModel
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,8 +187,15 @@ fun EnterCodeUi(navController: NavHostController) {
                 Alignment.CenterHorizontally
             )
         ) {
-            for (x in 1..6) {
-                CodeItem()
+            val focusRequesters = List(6) { FocusRequester() }
+
+            uiState.otpSetup.apply {
+                Otp(0, firstDigit, viewModel, focusRequesters)
+                Otp(1, secondDigit, viewModel, focusRequesters)
+                Otp(2, thirdDigit, viewModel, focusRequesters)
+                Otp(3, fourthDigit, viewModel, focusRequesters)
+                Otp(4, fifthDigit, viewModel, focusRequesters)
+                Otp(5, sixthDigit, viewModel, focusRequesters)
             }
         }
 
@@ -191,8 +215,10 @@ fun EnterCodeUi(navController: NavHostController) {
                 ),
             label = "Verify",
             onButtonClicked = {
-                navController.navigate(route = Screen.RESET_PASSWORD_SCREEN.route)
-                //viewModel.onIntent(ForgetPasswordIntent.SendCode)
+                viewModel.onIntent(
+                    EnterCodeIntent.VerifyCode
+                )
+                //navController.navigate(route = Screen.RESET_PASSWORD_SCREEN.route)
             }
         )
 
@@ -213,23 +239,37 @@ fun EnterCodeUi(navController: NavHostController) {
 
 
 @Composable
-fun CodeItem() {
-    var code by remember {
-        mutableStateOf("")
-    }
+fun Otp(
+    index: Int,
+    digit: String,
+    viewModel: EnterCodeViewModel,
+    focusRequesters: List<FocusRequester>
+) {
+    val focusRequester = focusRequesters[index]
 
     TextField(
         modifier = Modifier
-            .size(45.dp)
+            .size(46.dp)
             .border(
                 width = 0.1.dp,
                 color = Color.Gray,
                 shape = RoundedCornerShape(8.dp)
-            ),
-        value = code,
+            )
+            .focusRequester(focusRequester),
+        value = digit,
         onValueChange = { value ->
             if (value.length <= 1) {
-                code = value
+                viewModel.onIntent(
+                    EnterCodeIntent.UpdateTextField(
+                        index = index,
+                        value = value
+                    )
+                )
+
+                // Move to next field automatically
+                if (value.isNotEmpty() && index < focusRequesters.lastIndex) {
+                    focusRequesters[index + 1].requestFocus()
+                }
             }
         },
         placeholder = {
