@@ -5,7 +5,7 @@ import com.example.urstore.util.RequestState
 data class EnterCodeUiState(
     val enterCodeState: RequestState = RequestState.IDLE,
     var otpSetup: OtpSetup = OtpSetup(),
-    var otp : String = ""
+    var otp: String = ""
 )
 
 data class OtpSetup(

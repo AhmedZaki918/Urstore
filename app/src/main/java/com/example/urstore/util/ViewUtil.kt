@@ -72,7 +72,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnit.Companion
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -457,8 +456,8 @@ fun SubTitle(
     modifier: Modifier,
     fontSize: TextUnit = 14.sp,
     color: Color = Black,
-    fontWeight: FontWeight? =  null,
-    lineHeight : TextUnit = TextUnit.Unspecified,
+    fontWeight: FontWeight? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     style: TextStyle = LocalTextStyle.current
 ) {
     Text(
@@ -480,8 +479,8 @@ fun SubTitle(
     modifier: Modifier,
     fontSize: TextUnit = 14.sp,
     color: Color = Black,
-    fontWeight: FontWeight? =  null,
-    lineHeight : TextUnit = TextUnit.Unspecified,
+    fontWeight: FontWeight? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     style: TextStyle = LocalTextStyle.current
 ) {
     Text(

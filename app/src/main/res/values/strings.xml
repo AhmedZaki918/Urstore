@@ -62,9 +62,11 @@
     <string name="enter_code">Enter Code</string>
     <string name="enter_code_below">Enter the code below</string>
     <string name="six_digit_code">A 6-digit code was sent to</string>
-    <string name="resend_code">Resend code in 00:45</string>
+    <string name="send_code_00">Resend code in 00:</string>
+    <string name="send_code_00_0">Resend code in 00:0</string>
     <string name="reset_password">Reset Password</string>
     <string name="create_new_password">Create a new password for your account</string>
+    <string name="resend_code_now">Resend code now</string>
 
 
 </resources>

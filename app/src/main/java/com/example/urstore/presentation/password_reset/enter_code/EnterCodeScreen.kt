@@ -3,6 +3,7 @@ package com.example.urstore.presentation.password_reset.enter_code
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,6 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -50,6 +58,7 @@ import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
 import com.example.urstore.util.toast
+import kotlinx.coroutines.delay
 
 @Composable
 fun EnterCodeScreen(
@@ -69,11 +78,11 @@ fun EnterCodeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Light_Beige)
-            .padding(
-                top = 50.dp
-            ),
+            .padding(top = 50.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         EnterCodeUi(navController, uiState, viewModel)
+        CountdownTimer(viewModel = viewModel)
     }
 }
 
@@ -89,7 +98,7 @@ fun EnterCodeUi(
             .wrapContentHeight()
     ) {
         val (backButton, logoImage, enterCodeText, captionText, emailText,
-            enterCodeBelowText, sixDigitRow, verifyButton, resendCodeText) = createRefs()
+            enterCodeBelowText, sixDigitRow, verifyButton) = createRefs()
 
         BackButton(
             modifier = Modifier.constrainAs(backButton) {
@@ -221,19 +230,6 @@ fun EnterCodeUi(
                 //navController.navigate(route = Screen.RESET_PASSWORD_SCREEN.route)
             }
         )
-
-        SubTitle(
-            modifier = Modifier
-                .constrainAs(resendCodeText) {
-                    top.linkTo(verifyButton.bottom, SMALL_MARGIN)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            title = "Resend code in 00:45",
-            color = Color.Gray
-        )
     }
 }
 
@@ -260,7 +256,7 @@ fun Otp(
         onValueChange = { value ->
             if (value.length <= 1) {
                 viewModel.onIntent(
-                    EnterCodeIntent.UpdateTextField(
+                    EnterCodeIntent.UpdateOtpField(
                         index = index,
                         value = value
                     )
@@ -292,4 +288,60 @@ fun Otp(
             keyboardType = KeyboardType.Number
         )
     )
+}
+
+
+@Composable
+fun CountdownTimer(
+    totalTime: Int = 45,
+    viewModel: EnterCodeViewModel
+) {
+    var timeLeft by remember { mutableIntStateOf(totalTime) }
+    LaunchedEffect(key1 = timeLeft) {
+        if (timeLeft > 0) {
+            delay(1000L)
+            timeLeft--
+        }
+    }
+
+    SendCode(
+        isVisible = timeLeft > 0,
+        title = if (timeLeft >= 10) "${stringResource(R.string.send_code_00)}$timeLeft"
+        else "${stringResource(R.string.send_code_00_0)}$timeLeft"
+    )
+
+    SendCode(
+        isVisible = timeLeft == 0,
+        title = stringResource(R.string.resend_code_now),
+        textDecoration = TextDecoration.Underline,
+        onClicked = {
+            timeLeft = 45
+            viewModel.onIntent(EnterCodeIntent.ResendCode)
+        }
+    )
+}
+
+
+@Composable
+fun SendCode(
+    isVisible: Boolean,
+    title: String,
+    textDecoration: TextDecoration? = null,
+    onClicked: () -> Unit = {}
+) {
+    if (isVisible) {
+        SubTitle(
+            modifier = Modifier
+                .padding(top = SMALL_MARGIN)
+                .wrapContentWidth()
+                .clickable {
+                    onClicked()
+                },
+            title = title,
+            style = TextStyle(
+                color = Color.Gray,
+                textDecoration = textDecoration
+            )
+        )
+    }
 }

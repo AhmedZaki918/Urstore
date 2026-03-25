@@ -23,18 +23,21 @@ class EnterCodeViewModel @Inject constructor(
 
     override fun onIntent(intent: EnterCodeIntent) {
         when (intent) {
-            is EnterCodeIntent.UpdateTextField -> updateTextField(
-                index = intent.index,
-                value = intent.value
-            )
+            is EnterCodeIntent.UpdateOtpField -> updateOtp(intent.index, intent.value)
+            is EnterCodeIntent.VerifyCode -> createOtp()
+            is EnterCodeIntent.RevertStateToIdle ->
+                _uiState.update {
+                    it.copy(
+                        enterCodeState = RequestState.IDLE
+                    )
+                }
 
-            is EnterCodeIntent.VerifyCode -> updateOtp()
-            is EnterCodeIntent.RevertStateToIdle -> updateState(RequestState.IDLE)
+            is EnterCodeIntent.ResendCode -> sendCode()
         }
     }
 
 
-    private fun updateTextField(
+    private fun updateOtp(
         index: Int,
         value: String
     ) {
@@ -53,22 +56,26 @@ class EnterCodeViewModel @Inject constructor(
     }
 
 
-    private fun updateOtp() {
+    private fun createOtp() {
         viewModelScope.launch {
             var otp = ""
             uiState.value.otpSetup.apply {
-                otp = firstDigit + secondDigit + thirdDigit + fourthDigit + fifthDigit + sixthDigit
+                otp = firstDigit + secondDigit + thirdDigit +
+                        fourthDigit + fifthDigit + sixthDigit
             }
             _uiState.update {
-                it.copy(otp = otp)
+                it.copy(
+                    otp = otp,
+                    enterCodeState = RequestState.SUCCESS
+                )
             }
-            updateState(RequestState.SUCCESS)
         }
     }
 
-    private fun updateState(state: RequestState) {
-        _uiState.update {
-            it.copy(enterCodeState = state)
+
+    private fun sendCode() {
+        viewModelScope.launch {
+
         }
     }
 }
