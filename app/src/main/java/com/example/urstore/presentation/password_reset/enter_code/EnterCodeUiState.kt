@@ -3,9 +3,12 @@ package com.example.urstore.presentation.password_reset.enter_code
 import com.example.urstore.util.RequestState
 
 data class EnterCodeUiState(
-    val enterCodeState: RequestState = RequestState.IDLE,
+    val verifyCodeState: RequestState = RequestState.IDLE,
+    val resendCodeState: RequestState = RequestState.IDLE,
     var otpSetup: OtpSetup = OtpSetup(),
-    var otp: String = ""
+    var otp: String = "",
+    var email : String = "",
+    var responseMessage: String? = ""
 )
 
 data class OtpSetup(

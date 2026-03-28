@@ -6,6 +6,9 @@ import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.auth_dto.login.LoginDto
 import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
+import com.example.urstore.data.model.password_reset.ForgetPasswordRequest
+import com.example.urstore.data.model.password_reset.ResetPasswordRequest
+import com.example.urstore.data.model.password_reset.VerifyOtpRequest
 import com.example.urstore.data.network.APIService
 import com.example.urstore.data.network.SafeApiCall
 import com.example.urstore.util.AuthField
@@ -54,6 +57,19 @@ class AuthRepo @Inject constructor(
         }
     }
 
+    fun isPasswordMatch(
+        password: String,
+        newPassword: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        if (password == newPassword) {
+            onSuccess.invoke()
+        } else {
+            onError.invoke()
+        }
+    }
+
 
     suspend fun signup(
         map: HashMap<AuthField, String>
@@ -82,6 +98,12 @@ class AuthRepo @Inject constructor(
         )
     }
 
+    suspend fun forgetPassword(email: String) = safeApiCall {
+        api.forgetPassword(
+            ForgetPasswordRequest(email = email)
+        )
+    }
+
     suspend fun saveUserData(loginResponse: LoginDto?) {
         dataStore.apply {
             writeString(F_NAME_KEY, loginResponse?.firstName.toString())
@@ -100,5 +122,28 @@ class AuthRepo @Inject constructor(
         return if (fullName.contains(' ')) {
             fullName.substringAfter(" ")
         } else fullName
+    }
+
+    suspend fun verifyOtp(otp: String, email: String) = safeApiCall {
+        api.verifyOtp(
+            VerifyOtpRequest(
+                email = email,
+                otp = otp
+            )
+        )
+    }
+
+    suspend fun resetPassword(
+        email: String,
+        otp: String,
+        newPassword: String
+    ) = safeApiCall {
+        api.resetPassword(
+            ResetPasswordRequest(
+                email = email,
+                Otp = otp,
+                NewPassword = newPassword
+            )
+        )
     }
 }

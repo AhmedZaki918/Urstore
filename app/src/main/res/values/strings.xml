@@ -67,6 +67,7 @@
     <string name="reset_password">Reset Password</string>
     <string name="create_new_password">Create a new password for your account</string>
     <string name="resend_code_now">Resend code now</string>
+    <string name="otp_6_digits">OTP must be 6 digits.</string>
 
 
 </resources>

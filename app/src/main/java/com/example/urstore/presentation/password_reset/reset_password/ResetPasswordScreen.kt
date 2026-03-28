@@ -5,40 +5,60 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.auth.signup.SignupIntent
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
-import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 
 @Composable
-fun ResetPassword(navController: NavHostController) {
+fun ResetPasswordScreen(
+    viewModel: ResetPasswordViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+    if (uiState.resetPasswordState == RequestState.SUCCESS) {
+        navController.navigate(route = Screen.LOGIN_SCREEN.route)
+        viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
+
+    } else if (uiState.resetPasswordState == RequestState.ERROR) {
+        context.toast(uiState.responseMessage.toString())
+        viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
+    }
+
 
     Column(
         modifier = Modifier
@@ -48,20 +68,24 @@ fun ResetPassword(navController: NavHostController) {
                 top = 50.dp
             ),
     ) {
-        ResetPasswordUi(navController)
+        ResetPasswordUi(navController, uiState, viewModel)
     }
 }
 
 
 @Composable
-fun ResetPasswordUi(navController: NavHostController) {
+fun ResetPasswordUi(
+    navController: NavHostController,
+    uiState: ResetPasswordUiState,
+    viewModel: ResetPasswordViewModel
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
         val (backButton, logoImage, resetPasswordText, captionText,
-            passwordTextField, confirmPasswordTextField, resetPasswordButton) = createRefs()
+            passwordTextField, confirmPasswordTextField, resetPasswordButton, loadingBox) = createRefs()
 
         BackButton(
             modifier = Modifier.constrainAs(backButton) {
@@ -116,15 +140,17 @@ fun ResetPasswordUi(navController: NavHostController) {
 
         TextFieldShopApp(
             modifier = Modifier.constrainAs(passwordTextField) {
-                top.linkTo(captionText.bottom,MEDIUM_MARGIN)
+                top.linkTo(captionText.bottom, MEDIUM_MARGIN)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            input = "",
+            input = uiState.password,
             onInputChange = { password ->
-//                viewModel.onIntent(
-//                    SignupIntent.UpdateTextField(AuthField.PASSWORD, password)
-//                )
+                viewModel.onIntent(
+                    ResetPasswordIntent.UpdateTextField(
+                        AuthField.PASSWORD, password
+                    )
+                )
             },
             placeholder = stringResource(R.string.new_password),
             leadingIcon = Icons.Outlined.Lock,
@@ -139,11 +165,13 @@ fun ResetPasswordUi(navController: NavHostController) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            input = "",
+            input = uiState.newPassword,
             onInputChange = { confirmPassword ->
-//                viewModel.onIntent(
-//                    SignupIntent.UpdateTextField(AuthField.CONFIRM_PASSWORD, confirmPassword)
-//                )
+                viewModel.onIntent(
+                    ResetPasswordIntent.UpdateTextField(
+                        AuthField.CONFIRM_PASSWORD, confirmPassword
+                    )
+                )
             },
             placeholder = stringResource(R.string.confirm_password),
             leadingIcon = Icons.Outlined.Lock,
@@ -153,6 +181,7 @@ fun ResetPasswordUi(navController: NavHostController) {
 
 
         ButtonShopApp(
+            isVisible = uiState.resetPasswordState != RequestState.LOADING,
             modifier = Modifier
                 .constrainAs(resetPasswordButton) {
                     top.linkTo(confirmPasswordTextField.bottom)
@@ -167,9 +196,22 @@ fun ResetPasswordUi(navController: NavHostController) {
                 ),
             label = "Reset Password",
             onButtonClicked = {
-                navController.navigate(Screen.LOGIN_SCREEN.route)
-                //viewModel.onIntent(ForgetPasswordIntent.SendCode)
+                viewModel.onIntent(
+                    ResetPasswordIntent.ResetPassword
+                )
             }
+        )
+
+        LoadingIndicator(
+            isVisible = uiState.resetPasswordState == RequestState.LOADING,
+            modifier = Modifier
+                .constrainAs(loadingBox) {
+                    top.linkTo(confirmPasswordTextField.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .height(55.dp)
+                .wrapContentWidth(),
         )
     }
 }

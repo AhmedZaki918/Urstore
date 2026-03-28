@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -44,6 +45,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -54,6 +56,7 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
@@ -68,8 +71,14 @@ fun EnterCodeScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
 
-    if (uiState.enterCodeState == RequestState.SUCCESS) {
-        context.toast(uiState.otp)
+    if (uiState.verifyCodeState == RequestState.SUCCESS) {
+        navController.navigate(
+            "${Screen.RESET_PASSWORD_SCREEN.route}/${uiState.email}/${uiState.otp}"
+        )
+        viewModel.onIntent(EnterCodeIntent.RevertStateToIdle)
+
+    } else if (uiState.verifyCodeState == RequestState.ERROR) {
+        context.toast(stringResource(R.string.otp_6_digits))
         viewModel.onIntent(EnterCodeIntent.RevertStateToIdle)
     }
 
@@ -82,7 +91,12 @@ fun EnterCodeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         EnterCodeUi(navController, uiState, viewModel)
-        CountdownTimer(viewModel = viewModel)
+        ResendCodeState(uiState.resendCodeState)
+
+        CountdownTimer(
+            isVisible = uiState.verifyCodeState != RequestState.LOADING,
+            viewModel = viewModel
+        )
     }
 }
 
@@ -98,7 +112,7 @@ fun EnterCodeUi(
             .wrapContentHeight()
     ) {
         val (backButton, logoImage, enterCodeText, captionText, emailText,
-            enterCodeBelowText, sixDigitRow, verifyButton) = createRefs()
+            enterCodeBelowText, sixDigitRow, verifyButton, loadingBox) = createRefs()
 
         BackButton(
             modifier = Modifier.constrainAs(backButton) {
@@ -161,7 +175,7 @@ fun EnterCodeUi(
                 }
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            title = "ahmdzaki004@gmail.com",
+            title = uiState.email,
             fontWeight = FontWeight.SemiBold
         )
 
@@ -210,6 +224,8 @@ fun EnterCodeUi(
 
 
         ButtonShopApp(
+            isVisible = uiState.verifyCodeState != RequestState.LOADING,
+            isButtonClickable = uiState.resendCodeState != RequestState.LOADING,
             modifier = Modifier
                 .constrainAs(verifyButton) {
                     top.linkTo(sixDigitRow.bottom, MEDIUM_MARGIN)
@@ -227,8 +243,19 @@ fun EnterCodeUi(
                 viewModel.onIntent(
                     EnterCodeIntent.VerifyCode
                 )
-                //navController.navigate(route = Screen.RESET_PASSWORD_SCREEN.route)
             }
+        )
+
+        LoadingIndicator(
+            isVisible = uiState.verifyCodeState == RequestState.LOADING,
+            modifier = Modifier
+                .constrainAs(loadingBox) {
+                    top.linkTo(sixDigitRow.bottom, MEDIUM_MARGIN)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .height(55.dp)
+                .wrapContentWidth(),
         )
     }
 }
@@ -293,32 +320,35 @@ fun Otp(
 
 @Composable
 fun CountdownTimer(
+    isVisible: Boolean,
     totalTime: Int = 45,
     viewModel: EnterCodeViewModel
 ) {
-    var timeLeft by remember { mutableIntStateOf(totalTime) }
-    LaunchedEffect(key1 = timeLeft) {
-        if (timeLeft > 0) {
-            delay(1000L)
-            timeLeft--
+    if (isVisible) {
+        var timeLeft by remember { mutableIntStateOf(totalTime) }
+        LaunchedEffect(key1 = timeLeft) {
+            if (timeLeft > 0) {
+                delay(1000L)
+                timeLeft--
+            }
         }
+
+        SendCode(
+            isVisible = timeLeft > 0,
+            title = if (timeLeft >= 10) "${stringResource(R.string.send_code_00)}$timeLeft"
+            else "${stringResource(R.string.send_code_00_0)}$timeLeft"
+        )
+
+        SendCode(
+            isVisible = timeLeft == 0,
+            title = stringResource(R.string.resend_code_now),
+            textDecoration = TextDecoration.Underline,
+            onClicked = {
+                timeLeft = 45
+                viewModel.onIntent(EnterCodeIntent.ResendCode)
+            }
+        )
     }
-
-    SendCode(
-        isVisible = timeLeft > 0,
-        title = if (timeLeft >= 10) "${stringResource(R.string.send_code_00)}$timeLeft"
-        else "${stringResource(R.string.send_code_00_0)}$timeLeft"
-    )
-
-    SendCode(
-        isVisible = timeLeft == 0,
-        title = stringResource(R.string.resend_code_now),
-        textDecoration = TextDecoration.Underline,
-        onClicked = {
-            timeLeft = 45
-            viewModel.onIntent(EnterCodeIntent.ResendCode)
-        }
-    )
 }
 
 
@@ -341,7 +371,18 @@ fun SendCode(
             style = TextStyle(
                 color = Color.Gray,
                 textDecoration = textDecoration
-            )
+            ),
         )
     }
+}
+
+
+@Composable
+fun ResendCodeState(resendCodeState: RequestState) {
+    LoadingIndicator(
+        isVisible = resendCodeState == RequestState.LOADING,
+        modifier = Modifier
+            .height(55.dp)
+            .wrapContentWidth()
+    )
 }

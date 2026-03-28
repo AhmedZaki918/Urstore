@@ -120,22 +120,24 @@ fun LazyGridScope.popularCoffees(
 ) {
     when (uiState.homeState) {
         RequestState.SUCCESS -> {
-            itemsIndexed(uiState.popularResponse) { index, popularItem ->
-                if (index < 2)
-                    ListItemPopular(
-                        currentItem = popularItem,
-                        onItemClicked = {
-                            productSharedViewModel.onIntent(
-                                ProductIntent.OnProductClicked(popularItem)
-                            )
-                            navController.navigate(Screen.DETAIL_SCREEN.route)
-                        },
-                        onPlusClicked = { product ->
-                            viewModel.onIntent(
-                                HomeIntent.AddToCart(product)
-                            )
-                        }
-                    )
+            if (!uiState.popularResponse.isNullOrEmpty()){
+                itemsIndexed(uiState.popularResponse) { index, popularItem ->
+                    if (index < 2)
+                        ListItemPopular(
+                            currentItem = popularItem,
+                            onItemClicked = {
+                                productSharedViewModel.onIntent(
+                                    ProductIntent.OnProductClicked(popularItem)
+                                )
+                                navController.navigate(Screen.DETAIL_SCREEN.route)
+                            },
+                            onPlusClicked = { product ->
+                                viewModel.onIntent(
+                                    HomeIntent.AddToCart(product)
+                                )
+                            }
+                        )
+                }
             }
         }
 

@@ -1,6 +1,9 @@
 package com.example.urstore.presentation.password_reset.enter_code
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
+import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
@@ -14,12 +17,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EnterCodeViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val authRepo: AuthRepo
 ) : BaseViewModel<EnterCodeIntent>() {
 
     private val _uiState = MutableStateFlow(EnterCodeUiState())
     val uiState: StateFlow<EnterCodeUiState> = _uiState.asStateFlow()
 
+    init {
+        savedStateHandle.get<String>(EMAIL_ADDRESS)?.let {
+            saveEmailAddress(email = it)
+        }
+    }
 
     override fun onIntent(intent: EnterCodeIntent) {
         when (intent) {
@@ -28,7 +37,7 @@ class EnterCodeViewModel @Inject constructor(
             is EnterCodeIntent.RevertStateToIdle ->
                 _uiState.update {
                     it.copy(
-                        enterCodeState = RequestState.IDLE
+                        verifyCodeState = RequestState.IDLE
                     )
                 }
 
@@ -58,24 +67,90 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun createOtp() {
         viewModelScope.launch {
+            _uiState.update {
+                it.copy(verifyCodeState = RequestState.LOADING)
+            }
+
             var otp = ""
             uiState.value.otpSetup.apply {
                 otp = firstDigit + secondDigit + thirdDigit +
                         fourthDigit + fifthDigit + sixthDigit
             }
-            _uiState.update {
-                it.copy(
-                    otp = otp,
-                    enterCodeState = RequestState.SUCCESS
-                )
+
+            if (otp.length == 6) {
+                _uiState.update { it.copy(otp = otp) }
+                verifyOtp(otp)
+            } else {
+                _uiState.update {
+                    it.copy(
+                        verifyCodeState = RequestState.ERROR
+                    )
+                }
             }
         }
     }
 
 
+    private fun verifyOtp(otp: String) {
+        viewModelScope.launch {
+            val response = authRepo.verifyOtp(
+                email = uiState.value.email,
+                otp = otp
+            )
+
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.data?.message,
+                        verifyCodeState = RequestState.SUCCESS
+                    )
+                }
+
+            } else if (response is Resource.Failure) {
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.message.orEmpty(),
+                        verifyCodeState = RequestState.ERROR
+                    )
+                }
+            }
+        }
+    }
+
+    private fun saveEmailAddress(email: String) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(email = email)
+            }
+        }
+    }
+
     private fun sendCode() {
         viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    resendCodeState = RequestState.LOADING
+                )
+            }
+            val response = authRepo.forgetPassword(uiState.value.email)
 
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.data?.message,
+                        resendCodeState = RequestState.SUCCESS
+                    )
+                }
+
+
+            } else if (response is Resource.Failure) {
+                _uiState.update {
+                    it.copy(
+                        responseMessage = response.message.orEmpty(),
+                        resendCodeState = RequestState.ERROR
+                    )
+                }
+            }
         }
     }
 }

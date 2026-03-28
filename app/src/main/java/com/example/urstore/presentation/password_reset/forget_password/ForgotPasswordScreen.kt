@@ -5,35 +5,65 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
-import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
+import com.example.urstore.util.AuthField
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
+import com.example.urstore.util.toast
 
 @Composable
-fun ForgotPasswordScreen(navController: NavHostController) {
+fun ForgotPasswordScreen(
+    viewModel: ForgetPasswordViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+    when (uiState.forgetPasswordState) {
+        RequestState.ERROR -> {
+            context.toast(uiState.responseMessage.toString())
+            viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
+        }
+
+        RequestState.SUCCESS -> {
+            navController.navigate(
+                "${Screen.ENTER_CODE_SCREEN.route}/${uiState.email}"
+            )
+            viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
+        }
+
+        else -> Unit
+    }
+
 
     Column(
         modifier = Modifier
@@ -43,24 +73,28 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                 top = 50.dp
             ),
     ) {
-        ForgotPasswordUi(navController)
+        ForgotPasswordUi(navController, uiState, viewModel)
     }
 }
 
 @Composable
-fun ForgotPasswordUi(navController: NavHostController) {
+fun ForgotPasswordUi(
+    navController: NavHostController,
+    uiState: ForgetPasswordUiState,
+    viewModel: ForgetPasswordViewModel
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
         val (backButton, logoImage, forgotPasswordText,
-            captionText, emailTextField, sendCodeButton) = createRefs()
+            captionText, emailTextField, sendCodeButton, loadingView) = createRefs()
 
         BackButton(
             modifier = Modifier.constrainAs(backButton) {
                 top.linkTo(parent.top)
-                start.linkTo(parent.start,MEDIUM_MARGIN)
+                start.linkTo(parent.start, MEDIUM_MARGIN)
             },
             onBackClicked = {
                 navController.popBackStack()
@@ -114,11 +148,14 @@ fun ForgotPasswordUi(navController: NavHostController) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            input = "",
+            input = uiState.email,
             onInputChange = { email ->
-//                viewModel.onIntent(
-//                    ForgetPasswordIntent.UpdateTextField(AuthField.EMAIL, email)
-//                )
+                viewModel.onIntent(
+                    ForgetPasswordIntent.UpdateTextField(
+                        AuthField.EMAIL,
+                        email
+                    )
+                )
             },
             placeholder = "Email Address",
             leadingIcon = Icons.Outlined.Email,
@@ -128,6 +165,7 @@ fun ForgotPasswordUi(navController: NavHostController) {
 
 
         ButtonShopApp(
+            isVisible = uiState.forgetPasswordState != RequestState.LOADING,
             modifier = Modifier
                 .constrainAs(sendCodeButton) {
                     top.linkTo(emailTextField.bottom)
@@ -142,9 +180,20 @@ fun ForgotPasswordUi(navController: NavHostController) {
                 ),
             label = "Send Code",
             onButtonClicked = {
-                navController.navigate(Screen.ENTER_CODE_SCREEN.route)
-                //viewModel.onIntent(ForgetPasswordIntent.SendCode)
+                viewModel.onIntent(ForgetPasswordIntent.SendCode)
             }
+        )
+
+        LoadingIndicator(
+            isVisible = uiState.forgetPasswordState == RequestState.LOADING,
+            modifier = Modifier
+                .constrainAs(loadingView) {
+                    top.linkTo(emailTextField.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .height(55.dp)
+                .wrapContentWidth(),
         )
     }
 }

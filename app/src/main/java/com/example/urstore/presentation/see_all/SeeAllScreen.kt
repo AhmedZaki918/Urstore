@@ -75,16 +75,18 @@ fun LazyGridScope.seeAllContent(
 ) {
     when (uiState.seeAllState) {
         RequestState.SUCCESS -> {
-            items(uiState.seeAllResponse) { product ->
-                ListItemSeeAll(
-                    currentItem = product,
-                    onItemClicked = {
-                        productSharedViewModel.onIntent(
-                            ProductIntent.OnProductClicked(product)
-                        )
-                        navController.navigate(Screen.DETAIL_SCREEN.route)
-                    }
-                )
+            if (!uiState.seeAllResponse.isNullOrEmpty()){
+                items(uiState.seeAllResponse) { product ->
+                    ListItemSeeAll(
+                        currentItem = product,
+                        onItemClicked = {
+                            productSharedViewModel.onIntent(
+                                ProductIntent.OnProductClicked(product)
+                            )
+                            navController.navigate(Screen.DETAIL_SCREEN.route)
+                        }
+                    )
+                }
             }
         }
 

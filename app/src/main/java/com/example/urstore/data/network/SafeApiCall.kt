@@ -25,14 +25,7 @@ interface SafeApiCall {
                         null
                     )
 
-                    val data = body.data ?: return@withContext Resource.Failure(
-                        true,
-                        response.code(),
-                        null,
-                        body.message
-                    )
-
-                    Resource.Success(data)
+                    Resource.Success(body.data)
 
                 } else {
                     // Non 200 ex: (400, 401, 500)

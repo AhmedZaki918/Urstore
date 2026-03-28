@@ -5,5 +5,5 @@ import com.example.urstore.util.RequestState
 
 data class SeeAllUiState(
     val seeAllState: RequestState = RequestState.IDLE,
-    val seeAllResponse: List<DrinksDataDto> = emptyList()
+    val seeAllResponse: List<DrinksDataDto>? = emptyList()
 )

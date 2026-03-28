@@ -8,7 +8,7 @@ import com.example.urstore.util.RequestState
 data class HomeUiState(
     val homeState: RequestState = RequestState.IDLE,
     val homeCategories: List<HomeCategory> = emptyList(),
-    val popularResponse: List<DrinksDataDto> = emptyList(),
+    val popularResponse: List<DrinksDataDto>? = emptyList(),
     val addedToCartState: RequestState = RequestState.IDLE,
     var firstName : String = "",
     var lastName : String = ""

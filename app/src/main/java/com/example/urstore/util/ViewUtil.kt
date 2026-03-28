@@ -97,16 +97,19 @@ fun ButtonShopApp(
     modifier: Modifier = Modifier.wrapContentWidth(),
     label: String,
     isVisible: Boolean = true,
+    isButtonClickable: Boolean = true,
     onButtonClicked: () -> Unit
 ) {
     if (isVisible) {
         Button(
             onClick = {
-                onButtonClicked()
+                if (isButtonClickable) {
+                    onButtonClicked()
+                }
             },
             shape = RoundedCornerShape(LARGE_MARGIN),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Brown,
+                containerColor = if (isButtonClickable) Brown else Brown.copy(alpha = 0.7f),
                 contentColor = Color.White
             ),
             modifier = modifier
