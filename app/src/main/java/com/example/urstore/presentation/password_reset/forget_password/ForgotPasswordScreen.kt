@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,21 +49,24 @@ fun ForgotPasswordScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
 
-    when (uiState.forgetPasswordState) {
-        RequestState.ERROR -> {
-            context.toast(uiState.responseMessage.toString())
-            viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
-        }
+    LaunchedEffect(uiState.forgetPasswordState) {
+        when (uiState.forgetPasswordState) {
+            RequestState.ERROR -> {
+                context.toast(uiState.responseMessage.toString())
+                viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
+            }
 
-        RequestState.SUCCESS -> {
-            navController.navigate(
-                "${Screen.ENTER_CODE_SCREEN.route}/${uiState.email}"
-            )
-            viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
-        }
+            RequestState.SUCCESS -> {
+                navController.navigate(
+                    "${Screen.ENTER_CODE_SCREEN.route}/${uiState.email}"
+                )
+                viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
+            }
 
-        else -> Unit
+            else -> Unit
+        }
     }
+
 
 
     Column(

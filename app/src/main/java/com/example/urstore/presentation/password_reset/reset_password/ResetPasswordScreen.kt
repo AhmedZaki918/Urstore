@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,14 +51,17 @@ fun ResetPasswordScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
 
-    if (uiState.resetPasswordState == RequestState.SUCCESS) {
-        navController.navigate(route = Screen.LOGIN_SCREEN.route)
-        viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
+    LaunchedEffect(uiState.resetPasswordState) {
+        if (uiState.resetPasswordState == RequestState.SUCCESS) {
+            navController.navigate(route = Screen.LOGIN_SCREEN.route)
+            viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
 
-    } else if (uiState.resetPasswordState == RequestState.ERROR) {
-        context.toast(uiState.responseMessage.toString())
-        viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
+        } else if (uiState.resetPasswordState == RequestState.ERROR) {
+            context.toast(uiState.responseMessage.toString())
+            viewModel.onIntent(ResetPasswordIntent.ResetUiStateToIdle)
+        }
     }
+
 
 
     Column(

@@ -2,6 +2,7 @@ package com.example.urstore.presentation.password_reset.enter_code
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.R
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
@@ -83,7 +84,8 @@ class EnterCodeViewModel @Inject constructor(
             } else {
                 _uiState.update {
                     it.copy(
-                        verifyCodeState = RequestState.ERROR
+                        verifyCodeState = RequestState.ERROR,
+                        responseMessage = "OTP must be 6 digits."
                     )
                 }
             }
