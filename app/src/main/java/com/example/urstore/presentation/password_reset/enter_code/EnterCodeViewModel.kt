@@ -2,15 +2,16 @@ package com.example.urstore.presentation.password_reset.enter_code
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.R
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,6 +26,9 @@ class EnterCodeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(EnterCodeUiState())
     val uiState: StateFlow<EnterCodeUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<EnterCodeEffect>()
+    val effects = _effects.asSharedFlow()
+
     init {
         savedStateHandle.get<String>(EMAIL_ADDRESS)?.let {
             saveEmailAddress(email = it)
@@ -35,13 +39,6 @@ class EnterCodeViewModel @Inject constructor(
         when (intent) {
             is EnterCodeIntent.UpdateOtpField -> updateOtp(intent.index, intent.value)
             is EnterCodeIntent.VerifyCode -> createOtp()
-            is EnterCodeIntent.RevertStateToIdle ->
-                _uiState.update {
-                    it.copy(
-                        verifyCodeState = RequestState.IDLE
-                    )
-                }
-
             is EnterCodeIntent.ResendCode -> sendCode()
         }
     }
@@ -68,9 +65,7 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun createOtp() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(verifyCodeState = RequestState.LOADING)
-            }
+            updateVerifyState(RequestState.LOADING)
 
             var otp = ""
             uiState.value.otpSetup.apply {
@@ -82,12 +77,8 @@ class EnterCodeViewModel @Inject constructor(
                 _uiState.update { it.copy(otp = otp) }
                 verifyOtp(otp)
             } else {
-                _uiState.update {
-                    it.copy(
-                        verifyCodeState = RequestState.ERROR,
-                        responseMessage = "OTP must be 6 digits."
-                    )
-                }
+                _effects.emit(EnterCodeEffect.ShowToast("OTP must be 6 digits."))
+                updateVerifyState(RequestState.IDLE)
             }
         }
     }
@@ -101,20 +92,12 @@ class EnterCodeViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.data?.message,
-                        verifyCodeState = RequestState.SUCCESS
-                    )
-                }
+                _effects.emit(EnterCodeEffect.Navigate(uiState.value.email, otp))
+                updateVerifyState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.message.orEmpty(),
-                        verifyCodeState = RequestState.ERROR
-                    )
-                }
+                updateVerifyState(RequestState.IDLE)
+                _effects.emit(EnterCodeEffect.ShowToast(response.message.orEmpty()))
             }
         }
     }
@@ -129,30 +112,29 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun sendCode() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    resendCodeState = RequestState.LOADING
-                )
-            }
+            updateResendState(RequestState.LOADING)
             val response = authRepo.forgetPassword(uiState.value.email)
 
             if (response is Resource.Success) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.data?.message,
-                        resendCodeState = RequestState.SUCCESS
-                    )
-                }
-
+                updateResendState(RequestState.SUCCESS)
+                _effects.emit(EnterCodeEffect.ShowToast("OTP sent successfully."))
 
             } else if (response is Resource.Failure) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.message.orEmpty(),
-                        resendCodeState = RequestState.ERROR
-                    )
-                }
+                _effects.emit(EnterCodeEffect.ShowToast(response.message.orEmpty()))
+                updateResendState(RequestState.IDLE)
             }
+        }
+    }
+
+    private fun updateResendState(requestState: RequestState) {
+        _uiState.update {
+            it.copy(resendCodeState = requestState)
+        }
+    }
+
+    private fun updateVerifyState(requestState: RequestState) {
+        _uiState.update {
+            it.copy(verifyCodeState = requestState)
         }
     }
 }

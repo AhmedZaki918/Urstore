@@ -8,6 +8,5 @@ sealed class EnterCodeIntent {
     ) : EnterCodeIntent()
 
     object VerifyCode : EnterCodeIntent()
-    object RevertStateToIdle : EnterCodeIntent()
     object ResendCode : EnterCodeIntent()
 }

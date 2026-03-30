@@ -71,16 +71,19 @@ fun EnterCodeScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.verifyCodeState) {
-        if (uiState.verifyCodeState == RequestState.SUCCESS) {
-            navController.navigate(
-                "${Screen.RESET_PASSWORD_SCREEN.route}/${uiState.email}/${uiState.otp}"
-            )
-            viewModel.onIntent(EnterCodeIntent.RevertStateToIdle)
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is EnterCodeEffect.ShowToast -> {
+                    context.toast(effect.message)
+                }
 
-        } else if (uiState.verifyCodeState == RequestState.ERROR) {
-            context.toast(uiState.responseMessage.toString())
-            viewModel.onIntent(EnterCodeIntent.RevertStateToIdle)
+                is EnterCodeEffect.Navigate -> {
+                    navController.navigate(
+                        "${Screen.RESET_PASSWORD_SCREEN.route}/${effect.email}/${effect.otp}"
+                    )
+                }
+            }
         }
     }
 

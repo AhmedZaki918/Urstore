@@ -43,12 +43,16 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -607,6 +611,25 @@ fun LoadingIndicator(
                 color = Brown,
                 modifier = Modifier.fillMaxWidth(0.25f)
             )
+        }
+    }
+}
+
+
+@Composable
+fun SnackBar(
+    hostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+    SnackbarHost(
+        hostState = hostState,
+        modifier = modifier.padding(MEDIUM_MARGIN)
+    ) { data ->
+        Snackbar(
+            containerColor = Color(0xFF323232),
+            contentColor = Color.White
+        ) {
+            Text(text = data.visuals.message)
         }
     }
 }
