@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -31,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -58,9 +60,9 @@ import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
-import com.example.urstore.util.toast
 import kotlinx.coroutines.delay
 
 @Composable
@@ -69,13 +71,17 @@ fun EnterCodeScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is EnterCodeEffect.ShowToast -> {
-                    context.toast(effect.message)
+                is EnterCodeEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.requestState,
+                        duration = SnackbarDuration.Short
+                    )
                 }
 
                 is EnterCodeEffect.Navigate -> {
@@ -88,20 +94,31 @@ fun EnterCodeScreen(
     }
 
 
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Light_Beige)
-            .padding(top = 50.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EnterCodeUi(navController, uiState, viewModel)
-        ResendCodeState(uiState.resendCodeState)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = 50.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EnterCodeUi(navController, uiState, viewModel)
+            ResendCodeState(uiState.resendCodeState)
 
-        CountdownTimer(
-            isVisible = uiState.verifyCodeState != RequestState.LOADING,
-            viewModel = viewModel
+            CountdownTimer(
+                isVisible = uiState.verifyCodeState != RequestState.LOADING,
+                viewModel = viewModel
+            )
+        }
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 60.dp)
         )
     }
 }

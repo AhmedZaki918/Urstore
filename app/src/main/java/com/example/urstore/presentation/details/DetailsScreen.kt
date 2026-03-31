@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,7 +54,6 @@ import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.QtyButton
-import com.example.urstore.util.RequestState
 import com.example.urstore.util.SizeShape
 import com.example.urstore.util.Title
 import com.example.urstore.util.toast
@@ -68,55 +69,59 @@ fun DetailsScreen(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
-    UpdateAddToCartState(
-        viewModel = detailsViewModel,
-        uiState = uiState,
-        onSuccess = {
-            context.toast(stringResource(R.string.added_to_cart))
-        },
-        onError = {
-            context.toast(stringResource(R.string.already_exist))
+    LaunchedEffect(Unit) {
+        detailsViewModel.effects.collect { effect ->
+            if (effect is DetailsEffect.ShowSnackbar) {
+                context.toast(effect.message)
+            }
         }
-    )
+    }
 
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .background(White)
     ) {
-        DetailsHeader(
-            navController,
-            product
-        )
-        ProductSizeBar(
-            uiState.productSize,
-            onItemClicked = {
-                detailsViewModel.onIntent(
-                    DetailsIntent.OnSizeClicked(it)
-                )
-            }
-        )
-        QtyAndRating(product)
-        Description(product)
-        AddToCart(
-            popularItem = product,
-            onAddToCartClicked = {
-                detailsViewModel.onIntent(
-                    DetailsIntent.AddToCart(
-                        DrinksDataDto(
-                            title = product.title,
-                            rate = product.rate,
-                            id = product.id,
-                            price = product.price,
-                            description = product.description,
-                            imageName = product.imageName
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .verticalScroll(scrollState)
+        ) {
+            DetailsHeader(
+                navController,
+                product
+            )
+            ProductSizeBar(
+                uiState.productSize,
+                onItemClicked = {
+                    detailsViewModel.onIntent(
+                        DetailsIntent.OnSizeClicked(it)
+                    )
+                }
+            )
+            QtyAndRating(product)
+            Description(product)
+
+            AddToCart(
+                popularItem = product,
+                onAddToCartClicked = {
+                    detailsViewModel.onIntent(
+                        DetailsIntent.AddToCart(
+                            DrinksDataDto(
+                                title = product.title,
+                                rate = product.rate,
+                                id = product.id,
+                                price = product.price,
+                                description = product.description,
+                                imageName = product.imageName
+                            )
                         )
                     )
-                )
-            }
-        )
+                }
+            )
+        }
     }
 }
 
@@ -374,20 +379,4 @@ fun AddToCart(
             fontWeight = FontWeight.Bold
         )
     }
-}
-
-
-@Composable
-fun UpdateAddToCartState(
-    uiState: DetailsUiState,
-    onSuccess: @Composable () -> Unit,
-    onError: @Composable () -> Unit,
-    viewModel: DetailsViewModel
-) {
-    if (uiState.addedToCartState == RequestState.SUCCESS) {
-        onSuccess.invoke()
-    } else if (uiState.addedToCartState == RequestState.ERROR) {
-        onError.invoke()
-    }
-    viewModel.onIntent(DetailsIntent.RevertAddedToCartStateToIdle)
 }

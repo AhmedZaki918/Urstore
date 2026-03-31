@@ -7,11 +7,16 @@ enum class RequestState {
     ERROR
 }
 
-enum class AuthField{
+enum class AuthField {
     NAME,
     EMAIL,
     PHONE,
     ADDRESS,
     PASSWORD,
     CONFIRM_PASSWORD
+}
+
+enum class SnackbarState(val message: String) {
+    SUCCESS("SUCCESS"),
+    ERROR("ERROR")
 }

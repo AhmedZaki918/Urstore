@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +28,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -52,7 +57,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,6 +93,7 @@ import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
+import com.example.urstore.ui.theme.Medium_Brown
 import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.Off_White_2
 import com.example.urstore.ui.theme.SMALL_MARGIN
@@ -623,14 +628,90 @@ fun SnackBar(
 ) {
     SnackbarHost(
         hostState = hostState,
-        modifier = modifier.padding(MEDIUM_MARGIN)
+        modifier = modifier
+            .padding(MEDIUM_MARGIN)
     ) { data ->
         Snackbar(
-            containerColor = Color(0xFF323232),
-            contentColor = Color.White
+            containerColor = Off_White,
+            contentColor = Medium_Brown,
+            action = {
+                IconButton(onClick = {
+                    data.dismiss()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "",
+                        tint = Brown
+                    )
+                }
+            }
         ) {
-            Text(text = data.visuals.message)
+            // Show task has been completed successfully
+            if (data.visuals.actionLabel == SnackbarState.SUCCESS.message) {
+                Row(modifier = Modifier.wrapContentWidth()) {
+                    CircleWithIcon(
+                        circleColor = Brown,
+                        icon = Icons.Default.Done,
+                        iconTint = Color.White
+                    )
+
+                    Text(text = data.visuals.message)
+                }
+
+            } else {
+                // Show task has been failed
+                ConstraintLayout(modifier = Modifier.wrapContentSize()) {
+                    val (icon, text) = createRefs()
+
+                    Icon(
+                        modifier = Modifier
+                            .constrainAs(icon) {
+                                start.linkTo(parent.start)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .padding(start = SMALL_MARGIN, end = SMALL_MARGIN),
+                        imageVector = Icons.Default.Error,
+                        contentDescription = "",
+                        tint = Brown
+                    )
+
+                    Text(
+                        modifier = Modifier.constrainAs(text) {
+                            start.linkTo(icon.end)
+                            top.linkTo(icon.top)
+                            bottom.linkTo(icon.bottom)
+                        },
+                        text = data.visuals.message
+                    )
+                }
+            }
         }
+    }
+}
+
+
+@Composable
+fun CircleWithIcon(
+    circleColor: Color,
+    icon: ImageVector,
+    iconTint: Color
+) {
+    Box(
+        modifier = Modifier
+            .padding(end = SMALL_MARGIN)
+            .wrapContentSize()
+            .background(color = circleColor, shape = CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(23.dp)
+                .padding(VERY_SMALL_MARGIN),
+            imageVector = icon,
+            contentDescription = "",
+            tint = iconTint
+        )
     }
 }
 

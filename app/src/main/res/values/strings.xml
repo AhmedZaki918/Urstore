@@ -23,7 +23,7 @@
     <string name="total">Total</string>
     <string name="proceed_to_checkout">Proceed to Checkout</string>
     <string name="added_to_cart">Added to cart</string>
-    <string name="already_exist">Already Exist</string>
+    <string name="already_exist">Already exist in cart</string>
     <string name="qty">Qty.</string>
     <string name="no_data_found">No data has been found..</string>
     <string name="welcome_back">Welcome Back</string>

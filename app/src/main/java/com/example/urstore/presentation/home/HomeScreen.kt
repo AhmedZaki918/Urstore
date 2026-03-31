@@ -2,6 +2,7 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,15 +16,18 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,9 +52,9 @@ import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SearchBar
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
-import com.example.urstore.util.toast
 
 @Composable
 fun HomeScreen(
@@ -59,54 +63,70 @@ fun HomeScreen(
     productSharedViewModel: ProductSharedViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState().value
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    UpdateAddToCartState(
-        viewModel = viewModel,
-        uiState = uiState,
-        onSuccess = {
-            context.toast(stringResource(R.string.added_to_cart))
-        },
-        onError = {
-            context.toast(stringResource(R.string.already_exist))
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            if (effect is HomeEffect.ShowSnackbar) {
+                snackbarHostState.showSnackbar(
+                    message = effect.message,
+                    actionLabel = effect.requestState,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
-    )
+    }
 
-    LazyVerticalGrid(
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Beige),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(bottom = 130.dp)
     ) {
-
-        item(
-            span = { GridItemSpan(maxCurrentLineSpan) }
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(bottom = 130.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
+
+            item(
+                span = { GridItemSpan(maxCurrentLineSpan) }
             ) {
-                HomeHeader(uiState)
-                HomeCategoryUi(
-                    categories = uiState.homeCategories,
-                    onItemClicked = { id ->
-                        viewModel.onIntent(
-                            HomeIntent.OnCategoryClicked(id)
-                        )
-                        navController.navigate(Screen.SEE_ALL_SCREEN.route)
-                    }
-                )
-                PopularTitle()
+                Column(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                ) {
+                    HomeHeader(uiState)
+                    HomeCategoryUi(
+                        categories = uiState.homeCategories,
+                        onItemClicked = { id ->
+                            viewModel.onIntent(
+                                HomeIntent.OnCategoryClicked(id)
+                            )
+                            navController.navigate(Screen.SEE_ALL_SCREEN.route)
+                        }
+                    )
+                    PopularTitle()
+                }
             }
+
+            popularCoffees(
+                uiState,
+                viewModel,
+                productSharedViewModel,
+                navController
+            )
         }
 
-        popularCoffees(
-            uiState,
-            viewModel,
-            productSharedViewModel,
-            navController
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 120.dp)
         )
     }
 }
@@ -120,7 +140,7 @@ fun LazyGridScope.popularCoffees(
 ) {
     when (uiState.homeState) {
         RequestState.SUCCESS -> {
-            if (!uiState.popularResponse.isNullOrEmpty()){
+            if (!uiState.popularResponse.isNullOrEmpty()) {
                 itemsIndexed(uiState.popularResponse) { index, popularItem ->
                     if (index < 2)
                         ListItemPopular(
@@ -313,19 +333,4 @@ fun PopularTitle() {
             id = R.string.see_all,
         )
     }
-}
-
-@Composable
-fun UpdateAddToCartState(
-    uiState: HomeUiState,
-    onSuccess: @Composable () -> Unit,
-    onError: @Composable () -> Unit,
-    viewModel: HomeViewModel
-) {
-    if (uiState.addedToCartState == RequestState.SUCCESS) {
-        onSuccess.invoke()
-    } else if (uiState.addedToCartState == RequestState.ERROR) {
-        onError.invoke()
-    }
-    viewModel.onIntent(HomeIntent.RevertAddedToCartStateToIdle)
 }

@@ -10,6 +10,4 @@ sealed class HomeIntent {
     data class AddToCart(
         val item: DrinksDataDto
     ) : HomeIntent()
-
-    object RevertAddedToCartStateToIdle : HomeIntent()
 }

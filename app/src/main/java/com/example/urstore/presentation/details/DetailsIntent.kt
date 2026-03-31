@@ -11,6 +11,4 @@ sealed class DetailsIntent {
     data class AddToCart(
         val item: DrinksDataDto
     ) : DetailsIntent()
-
-    object RevertAddedToCartStateToIdle : DetailsIntent()
 }

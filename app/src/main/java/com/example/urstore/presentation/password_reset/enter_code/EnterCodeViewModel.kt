@@ -7,6 +7,7 @@ import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.SnackbarState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,7 +78,12 @@ class EnterCodeViewModel @Inject constructor(
                 _uiState.update { it.copy(otp = otp) }
                 verifyOtp(otp)
             } else {
-                _effects.emit(EnterCodeEffect.ShowToast("OTP must be 6 digits."))
+                _effects.emit(
+                    EnterCodeEffect.ShowSnackbar(
+                        message = "OTP must be 6 digits.",
+                        requestState = SnackbarState.ERROR.message
+                    )
+                )
                 updateVerifyState(RequestState.IDLE)
             }
         }
@@ -97,7 +103,12 @@ class EnterCodeViewModel @Inject constructor(
 
             } else if (response is Resource.Failure) {
                 updateVerifyState(RequestState.IDLE)
-                _effects.emit(EnterCodeEffect.ShowToast(response.message.orEmpty()))
+                _effects.emit(
+                    EnterCodeEffect.ShowSnackbar(
+                        message = response.message.orEmpty(),
+                        requestState = SnackbarState.ERROR.message
+                    )
+                )
             }
         }
     }
@@ -117,10 +128,20 @@ class EnterCodeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateResendState(RequestState.SUCCESS)
-                _effects.emit(EnterCodeEffect.ShowToast("OTP sent successfully."))
+                _effects.emit(
+                    EnterCodeEffect.ShowSnackbar(
+                        message = "OTP sent successfully.",
+                        requestState = SnackbarState.SUCCESS.message
+                    )
+                )
 
             } else if (response is Resource.Failure) {
-                _effects.emit(EnterCodeEffect.ShowToast(response.message.orEmpty()))
+                _effects.emit(
+                    EnterCodeEffect.ShowSnackbar(
+                        message = response.message.orEmpty(),
+                        requestState = SnackbarState.ERROR.message
+                    )
+                )
                 updateResendState(RequestState.IDLE)
             }
         }

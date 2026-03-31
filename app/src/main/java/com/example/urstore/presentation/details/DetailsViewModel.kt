@@ -4,11 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.util.BaseViewModel
-import com.example.urstore.util.RequestState
 import com.example.urstore.util.productSizeDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,6 +23,10 @@ class DetailsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailsUiState())
     val uiState: StateFlow<DetailsUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<DetailsEffect>()
+    val effects = _effects.asSharedFlow()
+
+
     init {
         displayProductSize()
     }
@@ -31,13 +36,6 @@ class DetailsViewModel @Inject constructor(
         when (intent) {
             is DetailsIntent.OnSizeClicked -> setSizeActive(intent.id)
             is DetailsIntent.AddToCart -> addToCart(intent.item)
-            is DetailsIntent.RevertAddedToCartStateToIdle -> {
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.IDLE
-                    )
-                }
-            }
         }
     }
 
@@ -71,20 +69,12 @@ class DetailsViewModel @Inject constructor(
 
     private fun addToCart(item: DrinksDataDto) {
         viewModelScope.launch {
-
             if (!cartRepo.isItemInCart(item.id)) {
                 cartRepo.addToCart(item)
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.SUCCESS
-                    )
-                }
+                _effects.emit(DetailsEffect.ShowSnackbar("Added to cart"))
+
             } else if (cartRepo.isItemInCart(item.id)) {
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.ERROR
-                    )
-                }
+                _effects.emit(DetailsEffect.ShowSnackbar("Already exist in cart"))
             }
         }
     }

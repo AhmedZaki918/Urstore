@@ -10,11 +10,14 @@ import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.SnackbarState
 import com.example.urstore.util.homeCategoriesDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
@@ -31,6 +34,9 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<HomeEffect>()
+    val effects = _effects.asSharedFlow()
+
     init {
         getUserData()
         displayCategories()
@@ -42,13 +48,6 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
             is HomeIntent.AddToCart -> addToCart(intent.item)
-            is HomeIntent.RevertAddedToCartStateToIdle -> {
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.IDLE
-                    )
-                }
-            }
         }
     }
 
@@ -107,17 +106,20 @@ class HomeViewModel @Inject constructor(
 
             if (!cartRepo.isItemInCart(item.id)) {
                 cartRepo.addToCart(item)
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.SUCCESS
+                _effects.emit(
+                    HomeEffect.ShowSnackbar(
+                        message = "Added to Cart",
+                        requestState = SnackbarState.SUCCESS.message
                     )
-                }
+                )
+
             } else if (cartRepo.isItemInCart(item.id)) {
-                _uiState.update {
-                    it.copy(
-                        addedToCartState = RequestState.ERROR
+                _effects.emit(
+                    HomeEffect.ShowSnackbar(
+                        "Already exist in cart",
+                        requestState = SnackbarState.ERROR.message
                     )
-                }
+                )
             }
         }
     }
