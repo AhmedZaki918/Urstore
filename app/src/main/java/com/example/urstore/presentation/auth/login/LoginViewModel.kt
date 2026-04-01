@@ -3,12 +3,16 @@ package com.example.urstore.presentation.auth.login
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,11 +27,13 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<UiEffect>()
+    val effects = _effects.asSharedFlow()
+
     override fun onIntent(intent: LoginIntent) {
         when (intent) {
             is LoginIntent.UpdateTextField -> updateTextField(intent.textFieldType, intent.value)
             is LoginIntent.Login -> checkUserInput()
-            is LoginIntent.ClearErrorState -> updateState(RequestState.IDLE)
         }
     }
 
@@ -60,16 +66,19 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             updateState(RequestState.LOADING)
 
-            authRepo.isInputValidOnLogin(
-                email = uiState.value.email,
-                password = uiState.value.password,
-                onSuccess = {
-                    login()
-                },
-                onError = {
-                    updateState(RequestState.ERROR)
-                }
-            )
+            if (uiState.value.email.isNotEmpty() &&
+                uiState.value.password.isNotEmpty()
+            ) {
+                login()
+            } else {
+                updateState(RequestState.ERROR)
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Email and password are required.",
+                        actionLabel = ActionLabel.ERROR.value
+                    )
+                )
+            }
         }
     }
 
@@ -82,26 +91,21 @@ class LoginViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                _uiState.update {
-                    it.copy(
-                        loginResponse = response.data
-                    )
-                }
-                authRepo.saveUserData(response.data)
                 updateState(RequestState.SUCCESS)
+                authRepo.saveUserData(response.data)
+                _effects.emit(UiEffect.Navigate)
 
-            } else if (response is Resource.Failure){
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.message.orEmpty()
-                    )
-                }
-
+            } else if (response is Resource.Failure) {
                 updateState(RequestState.ERROR)
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = response.message.orEmpty(),
+                        actionLabel = ActionLabel.ERROR.value
+                    )
+                )
             }
         }
     }
-
 
     private fun updateState(state: RequestState) {
         _uiState.update {

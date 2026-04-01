@@ -10,7 +10,8 @@ import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.SnackbarState
+import com.example.urstore.util.ActionLabel
+import com.example.urstore.util.UiEffect
 import com.example.urstore.util.homeCategoriesDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    private val _effects = MutableSharedFlow<HomeEffect>()
+    private val _effects = MutableSharedFlow<UiEffect>()
     val effects = _effects.asSharedFlow()
 
     init {
@@ -107,17 +108,17 @@ class HomeViewModel @Inject constructor(
             if (!cartRepo.isItemInCart(item.id)) {
                 cartRepo.addToCart(item)
                 _effects.emit(
-                    HomeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         message = "Added to Cart",
-                        requestState = SnackbarState.SUCCESS.message
+                        actionLabel = ActionLabel.SUCCESS.value
                     )
                 )
 
             } else if (cartRepo.isItemInCart(item.id)) {
                 _effects.emit(
-                    HomeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         "Already exist in cart",
-                        requestState = SnackbarState.ERROR.message
+                        actionLabel = ActionLabel.ERROR.value
                     )
                 )
             }

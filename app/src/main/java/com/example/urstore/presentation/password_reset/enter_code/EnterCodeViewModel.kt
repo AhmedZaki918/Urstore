@@ -7,7 +7,8 @@ import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.SnackbarState
+import com.example.urstore.util.ActionLabel
+import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,7 @@ class EnterCodeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(EnterCodeUiState())
     val uiState: StateFlow<EnterCodeUiState> = _uiState.asStateFlow()
 
-    private val _effects = MutableSharedFlow<EnterCodeEffect>()
+    private val _effects = MutableSharedFlow<UiEffect>()
     val effects = _effects.asSharedFlow()
 
     init {
@@ -79,9 +80,9 @@ class EnterCodeViewModel @Inject constructor(
                 verifyOtp(otp)
             } else {
                 _effects.emit(
-                    EnterCodeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         message = "OTP must be 6 digits.",
-                        requestState = SnackbarState.ERROR.message
+                        actionLabel = ActionLabel.ERROR.value
                     )
                 )
                 updateVerifyState(RequestState.IDLE)
@@ -98,15 +99,15 @@ class EnterCodeViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                _effects.emit(EnterCodeEffect.Navigate(uiState.value.email, otp))
+                _effects.emit(UiEffect.NavigateWithTwoArgs(uiState.value.email, otp))
                 updateVerifyState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
                 updateVerifyState(RequestState.IDLE)
                 _effects.emit(
-                    EnterCodeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
-                        requestState = SnackbarState.ERROR.message
+                        actionLabel = ActionLabel.ERROR.value
                     )
                 )
             }
@@ -129,17 +130,17 @@ class EnterCodeViewModel @Inject constructor(
             if (response is Resource.Success) {
                 updateResendState(RequestState.SUCCESS)
                 _effects.emit(
-                    EnterCodeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         message = "OTP sent successfully.",
-                        requestState = SnackbarState.SUCCESS.message
+                        actionLabel = ActionLabel.SUCCESS.value
                     )
                 )
 
             } else if (response is Resource.Failure) {
                 _effects.emit(
-                    EnterCodeEffect.ShowSnackbar(
+                    UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
-                        requestState = SnackbarState.ERROR.message
+                        actionLabel = ActionLabel.ERROR.value
                     )
                 )
                 updateResendState(RequestState.IDLE)

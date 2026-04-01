@@ -3,7 +3,9 @@ package com.example.urstore.presentation.details
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
+import com.example.urstore.util.UiEffect
 import com.example.urstore.util.productSizeDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +25,7 @@ class DetailsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailsUiState())
     val uiState: StateFlow<DetailsUiState> = _uiState.asStateFlow()
 
-    private val _effects = MutableSharedFlow<DetailsEffect>()
+    private val _effects = MutableSharedFlow<UiEffect>()
     val effects = _effects.asSharedFlow()
 
 
@@ -71,10 +73,21 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             if (!cartRepo.isItemInCart(item.id)) {
                 cartRepo.addToCart(item)
-                _effects.emit(DetailsEffect.ShowSnackbar("Added to cart"))
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Added to cart",
+                        actionLabel = ActionLabel.SUCCESS.value
+                    )
+                )
+
 
             } else if (cartRepo.isItemInCart(item.id)) {
-                _effects.emit(DetailsEffect.ShowSnackbar("Already exist in cart"))
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Already exist in cart",
+                        actionLabel = ActionLabel.ERROR.value
+                    )
+                )
             }
         }
     }

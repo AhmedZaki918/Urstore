@@ -63,6 +63,7 @@ import com.example.urstore.util.RequestState
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
+import com.example.urstore.util.UiEffect
 import kotlinx.coroutines.delay
 
 @Composable
@@ -76,19 +77,21 @@ fun EnterCodeScreen(
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is EnterCodeEffect.ShowSnackbar -> {
+                is UiEffect.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(
                         message = effect.message,
-                        actionLabel = effect.requestState,
+                        actionLabel = effect.actionLabel,
                         duration = SnackbarDuration.Short
                     )
                 }
 
-                is EnterCodeEffect.Navigate -> {
+                is UiEffect.NavigateWithTwoArgs<*, *> -> {
                     navController.navigate(
-                        "${Screen.RESET_PASSWORD_SCREEN.route}/${effect.email}/${effect.otp}"
+                        "${Screen.RESET_PASSWORD_SCREEN.route}/${effect.firstArg}/${effect.secondArg}"
                     )
                 }
+
+                else -> Unit
             }
         }
     }

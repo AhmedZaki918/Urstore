@@ -2,6 +2,7 @@ package com.example.urstore.presentation.password_reset.forget_password
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,15 +10,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,10 +41,11 @@ import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.TextFieldShopApp
 import com.example.urstore.util.Title
-import com.example.urstore.util.toast
+import com.example.urstore.util.UiEffect
 
 @Composable
 fun ForgotPasswordScreen(
@@ -47,37 +53,48 @@ fun ForgotPasswordScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.forgetPasswordState) {
-        when (uiState.forgetPasswordState) {
-            RequestState.ERROR -> {
-                context.toast(uiState.responseMessage.toString())
-                viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is UiEffect.ShowSnackbar ->
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+
+                is UiEffect.NavigateWithOneArg<*> ->
+                    navController.navigate(
+                        "${Screen.ENTER_CODE_SCREEN.route}/${effect.arg}"
+                    )
+
+                else -> Unit
             }
-
-            RequestState.SUCCESS -> {
-                navController.navigate(
-                    "${Screen.ENTER_CODE_SCREEN.route}/${uiState.email}"
-                )
-                viewModel.onIntent(ForgetPasswordIntent.ResetUiStateToIdle)
-            }
-
-            else -> Unit
         }
     }
 
 
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(top = 50.dp)
             .background(Light_Beige)
-            .padding(
-                top = 50.dp
-            ),
     ) {
-        ForgotPasswordUi(navController, uiState, viewModel)
+        Column(
+            modifier = Modifier.wrapContentSize()
+        ) {
+            ForgotPasswordUi(navController, uiState, viewModel)
+        }
+
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 60.dp)
+        )
     }
 }
 

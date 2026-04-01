@@ -16,7 +16,7 @@ enum class AuthField {
     CONFIRM_PASSWORD
 }
 
-enum class SnackbarState(val message: String) {
+enum class ActionLabel(val value: String) {
     SUCCESS("SUCCESS"),
     ERROR("ERROR")
 }

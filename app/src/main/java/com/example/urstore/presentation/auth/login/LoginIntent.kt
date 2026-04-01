@@ -9,6 +9,4 @@ sealed class LoginIntent {
         var textFieldType: AuthField,
         var value: String
     ) : LoginIntent()
-
-    object ClearErrorState : LoginIntent()
 }

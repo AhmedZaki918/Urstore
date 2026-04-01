@@ -20,7 +20,7 @@ class AuthRepo @Inject constructor(
     private val dataStore: DataStoreRepo
 ) : SafeApiCall {
 
-    fun isInputValidOnSignup(
+     fun isInputValidOnSignup(
         map: HashMap<AuthField, String>,
         onSuccess: () -> Unit,
         onError: () -> Unit
@@ -37,33 +37,6 @@ class AuthRepo @Inject constructor(
             password?.isNotEmpty() == true && confirmPassword?.isNotEmpty() == true &&
             password == confirmPassword
         ) {
-            onSuccess.invoke()
-        } else {
-            onError.invoke()
-        }
-    }
-
-
-    fun isInputValidOnLogin(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: () -> Unit
-    ) {
-        if (email.isNotEmpty() && password.isNotEmpty()) {
-            onSuccess.invoke()
-        } else {
-            onError.invoke()
-        }
-    }
-
-    fun isPasswordMatch(
-        password: String,
-        newPassword: String,
-        onSuccess: () -> Unit,
-        onError: () -> Unit
-    ) {
-        if (password == newPassword) {
             onSuccess.invoke()
         } else {
             onError.invoke()

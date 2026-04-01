@@ -10,5 +10,4 @@ sealed class ResetPasswordIntent {
     ) : ResetPasswordIntent()
 
     data object ResetPassword : ResetPasswordIntent()
-    object ResetUiStateToIdle : ResetPasswordIntent()
 }

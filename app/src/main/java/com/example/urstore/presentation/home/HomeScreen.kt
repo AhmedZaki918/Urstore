@@ -55,6 +55,7 @@ import com.example.urstore.util.SearchBar
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
+import com.example.urstore.util.UiEffect
 
 @Composable
 fun HomeScreen(
@@ -68,10 +69,10 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
-            if (effect is HomeEffect.ShowSnackbar) {
+            if (effect is UiEffect.ShowSnackbar) {
                 snackbarHostState.showSnackbar(
                     message = effect.message,
-                    actionLabel = effect.requestState,
+                    actionLabel = effect.actionLabel,
                     duration = SnackbarDuration.Short
                 )
             }

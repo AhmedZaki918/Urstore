@@ -30,9 +30,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -647,7 +645,7 @@ fun SnackBar(
             }
         ) {
             // Show task has been completed successfully
-            if (data.visuals.actionLabel == SnackbarState.SUCCESS.message) {
+            if (data.visuals.actionLabel == ActionLabel.SUCCESS.value) {
                 Row(modifier = Modifier.wrapContentWidth()) {
                     CircleWithIcon(
                         circleColor = Brown,

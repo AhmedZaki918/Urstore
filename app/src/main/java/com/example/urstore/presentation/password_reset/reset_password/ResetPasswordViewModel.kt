@@ -6,12 +6,16 @@ import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.local.Constants.OTP
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,6 +29,9 @@ class ResetPasswordViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ResetPasswordUiState())
     val uiState: StateFlow<ResetPasswordUiState> = _uiState.asStateFlow()
+
+    private val _effects = MutableSharedFlow<UiEffect>()
+    val effects = _effects.asSharedFlow()
 
     init {
         val email = savedStateHandle.get<String>(EMAIL_ADDRESS)
@@ -41,9 +48,6 @@ class ResetPasswordViewModel @Inject constructor(
                 updateTextField(intent.textFieldType, intent.value)
 
             is ResetPasswordIntent.ResetPassword -> checkUserInput()
-            else -> _uiState.update {
-                it.copy(resetPasswordState = RequestState.IDLE)
-            }
         }
     }
 
@@ -68,25 +72,19 @@ class ResetPasswordViewModel @Inject constructor(
 
     private fun checkUserInput() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(resetPasswordState = RequestState.LOADING)
-            }
+            updateState(RequestState.LOADING)
 
-            authRepo.isPasswordMatch(
-                password = uiState.value.password,
-                newPassword = uiState.value.newPassword,
-                onSuccess = {
-                    resetPassword()
-                },
-                onError = {
-                    _uiState.update {
-                        it.copy(
-                            resetPasswordState = RequestState.ERROR,
-                            responseMessage = "Password not match"
-                        )
-                    }
-                }
-            )
+            if (uiState.value.password == uiState.value.newPassword) {
+                resetPassword()
+            } else {
+                updateState(RequestState.ERROR)
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Password not match",
+                        actionLabel = ActionLabel.ERROR.value
+                    )
+                )
+            }
         }
     }
 
@@ -100,20 +98,17 @@ class ResetPasswordViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.data?.message,
-                        resetPasswordState = RequestState.SUCCESS
-                    )
-                }
+                updateState(RequestState.SUCCESS)
+                _effects.emit(UiEffect.Navigate)
 
             } else if (response is Resource.Failure) {
-                _uiState.update {
-                    it.copy(
-                        responseMessage = response.message.orEmpty(),
-                        resetPasswordState = RequestState.ERROR
+                updateState(RequestState.ERROR)
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = response.message.orEmpty(),
+                        actionLabel = ActionLabel.ERROR.value
                     )
-                }
+                )
             }
         }
     }
@@ -130,6 +125,14 @@ class ResetPasswordViewModel @Inject constructor(
                     otp = otp
                 )
             }
+        }
+    }
+
+    private fun updateState(state: RequestState) {
+        _uiState.update {
+            it.copy(
+                resetPasswordState = state
+            )
         }
     }
 }

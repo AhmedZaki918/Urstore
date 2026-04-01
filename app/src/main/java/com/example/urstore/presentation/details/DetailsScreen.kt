@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,8 +56,9 @@ import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.QtyButton
 import com.example.urstore.util.SizeShape
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.Title
-import com.example.urstore.util.toast
+import com.example.urstore.util.UiEffect
 
 @Composable
 fun DetailsScreen(
@@ -67,12 +69,17 @@ fun DetailsScreen(
     val uiState = detailsViewModel.uiState.collectAsState().value
     val product = productSharedViewModel.itemDetails.collectAsState().value
     val scrollState = rememberScrollState()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(Unit) {
         detailsViewModel.effects.collect { effect ->
-            if (effect is DetailsEffect.ShowSnackbar) {
-                context.toast(effect.message)
+            if (effect is UiEffect.ShowSnackbar) {
+                snackbarHostState.showSnackbar(
+                    message = effect.message,
+                    actionLabel = effect.actionLabel,
+                    duration = SnackbarDuration.Short
+                )
             }
         }
     }
@@ -122,6 +129,13 @@ fun DetailsScreen(
                 }
             )
         }
+
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 60.dp)
+        )
     }
 }
 

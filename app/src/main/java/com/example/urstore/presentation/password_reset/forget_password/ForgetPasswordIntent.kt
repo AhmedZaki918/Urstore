@@ -10,6 +10,4 @@ sealed class ForgetPasswordIntent {
         var textFieldType: AuthField,
         var value: String
     ) : ForgetPasswordIntent()
-
-    object ResetUiStateToIdle : ForgetPasswordIntent()
 }
