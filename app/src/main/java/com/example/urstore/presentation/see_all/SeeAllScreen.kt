@@ -13,26 +13,28 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
+import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
-import com.example.urstore.util.RequestState
 
 @Composable
 fun SeeAllScreen(
@@ -40,7 +42,7 @@ fun SeeAllScreen(
     navController: NavHostController,
     productSharedViewModel: ProductSharedViewModel
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val drinks = viewModel.drinks.collectAsLazyPagingItems()
 
     Column(
         modifier = Modifier
@@ -60,7 +62,7 @@ fun SeeAllScreen(
             contentPadding = PaddingValues(bottom = EXTRA_LARGE_MARGIN)
         ) {
             seeAllContent(
-                uiState,
+                drinks,
                 productSharedViewModel,
                 navController
             )
@@ -69,19 +71,35 @@ fun SeeAllScreen(
 }
 
 fun LazyGridScope.seeAllContent(
-    uiState: SeeAllUiState,
+    drinks: LazyPagingItems<DrinksDataDto>,
     productSharedViewModel: ProductSharedViewModel,
     navController: NavHostController
 ) {
-    when (uiState.seeAllState) {
-        RequestState.SUCCESS -> {
-            if (!uiState.seeAllResponse.isNullOrEmpty()){
-                items(uiState.seeAllResponse) { product ->
+    val refreshState = drinks.loadState.refresh
+
+    when (refreshState) {
+        is LoadState.Loading -> {
+            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                LoadingIndicator(modifier = Modifier.padding(top = SMALL_MARGIN))
+            }
+        }
+
+        is LoadState.Error -> {
+            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                ErrorUi {
+                    drinks.retry()
+                }
+            }
+        }
+
+        is LoadState.NotLoading -> {
+            items(drinks.itemCount) { index ->
+                drinks[index]?.let { item ->
                     ListItemSeeAll(
-                        currentItem = product,
+                        currentItem = item,
                         onItemClicked = {
                             productSharedViewModel.onIntent(
-                                ProductIntent.OnProductClicked(product)
+                                ProductIntent.OnProductClicked(item)
                             )
                             navController.navigate(Screen.DETAIL_SCREEN.route)
                         }
@@ -89,21 +107,6 @@ fun LazyGridScope.seeAllContent(
                 }
             }
         }
-
-        RequestState.ERROR -> {
-            item(
-                span = { GridItemSpan(maxCurrentLineSpan) }
-            ) { ErrorUi() }
-        }
-
-        RequestState.LOADING -> {
-            item(
-                span = { GridItemSpan(maxCurrentLineSpan) }
-            ) {
-                LoadingIndicator(modifier = Modifier.wrapContentSize())
-            }
-        }
-        else -> Unit
     }
 }
 

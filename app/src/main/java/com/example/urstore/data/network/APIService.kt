@@ -22,7 +22,7 @@ interface APIService {
 
     @GET("products/GetAllDrinks")
     suspend fun allDrinks(
-        @Query("pageIndex") pageIndex: Int = 1
+        @Query("pageIndex") pageIndex: Int
     ): Response<BaseResponse<List<DrinksDataDto>>>
 
 

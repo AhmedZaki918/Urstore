@@ -80,8 +80,8 @@ fun ForgotPasswordScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 50.dp)
             .background(Light_Beige)
+            .padding(top = 50.dp)
     ) {
         Column(
             modifier = Modifier.wrapContentSize()

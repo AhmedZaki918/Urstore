@@ -9,6 +9,6 @@ class HomeRepo @Inject constructor(
 ) : SafeApiCall {
 
     suspend fun getAllDrinks() = safeApiCall {
-        api.allDrinks()
+        api.allDrinks(1)
     }
 }

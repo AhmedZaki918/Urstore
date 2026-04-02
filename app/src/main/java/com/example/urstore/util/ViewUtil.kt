@@ -715,11 +715,14 @@ fun CircleWithIcon(
 
 
 @Composable
-fun ErrorUi() {
+fun ErrorUi(retry: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 32.dp),
+            .padding(top = 32.dp)
+            .clickable {
+                retry.invoke()
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(
