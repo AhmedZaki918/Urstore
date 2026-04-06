@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,7 +47,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
-import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
@@ -57,7 +55,6 @@ import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.BackButton
-import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.LoadingIndicator
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SnackBar
@@ -97,34 +94,36 @@ fun EnterCodeScreen(
     }
 
 
-    Box(
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Light_Beige)
+            .padding(top = 50.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = 50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            EnterCodeUi(navController, uiState, viewModel)
-            ResendCodeState(uiState.resendCodeState)
+        EnterCodeUi(navController, uiState, viewModel)
+        ResendCodeState(uiState.resendCodeState)
 
-            CountdownTimer(
-                isVisible = uiState.verifyCodeState != RequestState.LOADING,
-                viewModel = viewModel
-            )
-        }
+        LoadingIndicator(
+            isVisible = uiState.verifyCodeState == RequestState.LOADING,
+            modifier = Modifier
+                .height(55.dp)
+                .wrapContentWidth()
+        )
+
+        CountdownTimer(
+            isVisible = uiState.verifyCodeState != RequestState.LOADING,
+            viewModel = viewModel
+        )
+
         SnackBar(
             hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 60.dp)
+            modifier = Modifier.padding(top = SMALL_MARGIN)
         )
     }
 }
+
 
 @Composable
 fun EnterCodeUi(
@@ -138,7 +137,7 @@ fun EnterCodeUi(
             .wrapContentHeight()
     ) {
         val (backButton, logoImage, enterCodeText, captionText, emailText,
-            enterCodeBelowText, sixDigitRow, verifyButton, loadingBox) = createRefs()
+            enterCodeBelowText, sixDigitRow) = createRefs()
 
         BackButton(
             modifier = Modifier.constrainAs(backButton) {
@@ -239,50 +238,14 @@ fun EnterCodeUi(
             val focusRequesters = List(6) { FocusRequester() }
 
             uiState.otpSetup.apply {
-                Otp(0, firstDigit, viewModel, focusRequesters)
-                Otp(1, secondDigit, viewModel, focusRequesters)
-                Otp(2, thirdDigit, viewModel, focusRequesters)
-                Otp(3, fourthDigit, viewModel, focusRequesters)
-                Otp(4, fifthDigit, viewModel, focusRequesters)
-                Otp(5, sixthDigit, viewModel, focusRequesters)
+                Otp(0, firstDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+                Otp(1, secondDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+                Otp(2, thirdDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+                Otp(3, fourthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+                Otp(4, fifthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+                Otp(5, sixthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
             }
         }
-
-
-        ButtonShopApp(
-            isVisible = uiState.verifyCodeState != RequestState.LOADING,
-            isButtonClickable = uiState.resendCodeState != RequestState.LOADING,
-            modifier = Modifier
-                .constrainAs(verifyButton) {
-                    top.linkTo(sixDigitRow.bottom, MEDIUM_MARGIN)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .padding(
-                    start = CUSTOM_MARGIN,
-                    end = CUSTOM_MARGIN,
-                    top = 12.dp
-                ),
-            label = "Verify",
-            onButtonClicked = {
-                viewModel.onIntent(
-                    EnterCodeIntent.VerifyCode
-                )
-            }
-        )
-
-        LoadingIndicator(
-            isVisible = uiState.verifyCodeState == RequestState.LOADING,
-            modifier = Modifier
-                .constrainAs(loadingBox) {
-                    top.linkTo(sixDigitRow.bottom, MEDIUM_MARGIN)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .height(55.dp)
-                .wrapContentWidth(),
-        )
     }
 }
 
@@ -292,7 +255,8 @@ fun Otp(
     index: Int,
     digit: String,
     viewModel: EnterCodeViewModel,
-    focusRequesters: List<FocusRequester>
+    focusRequesters: List<FocusRequester>,
+    verifyCodeState: RequestState
 ) {
     val focusRequester = focusRequesters[index]
 
@@ -300,8 +264,8 @@ fun Otp(
         modifier = Modifier
             .size(46.dp)
             .border(
-                width = 0.1.dp,
-                color = Color.Gray,
+                width = if (verifyCodeState == RequestState.ERROR) 0.5.dp else  0.1.dp,
+                color =if (verifyCodeState == RequestState.ERROR) Color.Red else Color.Gray,
                 shape = RoundedCornerShape(8.dp)
             )
             .focusRequester(focusRequester),
@@ -388,7 +352,7 @@ fun SendCode(
     if (isVisible) {
         SubTitle(
             modifier = Modifier
-                .padding(top = SMALL_MARGIN)
+                .padding(top = MEDIUM_MARGIN)
                 .wrapContentWidth()
                 .clickable {
                     onClicked()

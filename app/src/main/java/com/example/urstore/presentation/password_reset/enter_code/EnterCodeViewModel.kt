@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,8 +39,10 @@ class EnterCodeViewModel @Inject constructor(
 
     override fun onIntent(intent: EnterCodeIntent) {
         when (intent) {
-            is EnterCodeIntent.UpdateOtpField -> updateOtp(intent.index, intent.value)
-            is EnterCodeIntent.VerifyCode -> createOtp()
+            is EnterCodeIntent.UpdateOtpField -> {
+                updateOtp(intent.index, intent.value)
+                generateOtp()
+            }
             is EnterCodeIntent.ResendCode -> sendCode()
         }
     }
@@ -51,6 +53,10 @@ class EnterCodeViewModel @Inject constructor(
         value: String
     ) {
         viewModelScope.launch {
+            if (uiState.value.verifyCodeState == RequestState.ERROR){
+                updateVerifyState(RequestState.IDLE)
+            }
+
             _uiState.update {
                 when (index) {
                     0 -> it.copy(otpSetup = it.otpSetup.copy(firstDigit = value))
@@ -65,10 +71,8 @@ class EnterCodeViewModel @Inject constructor(
     }
 
 
-    private fun createOtp() {
+    private fun generateOtp() {
         viewModelScope.launch {
-            updateVerifyState(RequestState.LOADING)
-
             var otp = ""
             uiState.value.otpSetup.apply {
                 otp = firstDigit + secondDigit + thirdDigit +
@@ -76,16 +80,7 @@ class EnterCodeViewModel @Inject constructor(
             }
 
             if (otp.length == 6) {
-                _uiState.update { it.copy(otp = otp) }
                 verifyOtp(otp)
-            } else {
-                _effects.emit(
-                    UiEffect.ShowSnackbar(
-                        message = "OTP must be 6 digits.",
-                        actionLabel = ActionLabel.ERROR.value
-                    )
-                )
-                updateVerifyState(RequestState.IDLE)
             }
         }
     }
@@ -93,6 +88,8 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun verifyOtp(otp: String) {
         viewModelScope.launch {
+            updateVerifyState(RequestState.LOADING)
+
             val response = authRepo.verifyOtp(
                 email = uiState.value.email,
                 otp = otp
@@ -103,7 +100,12 @@ class EnterCodeViewModel @Inject constructor(
                 updateVerifyState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
-                updateVerifyState(RequestState.IDLE)
+                updateVerifyState(RequestState.ERROR)
+
+                // Clear otp fields
+                _uiState.update {
+                    it.copy(otpSetup = OtpSetup())
+                }
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
@@ -129,6 +131,11 @@ class EnterCodeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateResendState(RequestState.SUCCESS)
+
+                // Clear otp fields
+                _uiState.update {
+                    it.copy(otpSetup = OtpSetup())
+                }
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = "OTP sent successfully.",

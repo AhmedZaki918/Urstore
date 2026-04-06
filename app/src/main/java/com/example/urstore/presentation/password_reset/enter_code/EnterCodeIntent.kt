@@ -7,6 +7,5 @@ sealed class EnterCodeIntent {
         var value: String
     ) : EnterCodeIntent()
 
-    object VerifyCode : EnterCodeIntent()
     object ResendCode : EnterCodeIntent()
 }
