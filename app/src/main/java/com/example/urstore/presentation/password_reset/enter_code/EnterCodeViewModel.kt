@@ -101,11 +101,7 @@ class EnterCodeViewModel @Inject constructor(
 
             } else if (response is Resource.Failure) {
                 updateVerifyState(RequestState.ERROR)
-
-                // Clear otp fields
-                _uiState.update {
-                    it.copy(otpSetup = OtpSetup())
-                }
+                clearOtpFields()
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
@@ -131,11 +127,7 @@ class EnterCodeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateResendState(RequestState.SUCCESS)
-
-                // Clear otp fields
-                _uiState.update {
-                    it.copy(otpSetup = OtpSetup())
-                }
+                clearOtpFields()
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = "OTP sent successfully.",
@@ -152,6 +144,12 @@ class EnterCodeViewModel @Inject constructor(
                 )
                 updateResendState(RequestState.IDLE)
             }
+        }
+    }
+
+    private fun clearOtpFields(){
+        _uiState.update {
+            it.copy(otpSetup = OtpSetup())
         }
     }
 

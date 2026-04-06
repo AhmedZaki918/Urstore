@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -259,13 +260,22 @@ fun Otp(
     verifyCodeState: RequestState
 ) {
     val focusRequester = focusRequesters[index]
+    val focusManager = LocalFocusManager.current
+
+    // Handle error state: via clear focus
+    LaunchedEffect(verifyCodeState) {
+        if (verifyCodeState == RequestState.ERROR) {
+            focusManager.clearFocus()
+        }
+    }
+
 
     TextField(
         modifier = Modifier
             .size(46.dp)
             .border(
-                width = if (verifyCodeState == RequestState.ERROR) 0.5.dp else  0.1.dp,
-                color =if (verifyCodeState == RequestState.ERROR) Color.Red else Color.Gray,
+                width = if (verifyCodeState == RequestState.ERROR) 0.5.dp else 0.1.dp,
+                color = if (verifyCodeState == RequestState.ERROR) Color.Red else Color.Gray,
                 shape = RoundedCornerShape(8.dp)
             )
             .focusRequester(focusRequester),
