@@ -71,6 +71,8 @@ fun EnterCodeScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
+    val focusRequesters = List(6) { FocusRequester() }
+
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
@@ -94,6 +96,7 @@ fun EnterCodeScreen(
         }
     }
 
+    ClearFocusOnTextField(uiState.enterCodeState)
 
 
     Column(
@@ -103,18 +106,17 @@ fun EnterCodeScreen(
             .padding(top = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EnterCodeUi(navController, uiState, viewModel)
-        ResendCodeState(uiState.resendCodeState)
+        EnterCodeUi(navController, uiState, viewModel, focusRequesters)
 
         LoadingIndicator(
-            isVisible = uiState.verifyCodeState == RequestState.LOADING,
+            isVisible = uiState.enterCodeState == RequestState.LOADING,
             modifier = Modifier
                 .height(55.dp)
                 .wrapContentWidth()
         )
 
         CountdownTimer(
-            isVisible = uiState.verifyCodeState != RequestState.LOADING,
+            isVisible = uiState.enterCodeState != RequestState.LOADING,
             viewModel = viewModel
         )
 
@@ -130,7 +132,8 @@ fun EnterCodeScreen(
 fun EnterCodeUi(
     navController: NavHostController,
     uiState: EnterCodeUiState,
-    viewModel: EnterCodeViewModel
+    viewModel: EnterCodeViewModel,
+    focusRequesters: List<FocusRequester>
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -221,7 +224,6 @@ fun EnterCodeUi(
         )
 
 
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -236,15 +238,8 @@ fun EnterCodeUi(
                 Alignment.CenterHorizontally
             )
         ) {
-            val focusRequesters = List(6) { FocusRequester() }
-
-            uiState.otpSetup.apply {
-                Otp(0, firstDigit, viewModel, focusRequesters, uiState.verifyCodeState)
-                Otp(1, secondDigit, viewModel, focusRequesters, uiState.verifyCodeState)
-                Otp(2, thirdDigit, viewModel, focusRequesters, uiState.verifyCodeState)
-                Otp(3, fourthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
-                Otp(4, fifthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
-                Otp(5, sixthDigit, viewModel, focusRequesters, uiState.verifyCodeState)
+            for (otpIndex in 0..5) {
+                Otp(otpIndex, uiState, viewModel, focusRequesters)
             }
         }
     }
@@ -254,32 +249,22 @@ fun EnterCodeUi(
 @Composable
 fun Otp(
     index: Int,
-    digit: String,
+    uiState: EnterCodeUiState,
     viewModel: EnterCodeViewModel,
-    focusRequesters: List<FocusRequester>,
-    verifyCodeState: RequestState
+    focusRequesters: List<FocusRequester>
 ) {
     val focusRequester = focusRequesters[index]
-    val focusManager = LocalFocusManager.current
-
-    // Handle error state: via clear focus
-    LaunchedEffect(verifyCodeState) {
-        if (verifyCodeState == RequestState.ERROR) {
-            focusManager.clearFocus()
-        }
-    }
-
 
     TextField(
         modifier = Modifier
             .size(46.dp)
             .border(
-                width = if (verifyCodeState == RequestState.ERROR) 0.5.dp else 0.1.dp,
-                color = if (verifyCodeState == RequestState.ERROR) Color.Red else Color.Gray,
+                width = if (uiState.enterCodeState == RequestState.ERROR) 0.5.dp else 0.1.dp,
+                color = if (uiState.enterCodeState == RequestState.ERROR) Color.Red else Color.Gray,
                 shape = RoundedCornerShape(8.dp)
             )
             .focusRequester(focusRequester),
-        value = digit,
+        value = returnDigitBasedOnOtpSetup(index, uiState.otpSetup),
         onValueChange = { value ->
             if (value.length <= 1) {
                 viewModel.onIntent(
@@ -333,13 +318,13 @@ fun CountdownTimer(
             }
         }
 
-        SendCode(
+        SendCodeText(
             isVisible = timeLeft > 0,
             title = if (timeLeft >= 10) "${stringResource(R.string.send_code_00)}$timeLeft"
             else "${stringResource(R.string.send_code_00_0)}$timeLeft"
         )
 
-        SendCode(
+        SendCodeText(
             isVisible = timeLeft == 0,
             title = stringResource(R.string.resend_code_now),
             textDecoration = TextDecoration.Underline,
@@ -353,7 +338,7 @@ fun CountdownTimer(
 
 
 @Composable
-fun SendCode(
+fun SendCodeText(
     isVisible: Boolean,
     title: String,
     textDecoration: TextDecoration? = null,
@@ -377,12 +362,26 @@ fun SendCode(
 }
 
 
+fun returnDigitBasedOnOtpSetup(
+    index: Int,
+    otp: OtpSetup
+): String {
+    return when (index) {
+        0 -> otp.firstDigit
+        1 -> otp.secondDigit
+        2 -> otp.thirdDigit
+        3 -> otp.fourthDigit
+        4 -> otp.fifthDigit
+        else -> otp.sixthDigit
+    }
+}
+
 @Composable
-fun ResendCodeState(resendCodeState: RequestState) {
-    LoadingIndicator(
-        isVisible = resendCodeState == RequestState.LOADING,
-        modifier = Modifier
-            .height(55.dp)
-            .wrapContentWidth()
-    )
+fun ClearFocusOnTextField(uiState: RequestState) {
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(uiState) {
+        if (uiState == RequestState.LOADING) {
+            focusManager.clearFocus()
+        }
+    }
 }

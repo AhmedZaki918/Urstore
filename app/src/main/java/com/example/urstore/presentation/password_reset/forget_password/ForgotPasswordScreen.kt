@@ -107,7 +107,7 @@ fun ForgotPasswordUi(
 ) {
     val focusManager = LocalFocusManager.current
 
-    // Handle loading state: via clear focus
+    // Handle LOADING state: via clear focus
     LaunchedEffect(uiState.forgetPasswordState) {
         if (uiState.forgetPasswordState == RequestState.LOADING) {
             focusManager.clearFocus()

@@ -53,8 +53,8 @@ class EnterCodeViewModel @Inject constructor(
         value: String
     ) {
         viewModelScope.launch {
-            if (uiState.value.verifyCodeState == RequestState.ERROR){
-                updateVerifyState(RequestState.IDLE)
+            if (uiState.value.enterCodeState == RequestState.ERROR){
+                updateEnterCodeState(RequestState.IDLE)
             }
 
             _uiState.update {
@@ -88,7 +88,7 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun verifyOtp(otp: String) {
         viewModelScope.launch {
-            updateVerifyState(RequestState.LOADING)
+            updateEnterCodeState(RequestState.LOADING)
 
             val response = authRepo.verifyOtp(
                 email = uiState.value.email,
@@ -97,10 +97,10 @@ class EnterCodeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 _effects.emit(UiEffect.NavigateWithTwoArgs(uiState.value.email, otp))
-                updateVerifyState(RequestState.SUCCESS)
+                updateEnterCodeState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
-                updateVerifyState(RequestState.ERROR)
+                updateEnterCodeState(RequestState.ERROR)
                 clearOtpFields()
                 _effects.emit(
                     UiEffect.ShowSnackbar(
@@ -122,11 +122,11 @@ class EnterCodeViewModel @Inject constructor(
 
     private fun sendCode() {
         viewModelScope.launch {
-            updateResendState(RequestState.LOADING)
+            updateEnterCodeState(RequestState.LOADING)
             val response = authRepo.forgetPassword(uiState.value.email)
 
             if (response is Resource.Success) {
-                updateResendState(RequestState.SUCCESS)
+                updateEnterCodeState(RequestState.SUCCESS)
                 clearOtpFields()
                 _effects.emit(
                     UiEffect.ShowSnackbar(
@@ -142,7 +142,7 @@ class EnterCodeViewModel @Inject constructor(
                         actionLabel = ActionLabel.ERROR.value
                     )
                 )
-                updateResendState(RequestState.IDLE)
+                updateEnterCodeState(RequestState.IDLE)
             }
         }
     }
@@ -153,15 +153,9 @@ class EnterCodeViewModel @Inject constructor(
         }
     }
 
-    private fun updateResendState(requestState: RequestState) {
+    private fun updateEnterCodeState(requestState: RequestState) {
         _uiState.update {
-            it.copy(resendCodeState = requestState)
-        }
-    }
-
-    private fun updateVerifyState(requestState: RequestState) {
-        _uiState.update {
-            it.copy(verifyCodeState = requestState)
+            it.copy(enterCodeState = requestState)
         }
     }
 }
