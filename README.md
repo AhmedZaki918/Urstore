@@ -72,23 +72,22 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 ## License
 
 ```html
-MIT Licence 
+All Rights Reserved Licence 
 
 Copyright (c) 2026 Ahmed Zaki
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
-subject to the following conditions:
+This software and its associated source code, documentation, and any related files are the exclusive intellectual property of the author, Ahmed Zaki. All rights are fully reserved.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
-portions of the Software.
+No part of this software may be copied, modified, reproduced, distributed, sublicensed, or used in any form without prior written permission from the author.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
+This includes, but is not limited to:
+
+Using the code in personal or commercial projects
+Modifying or adapting the source code
+Redistributing the software in original or altered form
+Publishing, selling, or sharing the code publicly or privately
+Using portions of the code in other applications or repositories
+
+Any unauthorized use of this software is strictly prohibited and may result in legal action.
+
+This software is provided solely for viewing purposes unless explicit permission is granted by the author.
