@@ -26,19 +26,19 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 ## Functionality
 
 * User Authentication:
-  A secure authentication system that enables users to create new accounts and log in efficiently, ensuring their data and activity are safely managed.
+  a secure authentication system that enables users to create new accounts and log in efficiently, ensuring their data and activity are safely managed.
 
 * Password Recovery via OTP:
-  Users can recover their accounts through a secure OTP (One-Time Password) verification process, providing a reliable and user-friendly way to reset forgotten passwords.
+  users can recover their accounts through a secure OTP (One-Time Password) verification process, providing a reliable and user-friendly way to reset forgotten passwords.
 
 * Menu Browsing by Categories:
-  The application provides a well-structured menu divided into clear categories, allowing users to quickly explore available items, view details, and make selections without friction.
+  the application provides a well-structured menu divided into clear categories, allowing users to quickly explore available items, view details, and make selections without friction.
 
 * Cart Management:
-  Users can easily add items to the cart, update quantities, or remove products with a seamless and responsive experience. The cart dynamically calculates totals and reflects changes in real time to ensure accuracy and convenience.
+  users can easily add items to the cart, update quantities, or remove products with a seamless and responsive experience. The cart dynamically calculates totals and reflects changes in real time to ensure accuracy and convenience.
  
 * Payment Gateway Integration (Paymob):
-  The app integrates with the Paymob payment gateway to support secure and smooth online transactions, offering users a trusted checkout experience.
+  the app integrates with the Paymob payment gateway to support secure and smooth online transactions, offering users a trusted checkout experience.
 
 ## Technologies
 
@@ -52,12 +52,12 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 - MVI, I choose mvi for better sperations of concern. each layer can handle it's purpose efficiency. model is data layer which contains business logic, view is ui layer and it's responsability for render ui only and the last is intent. intent which means user action on the screen.
 - 
 #### Libraries:
-- Constraint Layout: Flexible and responsive UI design system for complex layouts.
-- Hilt:              Dependency injection library for simpler and scalable code management.
-- DataStore:         Modern data storage solution for handling key-value data efficiently.
-- Retrofit:          Type-safe HTTP client for seamless API communication.
-- Coil:              Lightweight image loading library optimized for Android.
-- Paging 3:          Efficient pagination library for loading large datasets smoothly.
+- Constraint Layout: flexible and responsive UI design system for complex layouts.
+- Hilt:              dependency injection library for simpler and scalable code management.
+- DataStore:         modern data storage solution for handling key-value data efficiently.
+- Retrofit:          type-safe HTTP client for seamless API communication.
+- Coil:              lightweight image loading library optimized for Android.
+- Paging 3:          efficient pagination library for loading large datasets smoothly.
 
 ## Setup
 
