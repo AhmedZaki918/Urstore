@@ -50,7 +50,7 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 
 #### Architecture patterns:
 - MVI, I choose mvi for better sperations of concern. each layer can handle it's purpose efficiency. model is data layer which contains business logic, view is ui layer and it's responsability for render ui only and the last is intent. intent which means user action on the screen.
-- 
+
 #### Libraries:
 - Constraint Layout: flexible and responsive UI design system for complex layouts.
 - Hilt:              dependency injection library for simpler and scalable code management.
