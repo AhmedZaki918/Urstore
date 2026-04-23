@@ -14,8 +14,15 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 
 ## Screenshots
 
-<!-- <img src="images/1-login.jpg" width="250"> <img src="images/2-home.jpg" width="250">
-<img src="images/3-manage users.jpg" width="250"> -->
+<img src="images/login.jpeg" width="250"> <img src="images/signup.jpeg" width="250">
+<img src="images/forgot_password.jpeg" width="250"> 
+<img src="images/enter_code.jpeg" width="250">
+<img src="images/reset_password.jpeg" width="250">
+<img src="images/home_screen.jpeg" width="250"> 
+<img src="images/see_all.jpeg" width="250"> 
+<img src="images/details.jpeg" width="250"> 
+<img src="images/cart.jpeg" width="250"> 
+<img src="images/settings.jpeg" width="250"> 
 
 ## Functionality
 
