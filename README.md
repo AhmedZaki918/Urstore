@@ -77,7 +77,6 @@ All Rights Reserved Licence
 Copyright (c) 2026 Ahmed Zaki
 
 This software and its associated source code, documentation, and any related files are the exclusive intellectual property of the author, Ahmed Zaki. All rights are fully reserved.
-
 No part of this software may be copied, modified, reproduced, distributed, sublicensed, or used in any form without prior written permission from the author.
 
 This includes, but is not limited to:
