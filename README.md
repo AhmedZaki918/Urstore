@@ -26,19 +26,19 @@ Café App is a modern mobile application designed to enhance the coffee ordering
 ## Functionality
 
 * User Authentication:
-  - a secure authentication system that enables users to create new accounts and log in efficiently, ensuring their data and activity are safely managed.
+  - A secure authentication system that enables users to create new accounts and log in efficiently, ensuring their data and activity are safely managed.
 
 * Password Recovery via OTP:
-   - users can recover their accounts through a secure OTP (One-Time Password) verification process, providing a reliable and user-friendly way to reset forgotten passwords.
+   - Users can recover their accounts through a secure OTP (One-Time Password) verification process, providing a reliable and user-friendly way to reset forgotten passwords.
 
 * Menu Browsing by Categories:
-  - the application provides a well-structured menu divided into clear categories, allowing users to quickly explore available items, view details, and make selections without friction.
+  - The application provides a well-structured menu divided into clear categories, allowing users to quickly explore available items, view details, and make selections without friction.
 
 * Cart Management:
-  - users can easily add items to the cart, update quantities, or remove products with a seamless and responsive experience. The cart dynamically calculates totals and reflects changes in real time to ensure accuracy and convenience.
+  - Users can easily add items to the cart, update quantities, or remove products with a seamless and responsive experience. The cart dynamically calculates totals and reflects changes in real time to ensure accuracy and convenience.
  
 * Payment Gateway Integration (Paymob):
-  the app integrates with the Paymob payment gateway to support secure and smooth online transactions, offering users a trusted checkout experience.
+  - The app integrates with the Paymob payment gateway to support secure and smooth online transactions, offering users a trusted checkout experience.
 
 ## Technologies
 
@@ -88,5 +88,4 @@ Publishing, selling, or sharing the code publicly or privately
 Using portions of the code in other applications or repositories
 
 Any unauthorized use of this software is strictly prohibited and may result in legal action.
-
 This software is provided solely for viewing purposes unless explicit permission is granted by the author.
