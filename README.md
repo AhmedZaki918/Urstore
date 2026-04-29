@@ -1,4 +1,4 @@
-# Cafee Andorid App
+# Cafe Andorid App
 
 ## Table of contents
 * [General info](#general-info)
