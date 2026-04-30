@@ -9,5 +9,6 @@ data class DrinksDataDto(
     val isBest: Boolean = false,
     val price: Int = 0,
     val rate: Double = 0.0,
-    val title: String = ""
+    val title: String = "",
+    val isLoading : Boolean = false
 )

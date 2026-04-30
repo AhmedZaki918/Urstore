@@ -32,7 +32,7 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ErrorUi
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
 
@@ -80,7 +80,7 @@ fun LazyGridScope.seeAllContent(
     when (refreshState) {
         is LoadState.Loading -> {
             item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                LoadingIndicator(modifier = Modifier.padding(top = SMALL_MARGIN))
+                LinearLoadingIndicator(modifier = Modifier.padding(top = SMALL_MARGIN))
             }
         }
 

@@ -1,6 +1,6 @@
 package com.example.urstore.data.di
 
-import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.data.repository.CartRepoTest
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideCartRepo(): CartRepo {
-        return CartRepo()
+    fun provideCartRepo(): CartRepoTest {
+        return CartRepoTest()
     }
 }

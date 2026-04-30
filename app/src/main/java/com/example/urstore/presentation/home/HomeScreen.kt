@@ -45,7 +45,7 @@ import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.util.ErrorUi
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.ProductIntent
@@ -172,7 +172,7 @@ fun LazyGridScope.popularCoffees(
             item(
                 span = { GridItemSpan(maxCurrentLineSpan) }
             ) {
-                LoadingIndicator(
+                LinearLoadingIndicator(
                     modifier = Modifier.fillMaxSize()
                 )
             }

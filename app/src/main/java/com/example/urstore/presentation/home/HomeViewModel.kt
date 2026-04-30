@@ -1,16 +1,18 @@
 package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.F_NAME_KEY
 import com.example.urstore.data.local.Constants.L_NAME_KEY
+import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
+import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.UiEffect
 import com.example.urstore.util.homeCategoriesDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,7 +68,11 @@ class HomeViewModel @Inject constructor(
 
     private fun displayPopular() {
         viewModelScope.launch {
-            initLoading()
+            _uiState.update {
+                it.copy(
+                    homeState = RequestState.LOADING
+                )
+            }
             val homeResponse = homeRepo.getAllDrinks()
 
             if (homeResponse is Resource.Success) {
@@ -104,20 +111,28 @@ class HomeViewModel @Inject constructor(
 
     private fun addToCart(item: DrinksDataDto) {
         viewModelScope.launch {
+            updateLoadingState(true, item.id)
+            val response = cartRepo.initAddToCart(
+                drinkId = item.id,
+                count = 1,
+                token = dataStore.readString(TOKEN).first(),
+                userId = dataStore.readString(CLIENT_ID).first()
+            )
 
-            if (!cartRepo.isItemInCart(item.id)) {
-                cartRepo.addToCart(item)
+            if (response is Resource.Success) {
+                updateLoadingState(false)
                 _effects.emit(
                     UiEffect.ShowSnackbar(
-                        message = "Added to Cart",
+                        message = "Added to cart",
                         actionLabel = ActionLabel.SUCCESS.value
                     )
                 )
 
-            } else if (cartRepo.isItemInCart(item.id)) {
+            } else if (response is Resource.Failure) {
+                updateLoadingState(false)
                 _effects.emit(
                     UiEffect.ShowSnackbar(
-                        "Already exist in cart",
+                        message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value
                     )
                 )
@@ -125,13 +140,31 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun initLoading() {
-        _uiState.update {
-            it.copy(
-                homeState = RequestState.LOADING
-            )
+    // Responsible for updating {Loading Indicator State} via id for add to cart button
+    fun updateLoadingState(
+        isLoading: Boolean,
+        id: Int = 0
+    ) {
+        if (isLoading) {
+            _uiState.update { it ->
+                it.copy(
+                    popularResponse = it.popularResponse?.map {
+                        if (id == it.id) it.copy(isLoading = true)
+                        else it.copy(isLoading = false)
+                    }
+                )
+            }
+        } else {
+            _uiState.update { it ->
+                it.copy(
+                    popularResponse = it.popularResponse?.map {
+                        it.copy(isLoading = false)
+                    }
+                )
+            }
         }
     }
+
 
     private fun getUserData() {
         viewModelScope.launch {

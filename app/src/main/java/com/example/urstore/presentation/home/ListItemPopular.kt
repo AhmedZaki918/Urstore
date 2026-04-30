@@ -29,6 +29,7 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 import com.example.urstore.util.CircleButton
+import com.example.urstore.util.CircularLoadingIndicator
 
 @Composable
 fun ListItemPopular(
@@ -71,7 +72,7 @@ fun ListItemPopular(
 
                     )
             ) {
-                val (titleText, descriptionText, priceText, addButton) = createRefs()
+                val (titleText, descriptionText, priceText, addButton, loading) = createRefs()
 
                 Text(
                     modifier = Modifier.constrainAs(titleText) {
@@ -104,17 +105,27 @@ fun ListItemPopular(
 
 
                 Text(
-                    modifier = Modifier.constrainAs(priceText) {
-                        start.linkTo(parent.start, MEDIUM_MARGIN)
-                        top.linkTo(addButton.top)
-                        bottom.linkTo(addButton.bottom)
-                    },
+                    modifier = Modifier
+                        .constrainAs(priceText) {
+                            start.linkTo(parent.start, MEDIUM_MARGIN)
+                            top.linkTo(descriptionText.bottom)
+                        }
+                        .padding(top = SMALL_MARGIN),
                     text = "$${currentItem.price}",
                     color = White,
                     fontWeight = FontWeight.Bold
                 )
 
+                CircularLoadingIndicator(
+                    isVisible = currentItem.isLoading,
+                    modifier = Modifier.constrainAs(loading) {
+                        bottom.linkTo(parent.bottom, SMALL_MARGIN)
+                        end.linkTo(parent.end, SMALL_MARGIN)
+                    }
+                )
+
                 CircleButton(
+                    isVisible = !currentItem.isLoading,
                     modifier = Modifier.constrainAs(addButton) {
                         bottom.linkTo(parent.bottom, SMALL_MARGIN)
                         end.linkTo(parent.end, SMALL_MARGIN)

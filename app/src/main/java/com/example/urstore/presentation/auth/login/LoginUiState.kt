@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.auth.login
 
-import com.example.urstore.data.model.auth_dto.login.LoginDto
 import com.example.urstore.util.RequestState
 
 data class LoginUiState(

@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +43,9 @@ import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.Very_Light_Beige
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.ErrorUi
+import com.example.urstore.util.LinearLoadingIndicator
+import com.example.urstore.util.RequestState
 
 
 @Composable
@@ -62,16 +67,18 @@ fun CartScreen(
                 navController.popBackStack()
             }
         )
-        EmptyCart(uiState.cartItems)
-        CartItems(uiState.cartItems, viewModel)
-        CheckoutSection(uiState)
+        CartItems(uiState, viewModel)
+        CheckoutSection(
+            uiState = uiState,
+            isVisible = uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true
+        )
     }
 }
 
 
 @Composable
 fun CartItems(
-    cartContent: List<Cart>,
+    uiState: CartUiState,
     viewModel: CartViewModel
 ) {
     LazyColumn(
@@ -80,27 +87,49 @@ fun CartItems(
             .fillMaxWidth()
             .padding(bottom = LARGE_MARGIN)
     ) {
-        if (cartContent.isNotEmpty()) {
-            items(cartContent) { item ->
-                ListItemCart(
-                    currentItem = item,
-                    onDeleteClicked = {
-                        viewModel.onIntent(
-                            CartIntent.RemoveItem(item)
-                        )
-                    },
-                    onDecreaseClicked = {
-                        viewModel.onIntent(
-                            CartIntent.DecreaseQuantity(item.id)
-                        )
-                    },
-                    onIncreaseClicked = {
-                        viewModel.onIntent(
-                            CartIntent.IncreaseQuantity(item.id)
+
+        when (uiState.cartState) {
+            RequestState.SUCCESS -> {
+                if (uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true) {
+                    items(uiState.cartResponse.shoppingCartList) { item ->
+                        ListItemCart(
+                            currentItem = item,
+                            onDeleteClicked = {
+//                        viewModel.onIntent(
+//                            CartIntent.RemoveItem(item)
+//                        )
+                            },
+                            onDecreaseClicked = {
+//                        viewModel.onIntent(
+//                            CartIntent.DecreaseQuantity(item.id)
+//                        )
+                            },
+                            onIncreaseClicked = {
+//                        viewModel.onIntent(
+//                            CartIntent.IncreaseQuantity(item.id)
+//                        )
+                            }
                         )
                     }
+                } else {
+                    // Empty cart ui
+                }
+            }
+
+
+            RequestState.LOADING -> item {
+                LinearLoadingIndicator(
+                    modifier = Modifier
+                        .height(55.dp)
+                        .wrapContentWidth()
                 )
             }
+
+            RequestState.ERROR -> item {
+                ErrorUi()
+            }
+
+            else -> Unit
         }
     }
 }
@@ -147,9 +176,11 @@ fun CartHeader(
 
 
 @Composable
-fun CheckoutSection(uiState: CartUiState) {
-
-    if (uiState.cartItems.isNotEmpty()) {
+fun CheckoutSection(
+    uiState: CartUiState,
+    isVisible: Boolean
+) {
+    if (isVisible) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (discountRow, checkoutColumn) = createRefs()
 
@@ -206,7 +237,7 @@ fun CheckoutSection(uiState: CartUiState) {
 
                 CheckoutItem(
                     stringResource(R.string.subtotal),
-                    "$${uiState.subtotal}",
+                    "$${uiState.cartResponse?.totalAmount}",
                     EXTRA_LARGE_MARGIN
                 )
 
@@ -234,7 +265,7 @@ fun CheckoutSection(uiState: CartUiState) {
 
                 CheckoutItem(
                     stringResource(R.string.total),
-                    "$${(uiState.subtotal + 0.1)}",
+                    "$${(uiState.cartResponse?.totalAmount?.plus(0.1))}",
                     0.dp
                 )
 

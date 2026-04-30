@@ -20,3 +20,8 @@ enum class ActionLabel(val value: String) {
     SUCCESS("SUCCESS"),
     ERROR("ERROR")
 }
+
+enum class QuantityOperation(val value: String){
+    PLUS("plus"),
+    MINUS("minus")
+}

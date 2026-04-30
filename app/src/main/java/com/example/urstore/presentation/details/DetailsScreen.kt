@@ -25,10 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +40,6 @@ import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.ProductSize
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -53,8 +49,11 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.QtyButton
+import com.example.urstore.util.QuantityOperation
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.SizeShape
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.Title
@@ -108,24 +107,35 @@ fun DetailsScreen(
                     )
                 }
             )
-            QtyAndRating(product)
+            QtyAndRating(
+                product,
+                uiState.quantity,
+                onQuantityChanged = { operation ->
+                    detailsViewModel.onIntent(
+                        DetailsIntent.UpdateQuantity(operation)
+                    )
+                }
+            )
+
             Description(product)
 
             AddToCart(
+                uiState = uiState.addToCartState,
                 popularItem = product,
                 onAddToCartClicked = {
-                    detailsViewModel.onIntent(
-                        DetailsIntent.AddToCart(
-                            DrinksDataDto(
-                                title = product.title,
-                                rate = product.rate,
-                                id = product.id,
-                                price = product.price,
-                                description = product.description,
-                                imageName = product.imageName
-                            )
-                        )
-                    )
+                    detailsViewModel.onIntent(DetailsIntent.AddToCart(product.id))
+//                    detailsViewModel.onIntent(
+//                        DetailsIntent.AddToCartTest(
+//                            DrinksDataDto(
+//                                title = product.title,
+//                                rate = product.rate,
+//                                id = product.id,
+//                                price = product.price,
+//                                description = product.description,
+//                                imageName = product.imageName
+//                            )
+//                        )
+//                    )
                 }
             )
         }
@@ -257,11 +267,11 @@ fun ProductSizeBar(
 
 
 @Composable
-fun QtyAndRating(popularItem: ItemDetails) {
-    var quantityState by remember {
-        mutableIntStateOf(1)
-    }
-
+fun QtyAndRating(
+    popularItem: ItemDetails,
+    quantity: Int,
+    onQuantityChanged: (String) -> Unit
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -299,14 +309,14 @@ fun QtyAndRating(popularItem: ItemDetails) {
             QtyButton(
                 text = "-",
                 onButtonClicked = {
-                    if (quantityState > 1) {
-                        quantityState--
+                    if (quantity > 1) {
+                        onQuantityChanged(QuantityOperation.MINUS.value)
                     }
                 })
 
             Text(
                 modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
-                text = quantityState.toString(),
+                text = quantity.toString(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
 
@@ -315,7 +325,7 @@ fun QtyAndRating(popularItem: ItemDetails) {
             QtyButton(
                 text = "+",
                 onButtonClicked = {
-                    quantityState++
+                    onQuantityChanged(QuantityOperation.PLUS.value)
                 })
         }
 
@@ -364,7 +374,8 @@ fun Description(popularItem: ItemDetails) {
 @Composable
 fun AddToCart(
     popularItem: ItemDetails,
-    onAddToCartClicked: () -> Unit
+    onAddToCartClicked: () -> Unit,
+    uiState: RequestState
 ) {
 
     Row(
@@ -377,11 +388,17 @@ fun AddToCart(
     ) {
 
         ButtonShopApp(
+            isVisible = uiState != RequestState.LOADING,
             modifier = Modifier.wrapContentSize(),
             onButtonClicked = {
                 onAddToCartClicked()
             },
             label = stringResource(R.string.add_to_cart)
+        )
+
+        LinearLoadingIndicator(
+            isVisible = uiState == RequestState.LOADING,
+            modifier = Modifier.wrapContentSize()
         )
 
         Text(

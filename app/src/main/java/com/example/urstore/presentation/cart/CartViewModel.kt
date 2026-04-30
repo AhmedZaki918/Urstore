@@ -1,21 +1,28 @@
 package com.example.urstore.presentation.cart
 
 import androidx.lifecycle.viewModelScope
+import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.Cart
+import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.data.repository.CartRepoTest
 import com.example.urstore.util.BaseViewModel
+import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val cartRepo: CartRepo
+    private val cartRepoTest: CartRepoTest,
+    private val cartRepo: CartRepo,
+    private val dataStore: DataStoreRepo
 ) : BaseViewModel<CartIntent>() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -23,8 +30,8 @@ class CartViewModel @Inject constructor(
 
     init {
         fetchCart()
-        calculateSubTotal()
     }
+
 
     override fun onIntent(intent: CartIntent) {
         when (intent) {
@@ -35,12 +42,20 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun fetchCart() {
+    private fun fetchCart() {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    cartItems = cartRepo.fetchCart()
-                )
+            updateState(RequestState.LOADING)
+            val token = dataStore.readString(TOKEN).first()
+            val response = cartRepo.initCartItems(token)
+
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(cartResponse = response.data)
+                }
+                updateState(RequestState.SUCCESS)
+
+            } else if (response is Resource.Failure) {
+                updateState(RequestState.ERROR)
             }
         }
     }
@@ -48,7 +63,7 @@ class CartViewModel @Inject constructor(
 
     fun removeItemFromCart(cartItem: Cart) {
         viewModelScope.launch {
-            val updatedCart = uiState.value.cartItems.filter { item ->
+            val updatedCart = uiState.value.cartItemsTest.filter { item ->
                 item.id != cartItem.id
             }
             _uiState.update {
@@ -60,12 +75,12 @@ class CartViewModel @Inject constructor(
                         )
                     )
                         .toMutableMap(),
-                    cartItems = updatedCart,
+                    cartItemsTest = updatedCart,
                     subtotal = it.subtotal - cartItem.totalPrice
                 )
             }
 
-            cartRepo.removeItemFromCart(cartItem)
+            cartRepoTest.removeItemFromCart(cartItem)
         }
     }
 
@@ -78,7 +93,7 @@ class CartViewModel @Inject constructor(
                     plusState = it.plusState.plus(Pair(id.toString(), RequestState.LOADING))
                         .toMutableMap(),
 
-                    cartItems = it.cartItems.map { cartItem ->
+                    cartItemsTest = it.cartItemsTest.map { cartItem ->
                         if (cartItem.id == id) {
                             unitPrice = cartItem.unitPrice
                             val updatedQty = cartItem.qty + 1
@@ -91,7 +106,7 @@ class CartViewModel @Inject constructor(
                     subtotal = it.subtotal + unitPrice
                 )
             }
-            cartRepo.increaseQuantity(id)
+            cartRepoTest.increaseQuantity(id)
         }
     }
 
@@ -104,7 +119,7 @@ class CartViewModel @Inject constructor(
                     minusState = it.minusState.plus(Pair(id.toString(), RequestState.LOADING))
                         .toMutableMap(),
 
-                    cartItems = it.cartItems.map { cartItem ->
+                    cartItemsTest = it.cartItemsTest.map { cartItem ->
                         if (cartItem.id == id && cartItem.qty > 1) {
                             unitPrice = cartItem.unitPrice
                             val updatedQty = cartItem.qty - 1
@@ -118,21 +133,14 @@ class CartViewModel @Inject constructor(
                     subtotal = it.subtotal - unitPrice
                 )
             }
-            cartRepo.decreaseQuantity(id)
+            cartRepoTest.decreaseQuantity(id)
         }
     }
 
-    fun calculateSubTotal() {
-        viewModelScope.launch {
-            var updatedSubTotal = 0.0
-            for (item in uiState.value.cartItems) {
-                updatedSubTotal += item.totalPrice
-            }
-            _uiState.update {
-                it.copy(
-                    subtotal = updatedSubTotal
-                )
-            }
+
+    private fun updateState(state: RequestState) {
+        _uiState.update {
+            it.copy(cartState = state)
         }
     }
 }

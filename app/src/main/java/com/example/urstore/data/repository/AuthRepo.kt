@@ -1,5 +1,6 @@
 package com.example.urstore.data.repository
 
+import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.F_NAME_KEY
 import com.example.urstore.data.local.Constants.L_NAME_KEY
 import com.example.urstore.data.local.Constants.TOKEN
@@ -20,7 +21,7 @@ class AuthRepo @Inject constructor(
     private val dataStore: DataStoreRepo
 ) : SafeApiCall {
 
-     fun isInputValidOnSignup(
+    fun isInputValidOnSignup(
         map: HashMap<AuthField, String>,
         onSuccess: () -> Unit,
         onError: () -> Unit
@@ -82,6 +83,7 @@ class AuthRepo @Inject constructor(
             writeString(F_NAME_KEY, loginResponse?.firstName.toString())
             writeString(L_NAME_KEY, loginResponse?.lastName.toString())
             writeString(TOKEN, loginResponse?.token.toString())
+            writeString(CLIENT_ID, loginResponse?.clientId.toString())
         }
     }
 

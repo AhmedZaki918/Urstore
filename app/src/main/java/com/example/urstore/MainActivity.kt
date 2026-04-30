@@ -47,7 +47,7 @@ import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.White
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -79,7 +79,7 @@ fun MainUi(viewModel: MainViewModel) {
 
 
     if (uiState.isLoading) {
-        LoadingIndicator(modifier = Modifier.fillMaxSize())
+        LinearLoadingIndicator(modifier = Modifier.fillMaxSize())
     } else {
         Scaffold(
             bottomBar = { BottomBar(navController = navController) }

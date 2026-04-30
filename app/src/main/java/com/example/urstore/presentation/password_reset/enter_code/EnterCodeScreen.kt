@@ -56,7 +56,7 @@ import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.BackButton
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
@@ -108,7 +108,7 @@ fun EnterCodeScreen(
     ) {
         EnterCodeUi(navController, uiState, viewModel, focusRequesters)
 
-        LoadingIndicator(
+        LinearLoadingIndicator(
             isVisible = uiState.enterCodeState == RequestState.LOADING,
             modifier = Modifier
                 .height(55.dp)

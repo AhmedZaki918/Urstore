@@ -4,6 +4,9 @@ import com.example.urstore.data.model.auth_dto.login.LoginDto
 import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterDto
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
+import com.example.urstore.data.model.cart.add.AddCartDto
+import com.example.urstore.data.model.cart.add.AddCartRequest
+import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.data.model.password_reset.ForgetPasswordDto
 import com.example.urstore.data.model.password_reset.ForgetPasswordRequest
@@ -15,6 +18,7 @@ import com.example.urstore.util.BaseResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -50,4 +54,16 @@ interface APIService {
     suspend fun resetPassword(
         @Body body: ResetPasswordRequest
     ) : Response<BaseResponse<ResetPasswordDto>>
+
+
+    @POST("Cart/add")
+    suspend fun addToCart(
+        @Header("Authorization") token: String,
+        @Body body: AddCartRequest
+    ): Response<BaseResponse<AddCartDto>>
+
+    @GET("Cart/GetAll")
+    suspend fun cartItems(
+        @Header("Authorization") token: String
+    ) :Response<BaseResponse<CartDto>>
 }

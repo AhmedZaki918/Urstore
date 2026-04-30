@@ -35,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -160,6 +161,7 @@ fun MyFloatingActionButton(
 
 @Composable
 fun CircleButton(
+    isVisible: Boolean = true,
     modifier: Modifier,
     onClicked: () -> Unit,
     text: String,
@@ -169,25 +171,27 @@ fun CircleButton(
     textFontSize: TextUnit = 18.sp,
     floatingDefaultElevation: Dp = 8.dp,
 ) {
-    FloatingActionButton(
-        modifier = modifier.size(floatingActionSize),
-        onClick = onClicked,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        shape = CircleShape,
-        elevation = FloatingActionButtonDefaults.elevation(
-            defaultElevation = floatingDefaultElevation,
-            pressedElevation = 12.dp
-        )
-    ) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            text = text,
-            textAlign = TextAlign.Center,
-            fontSize = textFontSize
-        )
+    if (isVisible){
+        FloatingActionButton(
+            modifier = modifier.size(floatingActionSize),
+            onClick = onClicked,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = floatingDefaultElevation,
+                pressedElevation = 12.dp
+            )
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = text,
+                textAlign = TextAlign.Center,
+                fontSize = textFontSize
+            )
+        }
     }
 }
 
@@ -601,18 +605,36 @@ fun BackButton(
 
 
 @Composable
-fun LoadingIndicator(
+fun LinearLoadingIndicator(
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
 ) {
     if (isVisible) {
         Box(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.wrapContentSize(),
             contentAlignment = Alignment.Center
         ) {
             LinearProgressIndicator(
                 color = Brown,
                 modifier = Modifier.fillMaxWidth(0.25f)
+            )
+        }
+    }
+}
+
+@Composable
+fun CircularLoadingIndicator(
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = true
+) {
+    if (isVisible) {
+        Box(
+            modifier = modifier.wrapContentSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = White,
+                modifier = Modifier.wrapContentSize()
             )
         }
     }
@@ -1046,4 +1068,3 @@ fun AlertDialog(
         }
     }
 }
-

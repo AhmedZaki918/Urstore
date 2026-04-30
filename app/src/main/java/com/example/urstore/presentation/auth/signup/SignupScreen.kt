@@ -43,7 +43,7 @@ import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
@@ -204,7 +204,7 @@ fun SignupScreen(
                 }
             )
 
-            LoadingIndicator(
+            LinearLoadingIndicator(
                 modifier = Modifier
                     .height(55.dp)
                     .wrapContentWidth(),

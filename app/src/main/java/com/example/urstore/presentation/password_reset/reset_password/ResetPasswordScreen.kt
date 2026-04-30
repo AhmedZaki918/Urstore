@@ -40,7 +40,7 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
-import com.example.urstore.util.LoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
@@ -229,7 +229,7 @@ fun ResetPasswordUi(
             }
         )
 
-        LoadingIndicator(
+        LinearLoadingIndicator(
             isVisible = uiState.resetPasswordState == RequestState.LOADING,
             modifier = Modifier
                 .constrainAs(loadingBox) {

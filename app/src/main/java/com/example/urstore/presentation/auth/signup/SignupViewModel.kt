@@ -112,8 +112,6 @@ class SignupViewModel @Inject constructor(
     }
 
 
-
-
     private fun signup(hashmap: HashMap<AuthField, String>) {
         viewModelScope.launch {
             val response = authRepo.signup(hashmap)

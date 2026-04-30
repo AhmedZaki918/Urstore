@@ -1,14 +1,20 @@
 package com.example.urstore.presentation.details
 
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
-
 sealed class DetailsIntent {
     data class OnSizeClicked(
         val id: Int
     ) : DetailsIntent()
 
 
+//    data class AddToCartTest(
+//        val item: DrinksDataDto
+//    ) : DetailsIntent()
+
     data class AddToCart(
-        val item: DrinksDataDto
+        val drinkId: Int
+    )  : DetailsIntent()
+
+    data class UpdateQuantity(
+        val operation : String
     ) : DetailsIntent()
 }

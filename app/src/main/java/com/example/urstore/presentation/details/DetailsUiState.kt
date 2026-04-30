@@ -8,5 +8,8 @@ import com.example.urstore.util.RequestState
 data class DetailsUiState(
     val productSize: List<ProductSize> = emptyList(),
     val popularItem : HomePopular = HomePopular(image = R.drawable.drink_1),
-    val addedToCartState: RequestState = RequestState.IDLE
+    val addToCartState: RequestState = RequestState.IDLE,
+    val quantity : Int = 1,
+    val clientId : String = "",
+    val token : String = ""
 )

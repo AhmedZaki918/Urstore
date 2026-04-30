@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import com.example.urstore.data.model.Cart
+import com.example.urstore.data.model.cart.get.ShoppingCart
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Dark_Yellow
@@ -30,7 +31,7 @@ import com.example.urstore.util.QtyButton
 
 @Composable
 fun ListItemCart(
-    currentItem: Cart,
+    currentItem: ShoppingCart,
     onDeleteClicked: (Cart) -> Unit,
     onIncreaseClicked: (Int) -> Unit,
     onDecreaseClicked: (Int) -> Unit
@@ -52,7 +53,7 @@ fun ListItemCart(
 
 
             AsyncImage(
-                model = currentItem.image,
+                model = currentItem.imageName,
                 modifier = Modifier
                     .constrainAs(productImage) {
                         start.linkTo(parent.start, SMALL_MARGIN)
@@ -68,7 +69,7 @@ fun ListItemCart(
                     top.linkTo(parent.top, SMALL_MARGIN)
                     start.linkTo(productImage.end, MEDIUM_MARGIN)
                 },
-                text = currentItem.title,
+                text = currentItem.itemName,
                 fontWeight = FontWeight.Bold
             )
 
@@ -79,7 +80,7 @@ fun ListItemCart(
                     bottom.linkTo(parent.bottom)
                 },
                 fontSize = 12.sp,
-                text = "$${currentItem.unitPrice}"
+                text = "$${currentItem.itemPrice}"
             )
 
             Text(
@@ -99,7 +100,7 @@ fun ListItemCart(
                     top.linkTo(parent.top, SMALL_MARGIN)
                 },
                 onClicked = {
-                    onDeleteClicked(currentItem)
+                    //onDeleteClicked(currentItem)
                 },
                 text = "x",
                 containerColor = Black,
@@ -127,12 +128,12 @@ fun ListItemCart(
                 QtyButton(
                     text = "-",
                     onButtonClicked = {
-                        onDecreaseClicked(currentItem.id)
+                        //onDecreaseClicked(currentItem.id)
                     })
 
                 Text(
                     modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
-                    text = currentItem.qty.toString(),
+                    text = currentItem.count.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
 
@@ -141,7 +142,7 @@ fun ListItemCart(
                 QtyButton(
                     text = "+",
                     onButtonClicked = {
-                        onIncreaseClicked(currentItem.id)
+                        //onIncreaseClicked(currentItem.id)
                     })
             }
         }
