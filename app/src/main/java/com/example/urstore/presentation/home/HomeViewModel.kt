@@ -112,6 +112,7 @@ class HomeViewModel @Inject constructor(
     private fun addToCart(item: DrinksDataDto) {
         viewModelScope.launch {
             updateLoadingState(true, item.id)
+
             val response = cartRepo.initAddToCart(
                 drinkId = item.id,
                 count = 1,
@@ -121,6 +122,7 @@ class HomeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateLoadingState(false)
+
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = "Added to cart",
@@ -130,6 +132,7 @@ class HomeViewModel @Inject constructor(
 
             } else if (response is Resource.Failure) {
                 updateLoadingState(false)
+
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),

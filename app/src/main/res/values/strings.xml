@@ -6,6 +6,7 @@
     <string name="category">Category</string>
     <string name="explore">Explore</string>
     <string name="cart">Cart</string>
+    <string name="remove">Remove All</string>
     <string name="wishlist">Wishlist</string>
     <string name="my_order">My Order</string>
     <string name="profile">Profile</string>
@@ -68,6 +69,8 @@
     <string name="create_new_password">Create a new password for your account</string>
     <string name="resend_code_now">Resend code now</string>
     <string name="otp_6_digits">OTP must be 6 digits.</string>
-
+    <string name="r_you_sure_delete_cart">Are you sure you want to delete?</string>
+    <string name="cart_delete_warning">All cart items will be deleted.</string>
+    <string name="delete">Delete</string>
 
 </resources>

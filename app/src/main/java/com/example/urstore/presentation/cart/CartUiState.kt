@@ -11,5 +11,6 @@ data class CartUiState(
     val plusState: MutableMap<String, RequestState> = mutableMapOf(),
     val minusState: MutableMap<String, RequestState> = mutableMapOf(),
     val deleteState: MutableMap<String, RequestState> = mutableMapOf(),
-    val subtotal : Double = 0.0
+    val subtotal : Double = 0.0,
+    var isCartDialogActive : Boolean = false
 )

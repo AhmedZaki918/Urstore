@@ -4,6 +4,7 @@ import com.example.urstore.data.model.auth_dto.login.LoginDto
 import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterDto
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
+import com.example.urstore.data.model.cart.DeleteCartDto
 import com.example.urstore.data.model.cart.add.AddCartDto
 import com.example.urstore.data.model.cart.add.AddCartRequest
 import com.example.urstore.data.model.cart.get.CartDto
@@ -30,6 +31,7 @@ interface APIService {
     ): Response<BaseResponse<List<DrinksDataDto>>>
 
 
+    // Authentication apis
     @POST("account/register")
     suspend fun register(
         @Body body: RegisterRequest
@@ -56,6 +58,7 @@ interface APIService {
     ) : Response<BaseResponse<ResetPasswordDto>>
 
 
+    // Cart apis
     @POST("Cart/add")
     suspend fun addToCart(
         @Header("Authorization") token: String,
@@ -66,4 +69,9 @@ interface APIService {
     suspend fun cartItems(
         @Header("Authorization") token: String
     ) :Response<BaseResponse<CartDto>>
+
+    @POST("Cart/removeall")
+    suspend fun removeCart(
+        @Header("Authorization") token: String
+    ) :Response<BaseResponse<DeleteCartDto>>
 }

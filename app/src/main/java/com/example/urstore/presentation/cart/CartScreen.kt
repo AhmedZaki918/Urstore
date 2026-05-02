@@ -1,6 +1,8 @@
 package com.example.urstore.presentation.cart
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -32,20 +37,22 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.data.model.Cart
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
+import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.Very_Light_Beige
+import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.SubTitle
 
 
 @Composable
@@ -63,14 +70,37 @@ fun CartScreen(
             .padding(top = EXTRA_LARGE_MARGIN)
     ) {
         CartHeader(
+            isCartNotEmpty = uiState.cartResponse?.shoppingCartList?.isNotEmpty(),
             onBackClicked = {
                 navController.popBackStack()
+            },
+            onDeleteClicked = {
+                viewModel.onIntent(CartIntent.ShowDialog(true))
             }
         )
+
         CartItems(uiState, viewModel)
         CheckoutSection(
             uiState = uiState,
             isVisible = uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true
+        )
+
+        AlertDialog(
+            isVisible = uiState.isCartDialogActive,
+            title = stringResource(R.string.r_you_sure_delete_cart),
+            description = stringResource(R.string.cart_delete_warning),
+            confirmTitle = stringResource(R.string.delete),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Delete,
+            onDismiss = {
+                viewModel.onIntent(CartIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                viewModel.apply {
+                    onIntent(CartIntent.ShowDialog(false))
+                    onIntent(CartIntent.DeleteCart)
+                }
+            }
         )
     }
 }
@@ -81,16 +111,16 @@ fun CartItems(
     uiState: CartUiState,
     viewModel: CartViewModel
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxHeight(0.60f)
-            .fillMaxWidth()
-            .padding(bottom = LARGE_MARGIN)
-    ) {
+    when (uiState.cartState) {
+        RequestState.SUCCESS -> {
+            if (uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true) {
 
-        when (uiState.cartState) {
-            RequestState.SUCCESS -> {
-                if (uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight(0.60f)
+                        .fillMaxWidth()
+                        .padding(bottom = LARGE_MARGIN)
+                ) {
                     items(uiState.cartResponse.shoppingCartList) { item ->
                         ListItemCart(
                             currentItem = item,
@@ -111,33 +141,52 @@ fun CartItems(
                             }
                         )
                     }
-                } else {
-                    // Empty cart ui
+                }
+
+            } else {
+                // Empty cart ui
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(top = 150.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Image(
+                            modifier = Modifier.fillMaxWidth(),
+                            painter = painterResource(id = R.drawable.no_cart),
+                            contentDescription = "Empty cart icon"
+                        )
+
+                        SubTitle(
+                            id = R.string.no_data_found,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                        )
+                    }
                 }
             }
-
-
-            RequestState.LOADING -> item {
-                LinearLoadingIndicator(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .wrapContentWidth()
-                )
-            }
-
-            RequestState.ERROR -> item {
-                ErrorUi()
-            }
-
-            else -> Unit
         }
+
+
+        RequestState.LOADING ->
+            LinearLoadingIndicator(
+                modifier = Modifier
+                    .height(55.dp)
+                    .fillMaxWidth()
+            )
+
+        RequestState.ERROR -> ErrorUi()
+
+        else -> Unit
     }
 }
 
 
 @Composable
 fun CartHeader(
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    onDeleteClicked: () -> Unit,
+    isCartNotEmpty: Boolean?
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -145,7 +194,7 @@ fun CartHeader(
             .wrapContentHeight()
             .padding(bottom = MEDIUM_MARGIN)
     ) {
-        val (backButton, titleText) = createRefs()
+        val (backButton, titleText, deleteText) = createRefs()
 
         BackButton(
             modifier = Modifier
@@ -171,6 +220,25 @@ fun CartHeader(
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp
         )
+
+
+        if (isCartNotEmpty == true) {
+            Text(
+                modifier = Modifier
+                    .constrainAs(deleteText) {
+                        end.linkTo(parent.end)
+                        top.linkTo(titleText.top)
+                        bottom.linkTo(titleText.bottom)
+                    }
+                    .padding(end = MEDIUM_MARGIN)
+                    .wrapContentSize()
+                    .clickable {
+                        onDeleteClicked()
+                    },
+                text = stringResource(R.string.remove),
+                color = Brown
+            )
+        }
     }
 }
 
@@ -310,21 +378,5 @@ fun CheckoutItem(
             text = value,
             fontWeight = FontWeight.Bold
         )
-    }
-}
-
-
-@Composable
-fun EmptyCart(cartItems: List<Cart>) {
-    if (cartItems.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.no_data_found),
-                fontSize = 16.sp
-            )
-        }
     }
 }

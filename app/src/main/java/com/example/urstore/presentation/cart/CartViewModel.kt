@@ -3,6 +3,7 @@ package com.example.urstore.presentation.cart
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.Cart
+import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.CartRepoTest
@@ -38,6 +39,8 @@ class CartViewModel @Inject constructor(
             is CartIntent.RemoveItem -> removeItemFromCart(intent.item)
             is CartIntent.IncreaseQuantity -> increaseQuantity(intent.id)
             is CartIntent.DecreaseQuantity -> decreaseQuantity(intent.id)
+            is CartIntent.DeleteCart -> deleteCart()
+            is CartIntent.ShowDialog -> editDialogVisibility(intent.isActive)
         }
     }
 
@@ -51,6 +54,25 @@ class CartViewModel @Inject constructor(
             if (response is Resource.Success) {
                 _uiState.update {
                     it.copy(cartResponse = response.data)
+                }
+                updateState(RequestState.SUCCESS)
+
+            } else if (response is Resource.Failure) {
+                updateState(RequestState.ERROR)
+            }
+        }
+    }
+
+    private fun deleteCart() {
+        viewModelScope.launch {
+            updateState(RequestState.LOADING)
+            val response = cartRepo.initRemoveCart(
+                dataStore.readString(TOKEN).first()
+            )
+
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(cartResponse =  CartDto())
                 }
                 updateState(RequestState.SUCCESS)
 
@@ -141,6 +163,16 @@ class CartViewModel @Inject constructor(
     private fun updateState(state: RequestState) {
         _uiState.update {
             it.copy(cartState = state)
+        }
+    }
+
+    private fun editDialogVisibility(isActive: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isCartDialogActive = isActive
+                )
+            }
         }
     }
 }

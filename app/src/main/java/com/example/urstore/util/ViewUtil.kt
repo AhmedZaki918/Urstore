@@ -625,7 +625,8 @@ fun LinearLoadingIndicator(
 @Composable
 fun CircularLoadingIndicator(
     modifier: Modifier = Modifier,
-    isVisible: Boolean = true
+    isVisible: Boolean = true,
+    color: Color
 ) {
     if (isVisible) {
         Box(
@@ -633,8 +634,8 @@ fun CircularLoadingIndicator(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                color = White,
-                modifier = Modifier.wrapContentSize()
+                color = color,
+                modifier = Modifier.size(25.dp)
             )
         }
     }

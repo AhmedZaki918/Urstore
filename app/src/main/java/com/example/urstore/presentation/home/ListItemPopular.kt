@@ -121,7 +121,8 @@ fun ListItemPopular(
                     modifier = Modifier.constrainAs(loading) {
                         bottom.linkTo(parent.bottom, SMALL_MARGIN)
                         end.linkTo(parent.end, SMALL_MARGIN)
-                    }
+                    },
+                    color = White
                 )
 
                 CircleButton(

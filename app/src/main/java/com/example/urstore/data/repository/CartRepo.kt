@@ -24,4 +24,8 @@ class CartRepo @Inject constructor(
     suspend fun initCartItems(token: String) = safeApiCall {
         api.cartItems("Bearer $token")
     }
+
+    suspend fun initRemoveCart(token: String) = safeApiCall {
+        api.removeCart("Bearer $token")
+    }
 }
