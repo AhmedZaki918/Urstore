@@ -70,7 +70,8 @@ fun CartScreen(
             .padding(top = EXTRA_LARGE_MARGIN)
     ) {
         CartHeader(
-            isCartNotEmpty = uiState.cartResponse?.shoppingCartList?.isNotEmpty(),
+            isCartNotEmpty = uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true &&
+                    uiState.cartState == RequestState.SUCCESS,
             onBackClicked = {
                 navController.popBackStack()
             },
@@ -80,10 +81,6 @@ fun CartScreen(
         )
 
         CartItems(uiState, viewModel)
-        CheckoutSection(
-            uiState = uiState,
-            isVisible = uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true
-        )
 
         AlertDialog(
             isVisible = uiState.isCartDialogActive,
@@ -112,58 +109,40 @@ fun CartItems(
     viewModel: CartViewModel
 ) {
     when (uiState.cartState) {
+
         RequestState.SUCCESS -> {
             if (uiState.cartResponse?.shoppingCartList?.isNotEmpty() == true) {
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxHeight(0.60f)
                         .fillMaxWidth()
                         .padding(bottom = LARGE_MARGIN)
                 ) {
-                    items(uiState.cartResponse.shoppingCartList) { item ->
+                    items(
+                        uiState.cartResponse.shoppingCartList
+                    ) { item ->
                         ListItemCart(
                             currentItem = item,
-                            onDeleteClicked = {
-//                        viewModel.onIntent(
-//                            CartIntent.RemoveItem(item)
-//                        )
+                            onDeleteClicked = { cartID ->
+                                viewModel.onIntent(CartIntent.RemoveItem(cartID))
                             },
-                            onDecreaseClicked = {
-//                        viewModel.onIntent(
-//                            CartIntent.DecreaseQuantity(item.id)
-//                        )
+                            onDecreaseClicked = { cartId ->
+                                viewModel.onIntent(
+                                    CartIntent.DecreaseQuantity(cartId)
+                                )
                             },
-                            onIncreaseClicked = {
-//                        viewModel.onIntent(
-//                            CartIntent.IncreaseQuantity(item.id)
-//                        )
+                            onIncreaseClicked = { cartId ->
+                                viewModel.onIntent(
+                                    CartIntent.IncreaseQuantity(cartId)
+                                )
                             }
                         )
                     }
                 }
+                CheckoutSection(uiState)
 
             } else {
-                // Empty cart ui
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(top = 150.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Image(
-                            modifier = Modifier.fillMaxWidth(),
-                            painter = painterResource(id = R.drawable.no_cart),
-                            contentDescription = "Empty cart icon"
-                        )
-
-                        SubTitle(
-                            id = R.string.no_data_found,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                        )
-                    }
-                }
+                EmptyCartUi()
             }
         }
 
@@ -175,7 +154,13 @@ fun CartItems(
                     .fillMaxWidth()
             )
 
-        RequestState.ERROR -> ErrorUi()
+        RequestState.ERROR -> ErrorUi(
+            topPadding = 150.dp,
+            retry = {
+                viewModel.onIntent(CartIntent.RetryFetchCart)
+            }
+        )
+
 
         else -> Unit
     }
@@ -244,114 +229,111 @@ fun CartHeader(
 
 
 @Composable
-fun CheckoutSection(
-    uiState: CartUiState,
-    isVisible: Boolean
-) {
-    if (isVisible) {
-        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (discountRow, checkoutColumn) = createRefs()
+fun CheckoutSection(uiState: CartUiState) {
 
-            // Discount code
-            Row(
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (discountRow, checkoutColumn) = createRefs()
+
+        // Discount code
+        Row(
+            modifier = Modifier
+                .constrainAs(discountRow) {
+                    bottom.linkTo(checkoutColumn.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(
+                    horizontal = MEDIUM_MARGIN
+                )
+                .clip(RoundedCornerShape(LARGE_MARGIN))
+                .background(Beige),
+            Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    start = MEDIUM_MARGIN,
+                    top = MEDIUM_MARGIN,
+                    bottom = MEDIUM_MARGIN
+                ),
+                text = stringResource(R.string.discount_code),
+                fontSize = 12.sp
+            )
+
+
+            ButtonShopApp(
+                modifier = Modifier.padding(end = VERY_SMALL_MARGIN),
+                onButtonClicked = {},
+                label = stringResource(R.string.apply)
+            )
+        }
+
+
+        // Checkout
+        Column(
+            modifier = Modifier
+                .constrainAs(checkoutColumn) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = MEDIUM_MARGIN)
+                .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+                .background(Beige)
+        ) {
+
+            CheckoutItem(
+                stringResource(R.string.subtotal),
+                "$${uiState.cartResponse?.totalAmount}",
+                EXTRA_LARGE_MARGIN
+            )
+
+            CheckoutItem(
+                stringResource(R.string.delivery),
+                "$0.0",
+                MEDIUM_MARGIN
+            )
+
+            CheckoutItem(
+                stringResource(R.string.total_tax),
+                "$0.1",
+                MEDIUM_MARGIN
+            )
+
+
+            HorizontalDivider(
                 modifier = Modifier
-                    .constrainAs(discountRow) {
-                        bottom.linkTo(checkoutColumn.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+                    .fillMaxWidth()
+                    .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
+                thickness = 1.dp,
+                color = Black
+            )
+
+
+            CheckoutItem(
+                stringResource(R.string.total),
+                "$${(uiState.cartResponse?.totalAmount?.plus(0.1))}",
+                0.dp
+            )
+
+            ButtonShopApp(
+                modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(
-                        horizontal = MEDIUM_MARGIN
-                    )
-                    .clip(RoundedCornerShape(LARGE_MARGIN))
-                    .background(Beige),
-                Arrangement.SpaceBetween
-            ) {
-                Text(
-                    modifier = Modifier.padding(
+                        top = CUSTOM_MARGIN,
                         start = MEDIUM_MARGIN,
-                        top = MEDIUM_MARGIN,
-                        bottom = MEDIUM_MARGIN
+                        end = MEDIUM_MARGIN
                     ),
-                    text = stringResource(R.string.discount_code),
-                    fontSize = 12.sp
-                )
-
-
-                ButtonShopApp(
-                    modifier = Modifier.padding(end = VERY_SMALL_MARGIN),
-                    onButtonClicked = {},
-                    label = stringResource(R.string.apply)
-                )
-            }
-
-
-            // Checkout
-            Column(
-                modifier = Modifier
-                    .constrainAs(checkoutColumn) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = MEDIUM_MARGIN)
-                    .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
-                    .background(Beige)
-            ) {
-
-                CheckoutItem(
-                    stringResource(R.string.subtotal),
-                    "$${uiState.cartResponse?.totalAmount}",
-                    EXTRA_LARGE_MARGIN
-                )
-
-                CheckoutItem(
-                    stringResource(R.string.delivery),
-                    "$0.0",
-                    MEDIUM_MARGIN
-                )
-
-                CheckoutItem(
-                    stringResource(R.string.total_tax),
-                    "$0.1",
-                    MEDIUM_MARGIN
-                )
-
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
-                    thickness = 1.dp,
-                    color = Black
-                )
-
-
-                CheckoutItem(
-                    stringResource(R.string.total),
-                    "$${(uiState.cartResponse?.totalAmount?.plus(0.1))}",
-                    0.dp
-                )
-
-                ButtonShopApp(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(
-                            top = CUSTOM_MARGIN,
-                            start = MEDIUM_MARGIN,
-                            end = MEDIUM_MARGIN
-                        ),
-                    onButtonClicked = {},
-                    label = stringResource(R.string.proceed_to_checkout)
-                )
-            }
+                onButtonClicked = {},
+                label = stringResource(R.string.proceed_to_checkout)
+            )
         }
     }
+
 }
 
 @Composable
@@ -378,5 +360,31 @@ fun CheckoutItem(
             text = value,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+
+@Composable
+fun EmptyCartUi() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 150.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Image(
+                modifier = Modifier.fillMaxWidth(),
+                painter = painterResource(id = R.drawable.no_cart),
+                contentDescription = "Empty cart icon"
+            )
+
+            SubTitle(
+                id = R.string.no_data_found,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+            )
+        }
     }
 }

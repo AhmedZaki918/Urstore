@@ -2,11 +2,9 @@ package com.example.urstore.presentation.cart
 
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.TOKEN
-import com.example.urstore.data.model.Cart
 import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
-import com.example.urstore.data.repository.CartRepoTest
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
@@ -21,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val cartRepoTest: CartRepoTest,
     private val cartRepo: CartRepo,
     private val dataStore: DataStoreRepo
 ) : BaseViewModel<CartIntent>() {
@@ -33,21 +30,21 @@ class CartViewModel @Inject constructor(
         fetchCart()
     }
 
-
     override fun onIntent(intent: CartIntent) {
         when (intent) {
-            is CartIntent.RemoveItem -> removeItemFromCart(intent.item)
+            is CartIntent.RemoveItem -> removeFromCart(intent.cartId)
             is CartIntent.IncreaseQuantity -> increaseQuantity(intent.id)
             is CartIntent.DecreaseQuantity -> decreaseQuantity(intent.id)
             is CartIntent.DeleteCart -> deleteCart()
             is CartIntent.ShowDialog -> editDialogVisibility(intent.isActive)
+            is CartIntent.RetryFetchCart -> fetchCart()
         }
     }
 
 
     private fun fetchCart() {
         viewModelScope.launch {
-            updateState(RequestState.LOADING)
+            updateCartState(RequestState.LOADING)
             val token = dataStore.readString(TOKEN).first()
             val response = cartRepo.initCartItems(token)
 
@@ -55,116 +52,124 @@ class CartViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(cartResponse = response.data)
                 }
-                updateState(RequestState.SUCCESS)
+                updateCartState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
-                updateState(RequestState.ERROR)
+                updateCartState(RequestState.ERROR)
             }
         }
     }
 
     private fun deleteCart() {
         viewModelScope.launch {
-            updateState(RequestState.LOADING)
-            val response = cartRepo.initRemoveCart(
+            updateCartState(RequestState.LOADING)
+            val response = cartRepo.initDeleteCart(
                 dataStore.readString(TOKEN).first()
             )
 
             if (response is Resource.Success) {
                 _uiState.update {
-                    it.copy(cartResponse =  CartDto())
+                    it.copy(cartResponse = CartDto())
                 }
-                updateState(RequestState.SUCCESS)
+                updateCartState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
-                updateState(RequestState.ERROR)
+                updateCartState(RequestState.ERROR)
             }
         }
     }
 
 
-    fun removeItemFromCart(cartItem: Cart) {
+    private fun removeFromCart(cartId: Int) {
         viewModelScope.launch {
-            val updatedCart = uiState.value.cartItemsTest.filter { item ->
-                item.id != cartItem.id
+            updateRemoveState(true, cartId)
+
+            val response = cartRepo.initRemoveFromCart(
+                token = dataStore.readString(TOKEN).first(),
+                cartId = cartId
+            )
+
+            if (response is Resource.Success) {
+                updateRemoveState(false, cartId)
+                _uiState.update {
+                    it.copy(cartResponse = response.data)
+                }
+
+            } else if (response is Resource.Failure) {
+                updateRemoveState(false, cartId)
+                updateCartState(RequestState.ERROR)
             }
-            _uiState.update {
-                it.copy(
-                    deleteState = it.deleteState.plus(
-                        Pair(
-                            cartItem.id.toString(),
-                            RequestState.LOADING
+        }
+    }
+
+
+    private fun increaseQuantity(cartId: Int) {
+        viewModelScope.launch {
+            updatePlusState(true, cartId)
+
+            val response = cartRepo.initIncreaseQty(
+                token = dataStore.readString(TOKEN).first(),
+                cartId = cartId
+            )
+
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(
+                        cartResponse = it.cartResponse?.copy(
+                            shoppingCartList = it.cartResponse.shoppingCartList.mapIndexed { index, item ->
+                                if (cartId == item.cartId) item.copy(
+                                    plusIconState = false,
+                                    count = response.data?.shoppingCartList[index]?.count,
+                                    totalPrice = response.data?.shoppingCartList[index]?.totalPrice
+                                )
+                                else item
+                            },
+                            totalAmount = response.data?.totalAmount
                         )
                     )
-                        .toMutableMap(),
-                    cartItemsTest = updatedCart,
-                    subtotal = it.subtotal - cartItem.totalPrice
-                )
-            }
+                }
 
-            cartRepoTest.removeItemFromCart(cartItem)
+            } else if (response is Resource.Failure) {
+                updatePlusState(false, cartId)
+                updateCartState(RequestState.ERROR)
+            }
         }
     }
 
-    fun increaseQuantity(id: Int) {
+
+    private fun decreaseQuantity(cartId: Int) {
         viewModelScope.launch {
-            var unitPrice = 0
+            updateMinusState(true, cartId)
 
-            _uiState.update {
-                it.copy(
-                    plusState = it.plusState.plus(Pair(id.toString(), RequestState.LOADING))
-                        .toMutableMap(),
+            val response = cartRepo.initDecreaseQty(
+                token = dataStore.readString(TOKEN).first(),
+                cartId = cartId
+            )
 
-                    cartItemsTest = it.cartItemsTest.map { cartItem ->
-                        if (cartItem.id == id) {
-                            unitPrice = cartItem.unitPrice
-                            val updatedQty = cartItem.qty + 1
-                            cartItem.copy(
-                                qty = updatedQty,
-                                totalPrice = (updatedQty * cartItem.unitPrice)
-                            )
-                        } else cartItem
-                    },
-                    subtotal = it.subtotal + unitPrice
-                )
+            if (response is Resource.Success) {
+                _uiState.update {
+                    it.copy(
+                        cartResponse = it.cartResponse?.copy(
+                            shoppingCartList = it.cartResponse.shoppingCartList.mapIndexed { index, item ->
+                                if (cartId == item.cartId) item.copy(
+                                    minusIconState = false,
+                                    count = response.data?.shoppingCartList[index]?.count,
+                                    totalPrice = response.data?.shoppingCartList[index]?.totalPrice
+                                )
+                                else item
+                            },
+                            totalAmount = response.data?.totalAmount
+                        )
+                    )
+                }
+
+            } else if (response is Resource.Failure) {
+                updateMinusState(false, cartId)
+                updateCartState(RequestState.ERROR)
             }
-            cartRepoTest.increaseQuantity(id)
         }
     }
 
-    fun decreaseQuantity(id: Int) {
-        viewModelScope.launch {
-            var unitPrice = 0
-
-            _uiState.update {
-                it.copy(
-                    minusState = it.minusState.plus(Pair(id.toString(), RequestState.LOADING))
-                        .toMutableMap(),
-
-                    cartItemsTest = it.cartItemsTest.map { cartItem ->
-                        if (cartItem.id == id && cartItem.qty > 1) {
-                            unitPrice = cartItem.unitPrice
-                            val updatedQty = cartItem.qty - 1
-                            cartItem.copy(
-                                qty = updatedQty,
-                                totalPrice = (updatedQty * cartItem.unitPrice)
-
-                            )
-                        } else cartItem
-                    },
-                    subtotal = it.subtotal - unitPrice
-                )
-            }
-            cartRepoTest.decreaseQuantity(id)
-        }
-    }
-
-
-    private fun updateState(state: RequestState) {
-        _uiState.update {
-            it.copy(cartState = state)
-        }
-    }
 
     private fun editDialogVisibility(isActive: Boolean) {
         viewModelScope.launch {
@@ -173,6 +178,64 @@ class CartViewModel @Inject constructor(
                     isCartDialogActive = isActive
                 )
             }
+        }
+    }
+
+
+    private fun updateCartState(state: RequestState) {
+        _uiState.update {
+            it.copy(cartState = state)
+        }
+    }
+
+
+    fun updatePlusState(
+        isLoading: Boolean,
+        id: Int
+    ) {
+        _uiState.update { state ->
+            state.copy(
+                cartResponse = state.cartResponse?.copy(
+                    shoppingCartList = state.cartResponse.shoppingCartList.map { item ->
+                        if (id == item.cartId) item.copy(plusIconState = isLoading)
+                        else item
+                    }
+                )
+            )
+        }
+    }
+
+
+    fun updateMinusState(
+        isLoading: Boolean,
+        id: Int
+    ) {
+        _uiState.update { state ->
+            state.copy(
+                cartResponse = state.cartResponse?.copy(
+                    shoppingCartList = state.cartResponse.shoppingCartList.map { item ->
+                        if (id == item.cartId) item.copy(minusIconState = isLoading)
+                        else item
+                    }
+                )
+            )
+        }
+    }
+
+
+    fun updateRemoveState(
+        isLoading: Boolean,
+        id: Int
+    ) {
+        _uiState.update { state ->
+            state.copy(
+                cartResponse = state.cartResponse?.copy(
+                    shoppingCartList = state.cartResponse.shoppingCartList.map { item ->
+                        if (id == item.cartId) item.copy(removeIconState = isLoading)
+                        else item
+                    }
+                )
+            )
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.example.urstore.util
 
-import android.content.Context
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -171,7 +169,7 @@ fun CircleButton(
     textFontSize: TextUnit = 18.sp,
     floatingDefaultElevation: Dp = 8.dp,
 ) {
-    if (isVisible){
+    if (isVisible) {
         FloatingActionButton(
             modifier = modifier.size(floatingActionSize),
             onClick = onClicked,
@@ -509,32 +507,22 @@ fun SubTitle(
     )
 }
 
-
-fun Context.toast(
-    message: String,
-    duration: Int = Toast.LENGTH_SHORT
-) {
-    Toast.makeText(
-        this,
-        message,
-        duration
-    ).show()
-}
-
-
 @Composable
 fun QtyButton(
+    isVisible: Boolean = true,
     text: String,
     onButtonClicked: () -> Unit
 ) {
-    Text(
-        modifier = Modifier.clickable {
-            onButtonClicked()
-        },
-        text = text,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
-    )
+    if (isVisible) {
+        Text(
+            modifier = Modifier.clickable {
+                onButtonClicked()
+            },
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+    }
 }
 
 @Composable
@@ -625,6 +613,7 @@ fun LinearLoadingIndicator(
 @Composable
 fun CircularLoadingIndicator(
     modifier: Modifier = Modifier,
+    size: Dp = 25.dp,
     isVisible: Boolean = true,
     color: Color
 ) {
@@ -635,7 +624,7 @@ fun CircularLoadingIndicator(
         ) {
             CircularProgressIndicator(
                 color = color,
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier.size(size)
             )
         }
     }
@@ -738,20 +727,48 @@ fun CircleWithIcon(
 
 
 @Composable
-fun ErrorUi(retry: () -> Unit = {}) {
+fun ErrorUi(
+    isErrorIconVisible : Boolean = true,
+    retry: () -> Unit = {},
+    topPadding: Dp = 32.dp
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 32.dp)
+            .padding(top = topPadding)
             .clickable {
                 retry.invoke()
             },
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            color = Black,
-            text = "Something went wrong!!",
-        )
+        Column(modifier = Modifier.fillMaxSize()) {
+
+            if (isErrorIconVisible){
+                Image(
+                    modifier = Modifier.fillMaxWidth(),
+                    painter = painterResource(id = R.drawable.error),
+                    contentDescription = "Error ui icon"
+                )
+            }
+
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                textAlign = TextAlign.Center,
+                color = Black,
+                text = "Something went wrong!!",
+            )
+
+            UnderlineText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = SMALL_MARGIN),
+                id = R.string.try_again
+            )
+        }
     }
 }
 

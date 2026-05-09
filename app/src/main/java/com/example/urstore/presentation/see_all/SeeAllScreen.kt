@@ -2,7 +2,6 @@ package com.example.urstore.presentation.see_all
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -32,7 +30,6 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
-import com.example.urstore.presentation.home.HomeIntent
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
@@ -119,9 +116,11 @@ fun LazyGridScope.seeAllContent(
 
         is LoadState.Error -> {
             item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                ErrorUi {
-                    drinks.retry()
-                }
+                ErrorUi(
+                    retry = {
+                        drinks.retry()
+                    }
+                )
             }
         }
 

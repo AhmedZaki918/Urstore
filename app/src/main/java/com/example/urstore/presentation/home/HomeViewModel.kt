@@ -52,6 +52,7 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
             is HomeIntent.AddToCart -> addToCart(intent.item)
+            is HomeIntent.RetryHome -> displayPopular()
         }
     }
 

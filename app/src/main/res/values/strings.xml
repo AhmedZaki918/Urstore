@@ -72,5 +72,5 @@
     <string name="r_you_sure_delete_cart">Are you sure you want to delete?</string>
     <string name="cart_delete_warning">All cart items will be deleted.</string>
     <string name="delete">Delete</string>
-
+    <string name="try_again">Try again</string>
 </resources>

@@ -25,7 +25,19 @@ class CartRepo @Inject constructor(
         api.cartItems("Bearer $token")
     }
 
-    suspend fun initRemoveCart(token: String) = safeApiCall {
-        api.removeCart("Bearer $token")
+    suspend fun initDeleteCart(token: String) = safeApiCall {
+        api.deleteCart("Bearer $token")
+    }
+
+    suspend fun initRemoveFromCart(token: String, cartId: Int) = safeApiCall {
+        api.removeFromCart(cartId, "Bearer $token")
+    }
+
+    suspend fun initIncreaseQty(token: String, cartId: Int) = safeApiCall {
+        api.increaseQuantity(cartId,"Bearer $token")
+    }
+
+    suspend fun initDecreaseQty(token: String, cartId: Int) = safeApiCall {
+        api.decreaseQuantity(cartId,"Bearer $token")
     }
 }

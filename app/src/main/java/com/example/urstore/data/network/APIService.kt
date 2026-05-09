@@ -5,6 +5,7 @@ import com.example.urstore.data.model.auth_dto.login.LoginRequest
 import com.example.urstore.data.model.auth_dto.register.RegisterDto
 import com.example.urstore.data.model.auth_dto.register.RegisterRequest
 import com.example.urstore.data.model.cart.DeleteCartDto
+import com.example.urstore.data.model.cart.ItemQuantity
 import com.example.urstore.data.model.cart.add.AddCartDto
 import com.example.urstore.data.model.cart.add.AddCartRequest
 import com.example.urstore.data.model.cart.get.CartDto
@@ -21,6 +22,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface APIService {
@@ -58,6 +60,7 @@ interface APIService {
     ) : Response<BaseResponse<ResetPasswordDto>>
 
 
+
     // Cart apis
     @POST("Cart/add")
     suspend fun addToCart(
@@ -71,7 +74,25 @@ interface APIService {
     ) :Response<BaseResponse<CartDto>>
 
     @POST("Cart/removeall")
-    suspend fun removeCart(
+    suspend fun deleteCart(
         @Header("Authorization") token: String
     ) :Response<BaseResponse<DeleteCartDto>>
+
+    @POST("Cart/remove/{id}")
+    suspend fun removeFromCart(
+        @Path("id") cartId: Int,
+        @Header("Authorization") token: String
+    ) :Response<BaseResponse<CartDto>>
+
+    @POST("Cart/increase/{id}")
+    suspend fun increaseQuantity(
+        @Path("id") cartId: Int,
+        @Header("Authorization") token: String
+    ) : Response<BaseResponse<CartDto>>
+
+    @POST("Cart/decrease/{id}")
+    suspend fun decreaseQuantity(
+        @Path("id") cartId: Int,
+        @Header("Authorization") token: String
+    ) : Response<BaseResponse<CartDto>>
 }

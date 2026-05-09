@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
-import com.example.urstore.data.model.Cart
 import com.example.urstore.data.model.cart.get.ShoppingCart
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -26,13 +25,14 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 import com.example.urstore.util.CircleButton
+import com.example.urstore.util.CircularLoadingIndicator
 import com.example.urstore.util.QtyButton
 
 
 @Composable
 fun ListItemCart(
     currentItem: ShoppingCart,
-    onDeleteClicked: (Cart) -> Unit,
+    onDeleteClicked: (Int) -> Unit,
     onIncreaseClicked: (Int) -> Unit,
     onDecreaseClicked: (Int) -> Unit
 ) {
@@ -49,7 +49,7 @@ fun ListItemCart(
                 .fillMaxSize()
                 .background(White)
         ) {
-            val (productImage, titleText, unitPriceText, totalPriceText, deleteButton, qtyRow) = createRefs()
+            val (productImage, titleText, unitPriceText, totalPriceText, deleteButton, qtyRow, loading) = createRefs()
 
 
             AsyncImage(
@@ -94,13 +94,24 @@ fun ListItemCart(
                 fontWeight = FontWeight.Bold
             )
 
+
+            CircularLoadingIndicator(
+                isVisible = currentItem.removeIconState,
+                modifier = Modifier.constrainAs(loading) {
+                    end.linkTo(parent.end, SMALL_MARGIN)
+                    top.linkTo(parent.top, SMALL_MARGIN)
+                },
+                color = Black
+            )
+
             CircleButton(
+                isVisible = !currentItem.removeIconState,
                 modifier = Modifier.constrainAs(deleteButton) {
                     end.linkTo(parent.end, SMALL_MARGIN)
                     top.linkTo(parent.top, SMALL_MARGIN)
                 },
                 onClicked = {
-                    //onDeleteClicked(currentItem)
+                    onDeleteClicked(currentItem.cartId)
                 },
                 text = "x",
                 containerColor = Black,
@@ -124,25 +135,43 @@ fun ListItemCart(
                     )
                     .padding(horizontal = SMALL_MARGIN, vertical = 4.dp),
             ) {
+                CircularLoadingIndicator(
+                    isVisible = currentItem.minusIconState,
+                    size = 18.dp,
+                    color = Black
+                )
 
                 QtyButton(
+                    isVisible = !currentItem.minusIconState,
                     text = "-",
                     onButtonClicked = {
-                        //onDecreaseClicked(currentItem.id)
+                        currentItem.count?.let { count ->
+                            if (count > 1){
+                                onDecreaseClicked(currentItem.cartId)
+                            }
+                        }
                     })
+
 
                 Text(
                     modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
                     text = currentItem.count.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
+                )
 
+
+                CircularLoadingIndicator(
+                    isVisible = currentItem.plusIconState,
+                    size = 18.dp,
+                    color = Black
                 )
 
                 QtyButton(
+                    isVisible = !currentItem.plusIconState,
                     text = "+",
                     onButtonClicked = {
-                        //onIncreaseClicked(currentItem.id)
+                        onIncreaseClicked(currentItem.cartId)
                     })
             }
         }

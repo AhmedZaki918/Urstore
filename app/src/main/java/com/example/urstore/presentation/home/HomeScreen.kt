@@ -165,7 +165,13 @@ fun LazyGridScope.popularCoffees(
         RequestState.ERROR -> {
             item(
                 span = { GridItemSpan(maxCurrentLineSpan) }
-            ) { ErrorUi() }
+            ) {
+                ErrorUi(
+                    isErrorIconVisible = false,
+                    retry = {
+                        viewModel.onIntent(HomeIntent.RetryHome)
+                    })
+            }
         }
 
         RequestState.LOADING -> {
