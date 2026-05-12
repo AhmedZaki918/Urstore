@@ -27,7 +27,7 @@ class CartViewModel @Inject constructor(
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
     init {
-        fetchCart()
+        isUserLoggedIn()
     }
 
     override fun onIntent(intent: CartIntent) {
@@ -38,6 +38,15 @@ class CartViewModel @Inject constructor(
             is CartIntent.DeleteCart -> deleteCart()
             is CartIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is CartIntent.RetryFetchCart -> fetchCart()
+        }
+    }
+
+
+    private fun isUserLoggedIn() {
+        viewModelScope.launch {
+            val token = dataStore.readString(TOKEN).first()
+            if (token == "") updateCartState(RequestState.SUCCESS)
+            else fetchCart()
         }
     }
 

@@ -5,11 +5,6 @@ sealed class DetailsIntent {
         val id: Int
     ) : DetailsIntent()
 
-
-//    data class AddToCartTest(
-//        val item: DrinksDataDto
-//    ) : DetailsIntent()
-
     data class AddToCart(
         val drinkId: Int
     )  : DetailsIntent()
@@ -17,4 +12,7 @@ sealed class DetailsIntent {
     data class UpdateQuantity(
         val operation : String
     ) : DetailsIntent()
+
+    data class ShowDialog(var isActive: Boolean) : DetailsIntent()
+    object Login : DetailsIntent()
 }

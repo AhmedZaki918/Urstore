@@ -5,7 +5,6 @@ import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
-import com.example.urstore.data.repository.CartRepoTest
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -27,7 +26,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
-    private val cartRepoTest: CartRepoTest,
     private val cartRepo: CartRepo,
     private val dataStore: DataStoreRepo
 ) : BaseViewModel<DetailsIntent>() {
@@ -48,8 +46,18 @@ class DetailsViewModel @Inject constructor(
     override fun onIntent(intent: DetailsIntent) {
         when (intent) {
             is DetailsIntent.OnSizeClicked -> setSizeActive(intent.id)
-            is DetailsIntent.AddToCart -> addToCart(intent.drinkId)
+            is DetailsIntent.AddToCart -> {
+                if (uiState.value.token != "") addToCart(intent.drinkId)
+                else editDialogVisibility(true)
+            }
+
             is DetailsIntent.UpdateQuantity -> updateProductQuantity(intent.operation)
+            is DetailsIntent.ShowDialog -> editDialogVisibility(intent.isActive)
+            is DetailsIntent.Login -> {
+                viewModelScope.launch {
+                    _effects.emit(UiEffect.Navigate)
+                }
+            }
         }
     }
 
@@ -155,6 +163,16 @@ class DetailsViewModel @Inject constructor(
     private fun updateState(state: RequestState) {
         _uiState.update {
             it.copy(addToCartState = state)
+        }
+    }
+
+    private fun editDialogVisibility(isActive: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoginDialogActive = isActive
+                )
+            }
         }
     }
 }

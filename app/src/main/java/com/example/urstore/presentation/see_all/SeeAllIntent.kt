@@ -6,4 +6,7 @@ sealed class SeeAllIntent {
     data class AddToCart(
         val item: DrinksDataDto
     ) : SeeAllIntent()
+
+    data class ShowDialog(var isActive: Boolean) : SeeAllIntent()
+    object Login : SeeAllIntent()
 }

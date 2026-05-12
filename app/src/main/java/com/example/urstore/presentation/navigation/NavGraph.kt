@@ -27,13 +27,12 @@ import com.example.urstore.util.ProductSharedViewModel
 @Composable
 fun NavGraph(
     productSharedViewModel: ProductSharedViewModel = hiltViewModel(),
-    currentDest: String,
     navController: NavHostController
 ) {
 
     NavHost(
         navController = navController,
-        startDestination = currentDest
+        startDestination = Screen.HOME_SCREEN.route
     ) {
         composable(route = Screen.LOGIN_SCREEN.route) {
             LoginScreen(navController = navController)

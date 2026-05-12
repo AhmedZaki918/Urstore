@@ -73,7 +73,11 @@ fun LoginScreen(
                 }
 
                 is UiEffect.Navigate -> {
-                    navController.navigate(route = Screen.HOME_SCREEN.route)
+                    navController.navigate(Screen.HOME_SCREEN.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
                 }
 
                 else -> Unit
@@ -170,7 +174,7 @@ fun LoginScreen(
             LinearLoadingIndicator(
                 modifier = Modifier
                     .height(55.dp)
-                    .wrapContentWidth(),
+                    .fillMaxWidth(),
                 isVisible = uiState.loginState == RequestState.LOADING
             )
 

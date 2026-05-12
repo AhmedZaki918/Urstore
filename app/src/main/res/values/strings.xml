@@ -44,7 +44,7 @@
     <string name="address">Address</string>
     <string name="invalid_input">Invalid input</string>
     <string name="want_to_logout">Are you sure you want to logout?</string>
-    <string name="returned_to_login">You will be returned to the login screen.</string>
+    <string name="returned_to_home">You will be returned to the home screen.</string>
     <string name="logout">Logout</string>
     <string name="cancel">Cancel</string>
     <string name="edit_profile">Edit Profile</string>
@@ -71,6 +71,7 @@
     <string name="otp_6_digits">OTP must be 6 digits.</string>
     <string name="r_you_sure_delete_cart">Are you sure you want to delete?</string>
     <string name="cart_delete_warning">All cart items will be deleted.</string>
+    <string name="should_login">Please login to add to cart</string>
     <string name="delete">Delete</string>
     <string name="try_again">Try again</string>
 </resources>

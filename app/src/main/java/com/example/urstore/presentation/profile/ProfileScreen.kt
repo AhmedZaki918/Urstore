@@ -95,14 +95,22 @@ fun SettingsContent(
     )
 
     SettingItem(
-        title = stringResource(R.string.log_out),
+        title = uiState.authName,
         leadingIcon = Icons.Outlined.PowerSettingsNew,
         isArrowExist = false,
         isSettingNameExist = false,
         onItemClicked = {
-            viewModel.onIntent(
-                ProfileIntent.ShowDialog(true)
-            )
+            if (uiState.isUserLoggedIn) {
+                viewModel.onIntent(
+                    ProfileIntent.ShowDialog(true)
+                )
+            } else {
+                navController.navigate(Screen.LOGIN_SCREEN.route) {
+                    popUpTo(0) {
+                        inclusive = true
+                    }
+                }
+            }
         }
     )
 
@@ -110,7 +118,7 @@ fun SettingsContent(
     AlertDialog(
         isVisible = uiState.isLoginDialogActive,
         title = stringResource(R.string.want_to_logout),
-        description = stringResource(R.string.returned_to_login),
+        description = stringResource(R.string.returned_to_home),
         confirmTitle = stringResource(R.string.logout),
         dismissTitle = stringResource(R.string.cancel),
         icon = Icons.Outlined.Logout,
@@ -122,7 +130,11 @@ fun SettingsContent(
                 onIntent(ProfileIntent.ShowDialog(false))
                 onIntent(ProfileIntent.Logout)
             }
-            navController.navigate(Screen.LOGIN_SCREEN.route)
+            navController.navigate(Screen.HOME_SCREEN.route) {
+                popUpTo(0) {
+                    inclusive = true
+                }
+            }
         }
     )
 }

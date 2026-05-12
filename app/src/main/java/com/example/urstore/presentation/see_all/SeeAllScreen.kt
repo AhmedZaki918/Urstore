@@ -13,15 +13,20 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -29,12 +34,14 @@ import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.urstore.R
 import com.example.urstore.data.model.drinks_dto.DrinksDataDto
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
+import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
-import com.example.urstore.ui.theme.SMALL_MARGIN
+import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
@@ -50,6 +57,7 @@ fun SeeAllScreen(
     productSharedViewModel: ProductSharedViewModel
 ) {
     val drinks = viewModel.drinks.collectAsLazyPagingItems()
+    val uiState = viewModel.uiState.collectAsState().value
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
@@ -60,6 +68,8 @@ fun SeeAllScreen(
                     actionLabel = effect.actionLabel,
                     duration = SnackbarDuration.Short
                 )
+            } else if (effect is UiEffect.Navigate) {
+                navController.navigate(route = Screen.LOGIN_SCREEN.route)
             }
         }
     }
@@ -79,7 +89,8 @@ fun SeeAllScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(top = MEDIUM_MARGIN),
             contentPadding = PaddingValues(bottom = EXTRA_LARGE_MARGIN)
         ) {
             seeAllContent(
@@ -89,6 +100,25 @@ fun SeeAllScreen(
                 navController
             )
         }
+
+
+        AlertDialog(
+            isVisible = uiState.isLoginDialogActive,
+            title = stringResource(R.string.should_login),
+            description = stringResource(R.string.returned_to_home),
+            confirmTitle = stringResource(R.string.login),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Login,
+            onDismiss = {
+                viewModel.onIntent(SeeAllIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                viewModel.apply {
+                    onIntent(SeeAllIntent.ShowDialog(false))
+                    onIntent(SeeAllIntent.Login)
+                }
+            }
+        )
 
         SnackBar(
             hostState = snackbarHostState,
@@ -110,13 +140,15 @@ fun LazyGridScope.seeAllContent(
     when (refreshState) {
         is LoadState.Loading -> {
             item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                LinearLoadingIndicator(modifier = Modifier.padding(top = SMALL_MARGIN))
+                LinearLoadingIndicator(modifier = Modifier.padding(top = LARGE_MARGIN))
             }
         }
 
         is LoadState.Error -> {
             item(span = { GridItemSpan(maxCurrentLineSpan) }) {
                 ErrorUi(
+                    modifier = Modifier.fillMaxSize(),
+                    topPadding = 150.dp,
                     retry = {
                         drinks.retry()
                     }

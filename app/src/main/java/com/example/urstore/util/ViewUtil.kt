@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -53,6 +55,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +86,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
 import com.example.urstore.data.model.ProductSize
+import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -93,6 +97,8 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.Medium_Brown
 import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.Off_White_2
+import com.example.urstore.ui.theme.Purple40
+import com.example.urstore.ui.theme.Purple80
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
@@ -569,10 +575,19 @@ fun BackButton(
     onBackClicked: () -> Unit,
     isBackTextVisible: Boolean = true
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         modifier = modifier
-            .wrapContentSize()
-            .clickable {
+            .fillMaxWidth(0.2f)
+            .height(40.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(
+                    color = Purple40,
+                    bounded = true
+                )
+            ) {
                 onBackClicked()
             },
     ) {
@@ -728,20 +743,28 @@ fun CircleWithIcon(
 
 @Composable
 fun ErrorUi(
+    modifier: Modifier,
     isErrorIconVisible : Boolean = true,
     retry: () -> Unit = {},
     topPadding: Dp = 32.dp
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(top = topPadding)
-            .clickable {
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(
+                    color = Purple40,
+                    bounded = true
+                )
+            ) {
                 retry.invoke()
             },
         contentAlignment = Alignment.Center
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.wrapContentHeight()) {
 
             if (isErrorIconVisible){
                 Image(

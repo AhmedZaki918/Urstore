@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -44,6 +46,7 @@ import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
+import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.MyFloatingActionButton
@@ -69,12 +72,20 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
-            if (effect is UiEffect.ShowSnackbar) {
-                snackbarHostState.showSnackbar(
-                    message = effect.message,
-                    actionLabel = effect.actionLabel,
-                    duration = SnackbarDuration.Short
-                )
+            when (effect) {
+                is UiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                is UiEffect.Navigate -> {
+                    navController.navigate(route = Screen.LOGIN_SCREEN.route)
+                }
+
+                else -> Unit
             }
         }
     }
@@ -123,6 +134,25 @@ fun HomeScreen(
             )
         }
 
+
+        AlertDialog(
+            isVisible = uiState.isLoginDialogActive,
+            title = stringResource(R.string.should_login),
+            description = stringResource(R.string.returned_to_home),
+            confirmTitle = stringResource(R.string.login),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Login,
+            onDismiss = {
+                viewModel.onIntent(HomeIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                viewModel.apply {
+                    onIntent(HomeIntent.ShowDialog(false))
+                    onIntent(HomeIntent.Login)
+                }
+            }
+        )
+
         SnackBar(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -167,6 +197,7 @@ fun LazyGridScope.popularCoffees(
                 span = { GridItemSpan(maxCurrentLineSpan) }
             ) {
                 ErrorUi(
+                    modifier = Modifier.fillMaxSize(),
                     isErrorIconVisible = false,
                     retry = {
                         viewModel.onIntent(HomeIntent.RetryHome)

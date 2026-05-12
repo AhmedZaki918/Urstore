@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarDuration
@@ -40,6 +41,7 @@ import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.ItemDetails
 import com.example.urstore.data.model.ProductSize
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -47,6 +49,7 @@ import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.White
+import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.LinearLoadingIndicator
@@ -79,6 +82,8 @@ fun DetailsScreen(
                     actionLabel = effect.actionLabel,
                     duration = SnackbarDuration.Short
                 )
+            } else if (effect is UiEffect.Navigate){
+                navController.navigate(route = Screen.LOGIN_SCREEN.route)
             }
         }
     }
@@ -124,21 +129,28 @@ fun DetailsScreen(
                 popularItem = product,
                 onAddToCartClicked = {
                     detailsViewModel.onIntent(DetailsIntent.AddToCart(product.id))
-//                    detailsViewModel.onIntent(
-//                        DetailsIntent.AddToCartTest(
-//                            DrinksDataDto(
-//                                title = product.title,
-//                                rate = product.rate,
-//                                id = product.id,
-//                                price = product.price,
-//                                description = product.description,
-//                                imageName = product.imageName
-//                            )
-//                        )
-//                    )
                 }
             )
         }
+
+
+        AlertDialog(
+            isVisible = uiState.isLoginDialogActive,
+            title = stringResource(R.string.should_login),
+            description = stringResource(R.string.returned_to_home),
+            confirmTitle = stringResource(R.string.login),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Login,
+            onDismiss = {
+                detailsViewModel.onIntent(DetailsIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                detailsViewModel.apply {
+                    onIntent(DetailsIntent.ShowDialog(false))
+                    onIntent(DetailsIntent.Login)
+                }
+            }
+        )
 
         SnackBar(
             hostState = snackbarHostState,

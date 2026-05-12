@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
     val effects = _effects.asSharedFlow()
 
     init {
+        isUserLoggedIn()
         getUserData()
         displayCategories()
         displayPopular()
@@ -51,8 +52,18 @@ class HomeViewModel @Inject constructor(
     override fun onIntent(intent: HomeIntent) {
         when (intent) {
             is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
-            is HomeIntent.AddToCart -> addToCart(intent.item)
+            is HomeIntent.AddToCart -> {
+                if (uiState.value.isUserLoggedIn) addToCart(intent.item)
+                else editDialogVisibility(true)
+            }
+
             is HomeIntent.RetryHome -> displayPopular()
+            is HomeIntent.ShowDialog -> editDialogVisibility(intent.isActive)
+            is HomeIntent.Login -> {
+                viewModelScope.launch {
+                    _effects.emit(UiEffect.Navigate)
+                }
+            }
         }
     }
 
@@ -169,13 +180,45 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun isUserLoggedIn() {
+        viewModelScope.launch {
+            val token = dataStore.readString(TOKEN).first()
+            if (token == "") {
+                _uiState.update {
+                    it.copy(isUserLoggedIn = false)
+                }
+            } else {
+                _uiState.update {
+                    it.copy(isUserLoggedIn = true)
+                }
+            }
+        }
+    }
+
+
+    private fun editDialogVisibility(isActive: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoginDialogActive = isActive
+                )
+            }
+        }
+    }
+
 
     private fun getUserData() {
         viewModelScope.launch {
             val firstName = async {
                 dataStore.readString(F_NAME_KEY).collectLatest { value ->
-                    _uiState.update {
-                        it.copy(firstName = value)
+                    if (value == ""){
+                        _uiState.update {
+                            it.copy(firstName = "Guest")
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(firstName = value)
+                        }
                     }
                 }
             }

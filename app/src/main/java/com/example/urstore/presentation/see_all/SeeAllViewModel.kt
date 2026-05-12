@@ -19,8 +19,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,16 +36,45 @@ class SeeAllViewModel @Inject constructor(
     private val _drinks = MutableStateFlow<PagingData<DrinksDataDto>>(PagingData.empty())
     val drinks: StateFlow<PagingData<DrinksDataDto>> get() = _drinks
 
+    private val _uiState = MutableStateFlow(SeeAllUiState())
+    val uiState: StateFlow<SeeAllUiState> = _uiState.asStateFlow()
+
     private val _effects = MutableSharedFlow<UiEffect>()
     val effects = _effects.asSharedFlow()
 
     init {
+        isUserLoggedIn()
         displaySeeAll()
     }
 
     override fun onIntent(intent: SeeAllIntent) {
-        if (intent is SeeAllIntent.AddToCart) {
-            addToCart(intent.item)
+        when (intent) {
+            is SeeAllIntent.AddToCart -> {
+                if (uiState.value.isUserLoggedIn) addToCart(intent.item)
+                else editDialogVisibility(true)
+            }
+
+            is SeeAllIntent.ShowDialog -> editDialogVisibility(intent.isActive)
+            is SeeAllIntent.Login -> {
+                viewModelScope.launch {
+                    _effects.emit(UiEffect.Navigate)
+                }
+            }
+        }
+    }
+
+    private fun isUserLoggedIn() {
+        viewModelScope.launch {
+            val token = dataStore.readString(TOKEN).first()
+            if (token == "") {
+                _uiState.update {
+                    it.copy(isUserLoggedIn = false)
+                }
+            } else {
+                _uiState.update {
+                    it.copy(isUserLoggedIn = true)
+                }
+            }
         }
     }
 
@@ -101,6 +132,16 @@ class SeeAllViewModel @Inject constructor(
                 else item.copy(isLoading = false)
             } else {
                 item.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun editDialogVisibility(isActive: Boolean) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoginDialogActive = isActive
+                )
             }
         }
     }
