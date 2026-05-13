@@ -6,5 +6,6 @@ data class ProfileUiState(
     val profileState: RequestState = RequestState.IDLE,
     var isLoginDialogActive : Boolean = false,
     var authName : String = "",
+    var authCaption: String = "",
     var isUserLoggedIn : Boolean = false
 )

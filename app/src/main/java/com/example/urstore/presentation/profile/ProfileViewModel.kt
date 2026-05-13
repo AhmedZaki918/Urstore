@@ -57,14 +57,16 @@ class ProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isUserLoggedIn = false,
-                        authName = "Login"
+                        authName = "Login",
+                        authCaption = "Login to your account"
                     )
                 }
             } else {
                 _uiState.update {
                     it.copy(
                         isUserLoggedIn = true,
-                        authName = "Log Out"
+                        authName = "Log Out",
+                        authCaption = "Sign out form your account"
                     )
                 }
             }

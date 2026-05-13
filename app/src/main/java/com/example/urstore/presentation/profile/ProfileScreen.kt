@@ -1,14 +1,15 @@
 package com.example.urstore.presentation.profile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.outlined.Lock
@@ -16,12 +17,12 @@ import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PowerSettingsNew
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -29,13 +30,17 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
-import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
-import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
+import com.example.urstore.ui.theme.LARGE_MARGIN
+import com.example.urstore.ui.theme.Lighter_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.SettingItem
+import com.example.urstore.util.SettingOneItem
+import com.example.urstore.util.SubTitle
+import com.example.urstore.util.Title
+
 
 @Composable
 fun ProfileScreen(
@@ -44,136 +49,137 @@ fun ProfileScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
 
-    LazyColumn(
+
+    Column(
         modifier = Modifier
+            .background(Lighter_Beige)
             .fillMaxSize()
-            .background(Beige),
-        contentPadding = PaddingValues(bottom = 80.dp)
+            .padding(top = LARGE_MARGIN)
     ) {
-        item {
-            SettingsHeader {
-                navController.popBackStack()
+        ProfileHeader(navController)
+
+        SettingItem(
+            title = stringResource(R.string.edit_profile),
+            secondTitle = stringResource(R.string.change_password),
+            settingName = stringResource(R.string.account),
+            leadingIcon = Icons.Outlined.Person,
+            secondLeadingIcon = Icons.Outlined.Lock,
+            firstCaption = "Update your personal information",
+            secondCaption = "Update your password",
+            onFirstItemClicked = {},
+            onSecondItemClicked = {}
+        )
+
+        SettingOneItem(
+            title = stringResource(R.string.push_notification),
+            settingName = stringResource(R.string.notification),
+            leadingIcon = Icons.Outlined.Notifications,
+            caption = "Receive updates and alerts"
+        )
+
+        Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
+
+        SettingItem(
+            title = stringResource(R.string.help_support),
+            secondTitle = uiState.authName,
+            settingName = stringResource(R.string.more),
+            leadingIcon = Icons.AutoMirrored.Outlined.Help,
+            secondLeadingIcon = Icons.Outlined.PowerSettingsNew,
+            firstCaption = "Get help or contact support",
+            secondCaption = uiState.authCaption,
+            onFirstItemClicked = {},
+            onSecondItemClicked = {
+                if (uiState.isUserLoggedIn) {
+                    viewModel.onIntent(
+                        ProfileIntent.ShowDialog(true)
+                    )
+                } else {
+                    navController.navigate(Screen.LOGIN_SCREEN.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(CUSTOM_MARGIN))
-            SettingsContent(
-                viewModel,
-                navController,
-                uiState
-            )
-        }
-    }
-}
+        )
 
-@Composable
-fun SettingsContent(
-    viewModel: ProfileViewModel,
-    navController: NavHostController,
-    uiState: ProfileUiState
-) {
-
-    SettingItem(
-        title = stringResource(R.string.edit_profile),
-        secondTitle = stringResource(R.string.change_password),
-        settingName = stringResource(R.string.account),
-        leadingIcon = Icons.Outlined.Person,
-        secondLeadingIcon = Icons.Outlined.Lock,
-    )
-
-    SettingItem(
-        title = stringResource(R.string.push_notification),
-        settingName = stringResource(R.string.notification),
-        leadingIcon = Icons.Outlined.Notifications,
-        isToggleButtonExist = true,
-        onItemClicked = {}
-    )
-
-    SettingItem(
-        title = stringResource(R.string.help_support),
-        leadingIcon = Icons.AutoMirrored.Outlined.Help,
-        settingName = stringResource(R.string.more),
-        onItemClicked = {}
-    )
-
-    SettingItem(
-        title = uiState.authName,
-        leadingIcon = Icons.Outlined.PowerSettingsNew,
-        isArrowExist = false,
-        isSettingNameExist = false,
-        onItemClicked = {
-            if (uiState.isUserLoggedIn) {
-                viewModel.onIntent(
-                    ProfileIntent.ShowDialog(true)
-                )
-            } else {
-                navController.navigate(Screen.LOGIN_SCREEN.route) {
+        AlertDialog(
+            isVisible = uiState.isLoginDialogActive,
+            title = stringResource(R.string.want_to_logout),
+            description = stringResource(R.string.returned_to_home),
+            confirmTitle = stringResource(R.string.logout),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Logout,
+            onDismiss = {
+                viewModel.onIntent(ProfileIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                viewModel.apply {
+                    onIntent(ProfileIntent.ShowDialog(false))
+                    onIntent(ProfileIntent.Logout)
+                }
+                navController.navigate(Screen.HOME_SCREEN.route) {
                     popUpTo(0) {
                         inclusive = true
                     }
                 }
             }
-        }
-    )
-
-
-    AlertDialog(
-        isVisible = uiState.isLoginDialogActive,
-        title = stringResource(R.string.want_to_logout),
-        description = stringResource(R.string.returned_to_home),
-        confirmTitle = stringResource(R.string.logout),
-        dismissTitle = stringResource(R.string.cancel),
-        icon = Icons.Outlined.Logout,
-        onDismiss = {
-            viewModel.onIntent(ProfileIntent.ShowDialog(false))
-        },
-        onConfirm = {
-            viewModel.apply {
-                onIntent(ProfileIntent.ShowDialog(false))
-                onIntent(ProfileIntent.Logout)
-            }
-            navController.navigate(Screen.HOME_SCREEN.route) {
-                popUpTo(0) {
-                    inclusive = true
-                }
-            }
-        }
-    )
+        )
+    }
 }
 
+
 @Composable
-fun SettingsHeader(
-    onBackClicked: () -> Unit
-) {
+fun ProfileHeader(navController: NavHostController) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = EXTRA_LARGE_MARGIN)
     ) {
-        val (backButton, titleText) = createRefs()
+        val (backBtn, titleText, captionText, icon) = createRefs()
 
         BackButton(
-            modifier = Modifier
-                .constrainAs(backButton) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                }
-                .padding(start = MEDIUM_MARGIN),
+            modifier = Modifier.constrainAs(backBtn) {
+                start.linkTo(parent.start, MEDIUM_MARGIN)
+                top.linkTo(parent.top, MEDIUM_MARGIN)
+            },
             onBackClicked = {
-                onBackClicked()
-            }
+                navController.popBackStack()
+            },
+            isBackTextVisible = false
         )
 
 
-        Text(
+        Title(
+            modifier = Modifier.constrainAs(titleText) {
+                top.linkTo(backBtn.bottom, CUSTOM_MARGIN)
+                start.linkTo(backBtn.start)
+            },
+            id = R.string.settings,
+            fontSize = 29.sp
+        )
+
+        SubTitle(
+            modifier = Modifier.constrainAs(captionText) {
+                top.linkTo(titleText.bottom, MEDIUM_MARGIN)
+                start.linkTo(titleText.start)
+            },
+            id = R.string.settings_caption,
+            color = Color.Black.copy(alpha = 0.6f),
+            fontSize = 12.sp
+        )
+
+
+        Image(
+            painter = painterResource(R.drawable.ic_setting),
+            contentDescription = "",
             modifier = Modifier
-                .constrainAs(titleText) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
+                .constrainAs(icon) {
+                    start.linkTo(captionText.end)
                     end.linkTo(parent.end)
-                },
-            text = stringResource(R.string.settings),
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp
+                    top.linkTo(parent.top)
+                }
+                .size(170.dp)
         )
     }
 }

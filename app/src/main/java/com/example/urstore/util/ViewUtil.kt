@@ -25,12 +25,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowRight
+import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -86,7 +85,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
 import com.example.urstore.data.model.ProductSize
-import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -96,9 +94,7 @@ import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.Medium_Brown
 import com.example.urstore.ui.theme.Off_White
-import com.example.urstore.ui.theme.Off_White_2
 import com.example.urstore.ui.theme.Purple40
-import com.example.urstore.ui.theme.Purple80
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
@@ -583,10 +579,7 @@ fun BackButton(
             .height(40.dp)
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(
-                    color = Purple40,
-                    bounded = true
-                )
+                indication = null
             ) {
                 onBackClicked()
             },
@@ -744,7 +737,7 @@ fun CircleWithIcon(
 @Composable
 fun ErrorUi(
     modifier: Modifier,
-    isErrorIconVisible : Boolean = true,
+    isErrorIconVisible: Boolean = true,
     retry: () -> Unit = {},
     topPadding: Dp = 32.dp
 ) {
@@ -755,10 +748,7 @@ fun ErrorUi(
             .padding(top = topPadding)
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(
-                    color = Purple40,
-                    bounded = true
-                )
+                indication = null
             ) {
                 retry.invoke()
             },
@@ -766,7 +756,7 @@ fun ErrorUi(
     ) {
         Column(modifier = Modifier.wrapContentHeight()) {
 
-            if (isErrorIconVisible){
+            if (isErrorIconVisible) {
                 Image(
                     modifier = Modifier.fillMaxWidth(),
                     painter = painterResource(id = R.drawable.error),
@@ -802,14 +792,19 @@ fun SettingItem(
     leadingIcon: ImageVector,
     secondTitle: String,
     secondLeadingIcon: ImageVector,
-    settingName: String
+    settingName: String,
+    firstCaption: String = "",
+    secondCaption: String = "",
+    onFirstItemClicked: () -> Unit = {},
+    onSecondItemClicked: () -> Unit = {}
 ) {
-    Column(modifier = Modifier.wrapContentSize()) {
+    val interactionSource = remember { MutableInteractionSource() }
 
+    Column(modifier = Modifier.wrapContentSize()) {
         Text(
-            modifier = Modifier.padding(start = MEDIUM_MARGIN),
+            modifier = Modifier.padding(start = CUSTOM_MARGIN),
             text = settingName,
-            color = Brown.copy(alpha = 0.8f),
+            color = Black,
             fontSize = 12.sp
         )
 
@@ -821,10 +816,14 @@ fun SettingItem(
             shape = RoundedCornerShape(MEDIUM_MARGIN),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(110.dp)
-                .padding(start = MEDIUM_MARGIN, end = MEDIUM_MARGIN, top = SMALL_MARGIN),
+                .wrapContentHeight()
+                .padding(
+                    start = MEDIUM_MARGIN,
+                    end = MEDIUM_MARGIN,
+                    top = SMALL_MARGIN
+                ),
             colors = CardDefaults.cardColors(
-                containerColor = Off_White_2,
+                containerColor = Color.White
             )
         ) {
 
@@ -833,8 +832,8 @@ fun SettingItem(
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
-                val (iconImage, titleText, arrowImage, lineDivider,
-                    secondIconImage, secondTitleText, secondArrowImage) = createRefs()
+                val (iconImage, arrowImage, lineDivider, secondIconImage, secondArrowImage,
+                    accountProfileColumn, moreColumn) = createRefs()
 
                 Icon(
                     modifier = Modifier.constrainAs(iconImage) {
@@ -845,23 +844,44 @@ fun SettingItem(
                     contentDescription = ""
                 )
 
-                Text(
-                    modifier = Modifier.constrainAs(titleText) {
-                        start.linkTo(iconImage.end, MEDIUM_MARGIN)
-                        top.linkTo(iconImage.top)
-                        bottom.linkTo(iconImage.bottom)
-                    },
-                    text = title,
-                )
+
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onFirstItemClicked.invoke()
+                        }
+                        .constrainAs(accountProfileColumn) {
+                            start.linkTo(iconImage.end, MEDIUM_MARGIN)
+                            top.linkTo(iconImage.top)
+                        }) {
+
+                    Text(
+                        text = title,
+                        color = Color.Black
+                    )
+
+                    Text(
+                        text = firstCaption,
+                        color = Color.Gray,
+                        fontSize = 11.sp
+                    )
+                }
+
 
 
                 Icon(
-                    modifier = Modifier.constrainAs(arrowImage) {
-                        end.linkTo(parent.end, MEDIUM_MARGIN)
-                        top.linkTo(titleText.top)
-                        bottom.linkTo(titleText.bottom)
-                    },
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
+                    modifier = Modifier
+                        .constrainAs(arrowImage) {
+                            end.linkTo(parent.end, MEDIUM_MARGIN)
+                            top.linkTo(accountProfileColumn.top)
+                            bottom.linkTo(accountProfileColumn.bottom)
+                        }
+                        .size(16.dp),
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
                     contentDescription = "",
                     tint = Color.LightGray
                 )
@@ -871,45 +891,62 @@ fun SettingItem(
                 HorizontalDivider(
                     modifier = Modifier
                         .constrainAs(lineDivider) {
-                            top.linkTo(iconImage.bottom, SMALL_MARGIN)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
+                            top.linkTo(accountProfileColumn.bottom)
+                            start.linkTo(accountProfileColumn.start)
                         }
-                        .padding(
-                            vertical = VERY_SMALL_MARGIN,
-                            horizontal = MEDIUM_MARGIN
-                        ),
-                    color = Color.Gray.copy(alpha = 0.3f)
+                        .padding(top = MEDIUM_MARGIN, bottom = MEDIUM_MARGIN),
+                    color = Color.Gray.copy(alpha = 0.2f)
                 )
 
 
                 Icon(
                     modifier = Modifier.constrainAs(secondIconImage) {
                         start.linkTo(parent.start, MEDIUM_MARGIN)
-                        top.linkTo(lineDivider.bottom, SMALL_MARGIN)
+                        top.linkTo(lineDivider.bottom)
                     },
                     imageVector = secondLeadingIcon,
                     contentDescription = ""
                 )
 
 
-                Text(
-                    modifier = Modifier.constrainAs(secondTitleText) {
-                        start.linkTo(secondIconImage.end, MEDIUM_MARGIN)
-                        top.linkTo(secondIconImage.top)
-                        bottom.linkTo(secondIconImage.bottom)
-                    },
-                    text = secondTitle,
-                )
+
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onSecondItemClicked.invoke()
+                        }
+                        .constrainAs(moreColumn) {
+                            start.linkTo(secondIconImage.end, MEDIUM_MARGIN)
+                            top.linkTo(secondIconImage.top)
+                        }) {
+
+                    Text(
+                        text = secondTitle,
+                        color = Color.Black
+                    )
+
+                    Text(
+                        modifier = Modifier.padding(bottom = MEDIUM_MARGIN),
+                        text = secondCaption,
+                        color = Color.Gray,
+                        fontSize = 11.sp
+                    )
+                }
 
 
                 Icon(
-                    modifier = Modifier.constrainAs(secondArrowImage) {
-                        end.linkTo(parent.end, MEDIUM_MARGIN)
-                        top.linkTo(secondTitleText.top)
-                        bottom.linkTo(secondTitleText.bottom)
-                    },
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
+                    modifier = Modifier
+                        .constrainAs(secondArrowImage) {
+                            end.linkTo(parent.end, MEDIUM_MARGIN)
+                            top.linkTo(moreColumn.top)
+                            bottom.linkTo(moreColumn.bottom)
+                        }
+                        .size(16.dp),
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
                     contentDescription = "",
                     tint = Color.LightGray
                 )
@@ -920,39 +957,31 @@ fun SettingItem(
 
 
 @Composable
-fun SettingItem(
+fun SettingOneItem(
     title: String,
     leadingIcon: ImageVector,
     settingName: String = "",
-    isToggleButtonExist: Boolean = false,
-    isArrowExist: Boolean = true,
-    isSettingNameExist: Boolean = true,
-    onItemClicked: () -> Unit
+    caption: String = ""
 ) {
+    var checked by remember { mutableStateOf(true) }
+
     Column(
-        modifier = Modifier
-            .wrapContentSize()
-            .clickable {
-                onItemClicked.invoke()
-            }
+        modifier = Modifier.wrapContentSize()
     ) {
 
-        if (isSettingNameExist) {
-            Text(
-                modifier = Modifier.padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
-                text = settingName,
-                color = Brown.copy(alpha = 0.8f),
-                fontSize = 12.sp
-            )
-        }
+        Text(
+            modifier = Modifier.padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
+            text = settingName,
+            color = Black,
+            fontSize = 12.sp
+        )
+
 
         ElevatedCard(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 2.dp
             ),
-            colors = CardDefaults.cardColors(
-                containerColor = Off_White_2,
-            ),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
@@ -968,14 +997,13 @@ fun SettingItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = MEDIUM_MARGIN, vertical = SMALL_MARGIN)
             ) {
-                val (iconImage, titleText, arrowImage, toggleButton) = createRefs()
+                val (iconImage, titleText, toggleButton, captionText) = createRefs()
 
                 Icon(
                     modifier = Modifier.constrainAs(iconImage) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
+                        start.linkTo(parent.start, MEDIUM_MARGIN)
+                        top.linkTo(parent.top, MEDIUM_MARGIN)
                     },
                     imageVector = leadingIcon,
                     contentDescription = ""
@@ -985,48 +1013,41 @@ fun SettingItem(
                     modifier = Modifier.constrainAs(titleText) {
                         start.linkTo(iconImage.end, MEDIUM_MARGIN)
                         top.linkTo(iconImage.top)
-                        bottom.linkTo(iconImage.bottom)
                     },
                     text = title,
                 )
 
 
-
-                if (isToggleButtonExist) {
-                    var checked by remember { mutableStateOf(true) }
-
-                    Switch(
-                        modifier = Modifier
-                            .constrainAs(toggleButton) {
-                                end.linkTo(parent.end)
-                                top.linkTo(titleText.top)
-                                bottom.linkTo(titleText.bottom)
-                            }
-                            .scale(0.7f),
-                        colors = SwitchDefaults.colors(
-                            checkedTrackColor = Brown,
-                        ),
-                        checked = checked,
-                        onCheckedChange = {
-                            checked = it
+                Text(
+                    modifier = Modifier
+                        .constrainAs(captionText) {
+                            start.linkTo(titleText.start)
+                            top.linkTo(titleText.bottom)
                         }
-                    )
+                        .padding(bottom = MEDIUM_MARGIN),
+                    text = caption,
+                    color = Color.Gray,
+                    fontSize = 11.sp
+                )
 
 
-                } else {
-                    if (isArrowExist) {
-                        Icon(
-                            modifier = Modifier.constrainAs(arrowImage) {
-                                end.linkTo(parent.end)
-                                top.linkTo(titleText.top)
-                                bottom.linkTo(titleText.bottom)
-                            },
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowRight,
-                            contentDescription = "",
-                            tint = Color.LightGray
-                        )
+
+                Switch(
+                    modifier = Modifier
+                        .constrainAs(toggleButton) {
+                            end.linkTo(parent.end, MEDIUM_MARGIN)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .scale(0.7f),
+                    colors = SwitchDefaults.colors(
+                        checkedTrackColor = Brown,
+                    ),
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
                     }
-                }
+                )
             }
         }
     }
