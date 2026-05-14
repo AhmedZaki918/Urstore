@@ -39,8 +39,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.urstore.R
-import com.example.urstore.data.model.ItemDetails
-import com.example.urstore.data.model.ProductSize
+import com.example.urstore.data.model.drinks.ItemDetails
+import com.example.urstore.data.model.drinks.ProductSize
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black

@@ -35,7 +35,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.urstore.R
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN

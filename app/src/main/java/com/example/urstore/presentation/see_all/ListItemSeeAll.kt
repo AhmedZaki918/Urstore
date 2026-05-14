@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.MEDIUM_MARGIN

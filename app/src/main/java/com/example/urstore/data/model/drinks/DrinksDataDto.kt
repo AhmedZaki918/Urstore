@@ -1,4 +1,4 @@
-package com.example.urstore.data.model.drinks_dto
+package com.example.urstore.data.model.drinks
 
 data class DrinksDataDto(
     val category: String = "",

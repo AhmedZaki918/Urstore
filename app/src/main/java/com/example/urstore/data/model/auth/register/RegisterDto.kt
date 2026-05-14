@@ -1,4 +1,4 @@
-package com.example.urstore.data.model.auth_dto.register
+package com.example.urstore.data.model.auth.register
 
 data class RegisterDto(
     val address: String = "",

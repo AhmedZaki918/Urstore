@@ -45,6 +45,7 @@
     <string name="invalid_input">Invalid input</string>
     <string name="want_to_logout">Are you sure you want to logout?</string>
     <string name="returned_to_home">You will be returned to the home screen.</string>
+    <string name="returned_to_login">You will be returned to the login screen.</string>
     <string name="logout">Logout</string>
     <string name="cancel">Cancel</string>
     <string name="edit_profile">Edit Profile</string>

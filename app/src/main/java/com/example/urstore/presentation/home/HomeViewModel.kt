@@ -5,7 +5,8 @@ import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.F_NAME_KEY
 import com.example.urstore.data.local.Constants.L_NAME_KEY
 import com.example.urstore.data.local.Constants.TOKEN
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.categories.CategoriesDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
@@ -14,7 +15,6 @@ import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
 import com.example.urstore.util.UiEffect
-import com.example.urstore.util.homeCategoriesDummy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,8 +44,7 @@ class HomeViewModel @Inject constructor(
     init {
         isUserLoggedIn()
         getUserData()
-        displayCategories()
-        displayPopular()
+        loadHomeData()
     }
 
 
@@ -57,7 +56,7 @@ class HomeViewModel @Inject constructor(
                 else editDialogVisibility(true)
             }
 
-            is HomeIntent.RetryHome -> displayPopular()
+            is HomeIntent.RetryHome -> loadHomeData()
             is HomeIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is HomeIntent.Login -> {
                 viewModelScope.launch {
@@ -68,53 +67,54 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    private fun displayCategories() {
+    fun loadHomeData() {
         viewModelScope.launch {
             _uiState.update {
-                it.copy(
-                    homeCategories = homeCategoriesDummy()
-                )
+                it.copy(homeState = RequestState.LOADING)
             }
-        }
-    }
+            // Run 3 apis in parallel
+            val categoriesDeferred  = async { homeRepo.categories() }
+            val popularDeferred  = async { homeRepo.getAllDrinks() }
+            val offersDeferred =  async { homeRepo.offers() }
 
-    private fun displayPopular() {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    homeState = RequestState.LOADING
-                )
-            }
-            val homeResponse = homeRepo.getAllDrinks()
+            val categoriesResponse = categoriesDeferred.await()
+            val popularResponse = popularDeferred.await()
+            val offersResponse = offersDeferred.await()
 
-            if (homeResponse is Resource.Success) {
+
+            if (categoriesResponse is Resource.Success &&
+                popularResponse is Resource.Success &&
+                offersResponse is Resource.Success
+            ) {
                 _uiState.update {
                     it.copy(
-                        popularResponse = homeResponse.data,
+                        homeCategories = updateCategories(categoriesResponse.data),
+                        popularResponse = popularResponse.data,
+                        offersResponse = offersResponse.data,
                         homeState = RequestState.SUCCESS
                     )
                 }
-
             } else {
                 _uiState.update {
-                    it.copy(
-                        homeState = RequestState.ERROR
-                    )
+                    it.copy(homeState = RequestState.ERROR)
                 }
             }
         }
     }
 
-    private fun setCategoryActive(categoryId: Int) {
+
+    private fun updateCategories(homeCategories: List<CategoriesDto>?): List<CategoriesDto>? {
+        homeCategories?.get(0)?.isClicked = true
+        return homeCategories
+    }
+
+    private fun setCategoryActive(categoryId: Int?) {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    homeCategories = it.homeCategories.map { category ->
-                        if (category.id == categoryId) {
-                            category.copy(isClicked = true)
-                        } else {
-                            category.copy(isClicked = false)
-                        }
+                    homeCategories = it.homeCategories?.map { category ->
+                        if (category.id == categoryId) category.copy(isClicked = true)
+                        else category.copy(isClicked = false)
                     })
             }
         }
@@ -133,7 +133,7 @@ class HomeViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                updateLoadingState(false)
+                updateLoadingState(false, item.id)
 
                 _effects.emit(
                     UiEffect.ShowSnackbar(
@@ -143,7 +143,7 @@ class HomeViewModel @Inject constructor(
                 )
 
             } else if (response is Resource.Failure) {
-                updateLoadingState(false)
+                updateLoadingState(false, item.id)
 
                 _effects.emit(
                     UiEffect.ShowSnackbar(
@@ -155,28 +155,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Responsible for updating {Loading Indicator State} via id for add to cart button
+    // Responsible for updating {Loading Indicator} for add to cart button
     fun updateLoadingState(
         isLoading: Boolean,
-        id: Int = 0
+        id: Int
     ) {
-        if (isLoading) {
-            _uiState.update { it ->
-                it.copy(
-                    popularResponse = it.popularResponse?.map {
-                        if (id == it.id) it.copy(isLoading = true)
-                        else it.copy(isLoading = false)
-                    }
-                )
-            }
-        } else {
-            _uiState.update { it ->
-                it.copy(
-                    popularResponse = it.popularResponse?.map {
-                        it.copy(isLoading = false)
-                    }
-                )
-            }
+        _uiState.update { state ->
+            state.copy(
+                popularResponse = state.popularResponse?.map { item ->
+                    if (id == item.id) item.copy(isLoading = isLoading)
+                    else item
+                }
+            )
         }
     }
 
@@ -211,7 +201,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val firstName = async {
                 dataStore.readString(F_NAME_KEY).collectLatest { value ->
-                    if (value == ""){
+                    if (value == "") {
                         _uiState.update {
                             it.copy(firstName = "Guest")
                         }

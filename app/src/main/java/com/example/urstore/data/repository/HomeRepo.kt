@@ -11,4 +11,12 @@ class HomeRepo @Inject constructor(
     suspend fun getAllDrinks() = safeApiCall {
         api.allDrinks(1)
     }
+
+    suspend fun categories() = safeApiCall {
+        api.categories()
+    }
+
+    suspend fun offers() = safeApiCall {
+        api.offers()
+    }
 }

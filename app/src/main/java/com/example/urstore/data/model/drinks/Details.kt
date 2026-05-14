@@ -1,4 +1,4 @@
-package com.example.urstore.data.model
+package com.example.urstore.data.model.drinks
 
 data class ProductSize(
     val isPressed: Boolean = false,

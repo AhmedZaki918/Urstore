@@ -1,4 +1,4 @@
-package com.example.urstore.data.model.password_reset
+package com.example.urstore.data.model.auth.password_reset
 
 data class ForgetPasswordDto(
     val message: String = ""

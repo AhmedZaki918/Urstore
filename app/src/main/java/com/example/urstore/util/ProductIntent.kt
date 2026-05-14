@@ -1,6 +1,6 @@
 package com.example.urstore.util
 
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 
 sealed class ProductIntent {
     data class OnProductClicked(

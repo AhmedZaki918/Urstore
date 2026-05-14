@@ -1,8 +1,8 @@
 package com.example.urstore.util
 
 import androidx.lifecycle.viewModelScope
-import com.example.urstore.data.model.ItemDetails
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.drinks.ItemDetails
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

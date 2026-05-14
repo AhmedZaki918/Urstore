@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.urstore.data.model.HomeCategory
+import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -23,7 +23,7 @@ import com.example.urstore.ui.theme.White
 
 @Composable
 fun ListItemCategory(
-    currentIem: HomeCategory,
+    currentIem: CategoriesDto,
     onItemClicked: (Int) -> Unit
 ) {
     Card(
@@ -44,7 +44,7 @@ fun ListItemCategory(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(SMALL_MARGIN),
-            text = currentIem.category,
+            text = currentIem.title,
             textAlign = TextAlign.Center,
             fontSize = 14.sp,
             color = if (currentIem.isClicked) White else Black

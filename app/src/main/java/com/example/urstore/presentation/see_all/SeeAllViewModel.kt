@@ -6,7 +6,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.TOKEN
-import com.example.urstore.data.model.drinks_dto.DrinksDataDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.SeeAllRepo
@@ -100,7 +100,7 @@ class SeeAllViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                updateLoadingState(false)
+                updateLoadingState(false,item.id)
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = "Added to cart",
@@ -109,7 +109,7 @@ class SeeAllViewModel @Inject constructor(
                 )
 
             } else if (response is Resource.Failure) {
-                updateLoadingState(false)
+                updateLoadingState(false,item.id)
                 _effects.emit(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
@@ -121,18 +121,14 @@ class SeeAllViewModel @Inject constructor(
     }
 
 
-    // Responsible for updating {Loading Indicator State} via id for add to cart button
+    // Responsible for updating {Loading Indicator} for add to cart button
     fun updateLoadingState(
         isLoading: Boolean,
-        id: Int = 0
+        id: Int
     ) {
         _drinks.value = _drinks.value.map { item ->
-            if (isLoading) {
-                if (item.id == id) item.copy(isLoading = true)
-                else item.copy(isLoading = false)
-            } else {
-                item.copy(isLoading = false)
-            }
+            if (item.id == id) item.copy(isLoading = isLoading)
+            else item
         }
     }
 

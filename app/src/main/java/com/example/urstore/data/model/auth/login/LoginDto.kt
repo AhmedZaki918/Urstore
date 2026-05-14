@@ -1,4 +1,4 @@
-package com.example.urstore.data.model.auth_dto.login
+package com.example.urstore.data.model.auth.login
 
 data class LoginDto(
     val address: String? = "",

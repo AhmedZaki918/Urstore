@@ -1,6 +1,6 @@
 package com.example.urstore.presentation.details
 
-import com.example.urstore.data.model.ProductSize
+import com.example.urstore.data.model.drinks.ProductSize
 import com.example.urstore.util.RequestState
 
 data class DetailsUiState(

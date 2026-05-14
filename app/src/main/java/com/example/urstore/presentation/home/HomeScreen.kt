@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,8 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.urstore.R
-import com.example.urstore.data.model.HomeCategory
+import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
@@ -50,7 +52,6 @@ import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.MyFloatingActionButton
-import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.RequestState
@@ -96,49 +97,70 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Beige),
     ) {
-        LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(bottom = 130.dp)
-        ) {
 
-            item(
-                span = { GridItemSpan(maxCurrentLineSpan) }
-            ) {
-                Column(
+        when (uiState.homeState) {
+            RequestState.LOADING -> {
+                LinearLoadingIndicator(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            RequestState.ERROR -> {
+                ErrorUi(
+                    modifier = Modifier.fillMaxSize(),
+                    retry = {
+                        viewModel.onIntent(HomeIntent.RetryHome)
+                    })
+            }
+
+            RequestState.SUCCESS -> {
+                LazyVerticalGrid(
                     modifier = Modifier
-                        .wrapContentHeight()
                         .fillMaxWidth()
+                        .wrapContentHeight(),
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(bottom = 130.dp)
                 ) {
-                    HomeHeader(uiState)
-                    HomeCategoryUi(
-                        categories = uiState.homeCategories,
-                        onItemClicked = { id ->
-                            viewModel.onIntent(
-                                HomeIntent.OnCategoryClicked(id)
+
+                    item(
+                        span = { GridItemSpan(maxCurrentLineSpan) }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                        ) {
+                            HomeHeader(uiState)
+                            HomeCategoryUi(
+                                categories = uiState.homeCategories,
+                                onItemClicked = { id ->
+                                    viewModel.onIntent(
+                                        HomeIntent.OnCategoryClicked(id)
+                                    )
+                                    navController.navigate(Screen.SEE_ALL_SCREEN.route)
+                                }
                             )
-                            navController.navigate(Screen.SEE_ALL_SCREEN.route)
+                            PopularTitle()
                         }
+                    }
+
+                    popularCoffees(
+                        uiState,
+                        viewModel,
+                        productSharedViewModel,
+                        navController
                     )
-                    PopularTitle()
                 }
             }
 
-            popularCoffees(
-                uiState,
-                viewModel,
-                productSharedViewModel,
-                navController
-            )
+            else -> Unit
         }
 
 
         AlertDialog(
             isVisible = uiState.isLoginDialogActive,
             title = stringResource(R.string.should_login),
-            description = stringResource(R.string.returned_to_home),
+            description = stringResource(R.string.returned_to_login),
             confirmTitle = stringResource(R.string.login),
             dismissTitle = stringResource(R.string.cancel),
             icon = Icons.Outlined.Login,
@@ -169,53 +191,24 @@ fun LazyGridScope.popularCoffees(
     productSharedViewModel: ProductSharedViewModel,
     navController: NavHostController
 ) {
-    when (uiState.homeState) {
-        RequestState.SUCCESS -> {
-            if (!uiState.popularResponse.isNullOrEmpty()) {
-                itemsIndexed(uiState.popularResponse) { index, popularItem ->
-                    if (index < 2)
-                        ListItemPopular(
-                            currentItem = popularItem,
-                            onItemClicked = {
-                                productSharedViewModel.onIntent(
-                                    ProductIntent.OnProductClicked(popularItem)
-                                )
-                                navController.navigate(Screen.DETAIL_SCREEN.route)
-                            },
-                            onPlusClicked = { product ->
-                                viewModel.onIntent(
-                                    HomeIntent.AddToCart(product)
-                                )
-                            }
+    if (!uiState.popularResponse.isNullOrEmpty()) {
+        itemsIndexed(uiState.popularResponse) { index, popularItem ->
+            if (index < 2)
+                ListItemPopular(
+                    currentItem = popularItem,
+                    onItemClicked = {
+                        productSharedViewModel.onIntent(
+                            ProductIntent.OnProductClicked(popularItem)
                         )
-                }
-            }
-        }
-
-        RequestState.ERROR -> {
-            item(
-                span = { GridItemSpan(maxCurrentLineSpan) }
-            ) {
-                ErrorUi(
-                    modifier = Modifier.fillMaxSize(),
-                    isErrorIconVisible = false,
-                    retry = {
-                        viewModel.onIntent(HomeIntent.RetryHome)
-                    })
-            }
-        }
-
-        RequestState.LOADING -> {
-            item(
-                span = { GridItemSpan(maxCurrentLineSpan) }
-            ) {
-                LinearLoadingIndicator(
-                    modifier = Modifier.fillMaxSize()
+                        navController.navigate(Screen.DETAIL_SCREEN.route)
+                    },
+                    onPlusClicked = { product ->
+                        viewModel.onIntent(
+                            HomeIntent.AddToCart(product)
+                        )
+                    }
                 )
-            }
         }
-
-        else -> Unit
     }
 }
 
@@ -289,41 +282,36 @@ fun HomeHeader(uiState: HomeUiState) {
             }
         )
 
-
-        OfferBanner(
+        AsyncImage(
             modifier = Modifier
+                .fillMaxWidth()
                 .constrainAs(offerImage) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(searchBar.bottom)
-                },
-            image = R.drawable.cup,
-            title = "Coffee Order Time 8:00 am - 3:00 pm",
-            description = "Buy one,Get one for Free",
-            buttonText = stringResource(R.string.order_now),
-            onBannerClicked = {
-            }
+                }
+                .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
+            model = uiState.offersResponse?.get(0)?.imageName,
+            contentDescription = "offer image",
+            contentScale = ContentScale.Crop
         )
     }
 }
 
 @Composable
 fun HomeCategoryUi(
-    categories: List<HomeCategory>,
+    categories: List<CategoriesDto>?,
     onItemClicked: (Int) -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-
         Title(
             modifier = Modifier.padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
             id = R.string.category,
         )
-
 
         LazyRow(
             modifier = Modifier
@@ -331,13 +319,15 @@ fun HomeCategoryUi(
                 .wrapContentHeight()
                 .padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN)
         ) {
-            items(categories) { category ->
-                ListItemCategory(
-                    currentIem = category,
-                    onItemClicked = { id ->
-                        onItemClicked(id)
-                    }
-                )
+            if (!categories.isNullOrEmpty()) {
+                items(categories) { category ->
+                    ListItemCategory(
+                        currentIem = category,
+                        onItemClicked = { id ->
+                            onItemClicked(id)
+                        }
+                    )
+                }
             }
         }
     }
