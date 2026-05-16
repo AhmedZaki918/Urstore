@@ -3,8 +3,10 @@ package com.example.urstore.presentation.auth.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +18,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.RemoveRedEye
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -30,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
@@ -72,12 +78,16 @@ fun LoginScreen(
                     )
                 }
 
-                is UiEffect.Navigate -> {
-                    navController.navigate(Screen.HOME_SCREEN.route) {
+                is UiEffect.ClearBackStack -> {
+                    navController.navigate(effect.route) {
                         popUpTo(0) {
                             inclusive = true
                         }
                     }
+                }
+
+                is UiEffect.Navigate -> {
+                    navController.navigate(effect.route)
                 }
 
                 else -> Unit
@@ -92,6 +102,10 @@ fun LoginScreen(
             .background(Light_Beige)
             .padding(top = 24.dp)
     ) {
+        SkipButton {
+            viewModel.onIntent(LoginIntent.Skip)
+        }
+
         Column(
             modifier = Modifier.wrapContentSize()
         ) {
@@ -155,7 +169,7 @@ fun LoginScreen(
                     .padding(top = MEDIUM_MARGIN, end = CUSTOM_MARGIN)
                     .align(Alignment.End)
                     .clickable {
-                        navController.navigate(Screen.FORGOT_PASSWORD_SCREEN.route)
+                        viewModel.onIntent(LoginIntent.ForgotPassword)
                     },
                 fontSize = 14.sp
             )
@@ -165,10 +179,9 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = MEDIUM_MARGIN),
-                label = "Login",
+                label = stringResource(R.string.login),
                 onButtonClicked = {
-                    viewModel.onIntent(LoginIntent.Login)
-                }
+                    viewModel.onIntent(LoginIntent.Login)                }
             )
 
             LinearLoadingIndicator(
@@ -199,7 +212,7 @@ fun LoginScreen(
                         .wrapContentSize()
                         .padding(top = MEDIUM_MARGIN)
                         .clickable {
-                            navController.navigate(Screen.SIGNUP_SCREEN.route)
+                            viewModel.onIntent(LoginIntent.SignUp)
                         },
                     fontSize = 16.sp,
                     color = Brown
@@ -212,6 +225,50 @@ fun LoginScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 60.dp)
+        )
+    }
+}
+
+@Composable
+fun BoxScope.SkipButton(
+    onClicked: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    ConstraintLayout(
+        modifier = Modifier
+            .wrapContentSize()
+            .align(Alignment.TopEnd)
+            .padding(top = MEDIUM_MARGIN, end = MEDIUM_MARGIN)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                onClicked()
+            }
+    ) {
+        val (skipText, arrowIcon) = createRefs()
+
+        Text(
+            text = stringResource(R.string.skip),
+            modifier = Modifier
+                .wrapContentSize()
+                .constrainAs(skipText) {
+                    end.linkTo(arrowIcon.start)
+                    top.linkTo(arrowIcon.top)
+                    bottom.linkTo(arrowIcon.bottom)
+                }
+                .padding(end = SMALL_MARGIN),
+            color = Brown
+        )
+        Icon(
+            modifier = Modifier.constrainAs(arrowIcon) {
+                end.linkTo(parent.end)
+                top.linkTo(parent.top)
+            },
+            imageVector = Icons.Default.ArrowForwardIos,
+            contentDescription = "skip button",
+            tint = Brown
         )
     }
 }

@@ -10,6 +10,7 @@ import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.SeeAllRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -55,11 +56,15 @@ class SeeAllViewModel @Inject constructor(
             }
 
             is SeeAllIntent.ShowDialog -> editDialogVisibility(intent.isActive)
-            is SeeAllIntent.Login -> {
-                viewModelScope.launch {
-                    _effects.emit(UiEffect.Navigate)
-                }
-            }
+            is SeeAllIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
+            is SeeAllIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
+            is SeeAllIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -100,8 +105,8 @@ class SeeAllViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                updateLoadingState(false,item.id)
-                _effects.emit(
+                updateLoadingState(false, item.id)
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "Added to cart",
                         actionLabel = ActionLabel.SUCCESS.value
@@ -109,8 +114,8 @@ class SeeAllViewModel @Inject constructor(
                 )
 
             } else if (response is Resource.Failure) {
-                updateLoadingState(false,item.id)
-                _effects.emit(
+                updateLoadingState(false, item.id)
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value

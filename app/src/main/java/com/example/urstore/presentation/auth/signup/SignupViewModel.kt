@@ -3,6 +3,7 @@ package com.example.urstore.presentation.auth.signup
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
@@ -35,6 +36,14 @@ class SignupViewModel @Inject constructor(
         when (intent) {
             is SignupIntent.UpdateTextField -> updateTextField(intent.textFieldType, intent.value)
             is SignupIntent.Signup -> checkUserInput()
+            is SignupIntent.Login -> sendEffect(UiEffect.ClearBackStack(Screen.LOGIN_SCREEN.route))
+            is SignupIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -118,7 +127,7 @@ class SignupViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
-                _effects.emit(UiEffect.Navigate)
+                sendEffect(UiEffect.ClearBackStack(Screen.LOGIN_SCREEN.route))
 
             } else if (response is Resource.Failure) {
                 displayErrorOnUi(response.message.orEmpty())
@@ -133,10 +142,10 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    private fun displayErrorOnUi(message: String){
+    private fun displayErrorOnUi(message: String) {
         viewModelScope.launch {
             updateState(RequestState.ERROR)
-            _effects.emit(
+            sendEffect(
                 UiEffect.ShowSnackbar(
                     message = message,
                     actionLabel = ActionLabel.ERROR.value

@@ -15,5 +15,11 @@ sealed class UiEffect {
         val arg: T
     ) : UiEffect()
 
-    object Navigate : UiEffect()
+    object NavigateTest : UiEffect()
+
+    data class Navigate(val route : String) :  UiEffect()
+
+    data class ClearBackStack(val route : String) :  UiEffect()
+
+    object PobBackStack : UiEffect()
 }

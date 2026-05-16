@@ -99,7 +99,7 @@ class ResetPasswordViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
-                _effects.emit(UiEffect.Navigate)
+                _effects.emit(UiEffect.NavigateTest)
 
             } else if (response is Resource.Failure) {
                 updateState(RequestState.ERROR)

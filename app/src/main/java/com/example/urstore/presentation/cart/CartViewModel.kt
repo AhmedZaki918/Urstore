@@ -5,12 +5,16 @@ import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
+import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -26,6 +30,9 @@ class CartViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<UiEffect>()
+    val effects = _effects.asSharedFlow()
+
     init {
         isUserLoggedIn()
     }
@@ -38,6 +45,13 @@ class CartViewModel @Inject constructor(
             is CartIntent.DeleteCart -> deleteCart()
             is CartIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is CartIntent.RetryFetchCart -> fetchCart()
+            is CartIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 

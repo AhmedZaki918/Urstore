@@ -92,6 +92,7 @@ fun BottomBar(navController: NavHostController) {
         Screen.HOME_SCREEN.route -> true
         Screen.WISHLIST_SCREEN.route -> true
         Screen.ORDER_SCREEN.route -> true
+        Screen.PROFILE_SCREEN.route -> true
         else -> false
     }
 

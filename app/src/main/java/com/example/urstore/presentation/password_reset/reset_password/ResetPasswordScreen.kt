@@ -68,7 +68,7 @@ fun ResetPasswordScreen(
                     )
                 }
 
-                is UiEffect.Navigate -> {
+                is UiEffect.NavigateTest -> {
                     navController.navigate(route = Screen.LOGIN_SCREEN.route)
                 }
 

@@ -2,11 +2,15 @@ package com.example.urstore.presentation.profile
 
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.TOKEN
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
+import com.example.urstore.util.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -21,20 +25,35 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
+    private val _effects = MutableSharedFlow<UiEffect>()
+    val effects = _effects.asSharedFlow()
+
     init {
         isUserLoggedIn()
     }
 
     override fun onIntent(intent: ProfileIntent) {
-        if (intent is ProfileIntent.Logout) {
-            logout()
-        } else if (intent is ProfileIntent.ShowDialog) {
-            editDialogVisibility(intent.isActive)
+        when (intent) {
+            is ProfileIntent.Logout -> {
+                clearUserData()
+                sendEffect(UiEffect.ClearBackStack(Screen.LOGIN_SCREEN.route))
+            }
+
+            is ProfileIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
+            is ProfileIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+            is ProfileIntent.ShowDialog -> editDialogVisibility(intent.isActive)
         }
     }
 
 
-    private fun logout() {
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
+        }
+    }
+
+
+    private fun clearUserData() {
         viewModelScope.launch {
             dataStore.clearAllData()
         }

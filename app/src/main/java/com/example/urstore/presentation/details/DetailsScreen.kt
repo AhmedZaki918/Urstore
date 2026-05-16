@@ -41,7 +41,6 @@ import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.drinks.ItemDetails
 import com.example.urstore.data.model.drinks.ProductSize
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -76,14 +75,18 @@ fun DetailsScreen(
 
     LaunchedEffect(Unit) {
         detailsViewModel.effects.collect { effect ->
-            if (effect is UiEffect.ShowSnackbar) {
-                snackbarHostState.showSnackbar(
-                    message = effect.message,
-                    actionLabel = effect.actionLabel,
-                    duration = SnackbarDuration.Short
-                )
-            } else if (effect is UiEffect.Navigate){
-                navController.navigate(route = Screen.LOGIN_SCREEN.route)
+            when (effect) {
+                is UiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                is UiEffect.Navigate -> navController.navigate(effect.route)
+                is UiEffect.PobBackStack -> navController.popBackStack()
+                else -> Unit
             }
         }
     }
@@ -137,7 +140,7 @@ fun DetailsScreen(
         AlertDialog(
             isVisible = uiState.isLoginDialogActive,
             title = stringResource(R.string.should_login),
-            description = stringResource(R.string.returned_to_home),
+            description = stringResource(R.string.returned_to_login),
             confirmTitle = stringResource(R.string.login),
             dismissTitle = stringResource(R.string.cancel),
             icon = Icons.Outlined.Login,

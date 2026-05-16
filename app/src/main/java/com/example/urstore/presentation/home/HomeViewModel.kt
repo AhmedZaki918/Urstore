@@ -10,6 +10,7 @@ import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -50,7 +51,11 @@ class HomeViewModel @Inject constructor(
 
     override fun onIntent(intent: HomeIntent) {
         when (intent) {
-            is HomeIntent.OnCategoryClicked -> setCategoryActive(intent.id)
+            is HomeIntent.OnCategoryClicked -> {
+                setCategoryActive(intent.id)
+                sendEffect(UiEffect.Navigate(Screen.SEE_ALL_SCREEN.route))
+            }
+
             is HomeIntent.AddToCart -> {
                 if (uiState.value.isUserLoggedIn) addToCart(intent.item)
                 else editDialogVisibility(true)
@@ -58,11 +63,14 @@ class HomeViewModel @Inject constructor(
 
             is HomeIntent.RetryHome -> loadHomeData()
             is HomeIntent.ShowDialog -> editDialogVisibility(intent.isActive)
-            is HomeIntent.Login -> {
-                viewModelScope.launch {
-                    _effects.emit(UiEffect.Navigate)
-                }
-            }
+            is HomeIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
+            is HomeIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -73,9 +81,9 @@ class HomeViewModel @Inject constructor(
                 it.copy(homeState = RequestState.LOADING)
             }
             // Run 3 apis in parallel
-            val categoriesDeferred  = async { homeRepo.categories() }
-            val popularDeferred  = async { homeRepo.getAllDrinks() }
-            val offersDeferred =  async { homeRepo.offers() }
+            val categoriesDeferred = async { homeRepo.categories() }
+            val popularDeferred = async { homeRepo.getAllDrinks() }
+            val offersDeferred = async { homeRepo.offers() }
 
             val categoriesResponse = categoriesDeferred.await()
             val popularResponse = popularDeferred.await()

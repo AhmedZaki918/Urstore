@@ -9,4 +9,6 @@ sealed class SeeAllIntent {
 
     data class ShowDialog(var isActive: Boolean) : SeeAllIntent()
     object Login : SeeAllIntent()
+    object GoToDetails : SeeAllIntent()
+    object GoBack : SeeAllIntent()
 }

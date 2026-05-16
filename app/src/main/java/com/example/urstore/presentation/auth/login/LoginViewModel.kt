@@ -3,6 +3,7 @@ package com.example.urstore.presentation.auth.login
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
@@ -34,6 +35,17 @@ class LoginViewModel @Inject constructor(
         when (intent) {
             is LoginIntent.UpdateTextField -> updateTextField(intent.textFieldType, intent.value)
             is LoginIntent.Login -> checkUserInput()
+            is LoginIntent.Skip -> sendEffect(UiEffect.ClearBackStack(Screen.HOME_SCREEN.route))
+            is LoginIntent.SignUp -> sendEffect(UiEffect.Navigate(Screen.SIGNUP_SCREEN.route))
+            is LoginIntent.ForgotPassword -> {
+                sendEffect(UiEffect.Navigate(Screen.FORGOT_PASSWORD_SCREEN.route))
+            }
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -72,7 +84,7 @@ class LoginViewModel @Inject constructor(
                 login()
             } else {
                 updateState(RequestState.ERROR)
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "Email and password are required.",
                         actionLabel = ActionLabel.ERROR.value
@@ -93,11 +105,11 @@ class LoginViewModel @Inject constructor(
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
                 authRepo.saveUserData(response.data)
-                _effects.emit(UiEffect.Navigate)
+                sendEffect(UiEffect.ClearBackStack(Screen.HOME_SCREEN.route))
 
             } else if (response is Resource.Failure) {
                 updateState(RequestState.ERROR)
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value

@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -72,10 +71,15 @@ fun SignupScreen(
                     )
                 }
 
-                is UiEffect.Navigate -> {
-                    navController.navigate(route = Screen.LOGIN_SCREEN.route)
+                is UiEffect.ClearBackStack -> {
+                    navController.navigate(effect.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
                 }
 
+                is UiEffect.PobBackStack -> navController.popBackStack()
                 else -> Unit
             }
         }
@@ -99,7 +103,7 @@ fun SignupScreen(
                     .align(Alignment.Start),
                 isBackTextVisible = false,
                 onBackClicked = {
-                    navController.popBackStack()
+                    viewModel.onIntent(SignupIntent.GoBack)
                 }
             )
 
@@ -198,9 +202,7 @@ fun SignupScreen(
                     .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = CUSTOM_MARGIN),
                 label = stringResource(R.string.sign_up),
                 onButtonClicked = {
-                    viewModel.onIntent(
-                        SignupIntent.Signup
-                    )
+                    viewModel.onIntent(SignupIntent.Signup)
                 }
             )
 
@@ -228,7 +230,7 @@ fun SignupScreen(
                     .wrapContentSize()
                     .padding(top = VERY_SMALL_MARGIN)
                     .clickable {
-                        navController.navigate(Screen.LOGIN_SCREEN.route)
+                        viewModel.onIntent(SignupIntent.Login)
                     },
                 fontSize = 16.sp,
                 color = Brown

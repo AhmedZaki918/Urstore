@@ -845,7 +845,8 @@ fun SettingItem(
 
                 Column(
                     modifier = Modifier
-                        .wrapContentSize()
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null
@@ -910,7 +911,8 @@ fun SettingItem(
 
                 Column(
                     modifier = Modifier
-                        .wrapContentSize()
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null

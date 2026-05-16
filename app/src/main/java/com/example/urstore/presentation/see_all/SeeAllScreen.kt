@@ -36,7 +36,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.urstore.R
 import com.example.urstore.data.model.drinks.DrinksDataDto
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -62,14 +61,18 @@ fun SeeAllScreen(
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
-            if (effect is UiEffect.ShowSnackbar) {
-                snackbarHostState.showSnackbar(
-                    message = effect.message,
-                    actionLabel = effect.actionLabel,
-                    duration = SnackbarDuration.Short
-                )
-            } else if (effect is UiEffect.Navigate) {
-                navController.navigate(route = Screen.LOGIN_SCREEN.route)
+            when (effect) {
+                is UiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                is UiEffect.Navigate -> navController.navigate(route = effect.route)
+                is UiEffect.PobBackStack -> navController.popBackStack()
+                else -> Unit
             }
         }
     }
@@ -83,7 +86,7 @@ fun SeeAllScreen(
             .padding(top = EXTRA_LARGE_MARGIN),
     ) {
         SeeAllHeader {
-            navController.popBackStack()
+            viewModel.onIntent(SeeAllIntent.GoBack)
         }
 
         LazyVerticalGrid(
@@ -96,8 +99,7 @@ fun SeeAllScreen(
             seeAllContent(
                 drinks,
                 productSharedViewModel,
-                viewModel,
-                navController
+                viewModel
             )
         }
 
@@ -105,7 +107,7 @@ fun SeeAllScreen(
         AlertDialog(
             isVisible = uiState.isLoginDialogActive,
             title = stringResource(R.string.should_login),
-            description = stringResource(R.string.returned_to_home),
+            description = stringResource(R.string.returned_to_login),
             confirmTitle = stringResource(R.string.login),
             dismissTitle = stringResource(R.string.cancel),
             icon = Icons.Outlined.Login,
@@ -132,8 +134,7 @@ fun SeeAllScreen(
 fun LazyGridScope.seeAllContent(
     drinks: LazyPagingItems<DrinksDataDto>,
     productSharedViewModel: ProductSharedViewModel,
-    viewModel: SeeAllViewModel,
-    navController: NavHostController
+    viewModel: SeeAllViewModel
 ) {
     val refreshState = drinks.loadState.refresh
 
@@ -162,10 +163,8 @@ fun LazyGridScope.seeAllContent(
                     ListItemSeeAll(
                         currentItem = item,
                         onItemClicked = {
-                            productSharedViewModel.onIntent(
-                                ProductIntent.OnProductClicked(item)
-                            )
-                            navController.navigate(Screen.DETAIL_SCREEN.route)
+                            productSharedViewModel.onIntent(ProductIntent.OnProductClicked(item))
+                            viewModel.onIntent(SeeAllIntent.GoToDetails)
                         },
                         onPlusClicked = { product ->
                             viewModel.onIntent(

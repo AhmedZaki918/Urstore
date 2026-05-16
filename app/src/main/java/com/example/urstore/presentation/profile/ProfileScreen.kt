@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Lighter_Beige
@@ -40,6 +40,7 @@ import com.example.urstore.util.SettingItem
 import com.example.urstore.util.SettingOneItem
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
+import com.example.urstore.util.UiEffect
 
 
 @Composable
@@ -49,6 +50,24 @@ fun ProfileScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
 
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is UiEffect.PobBackStack -> navController.popBackStack()
+                is UiEffect.Navigate -> navController.navigate(effect.route)
+                is UiEffect.ClearBackStack -> {
+                    navController.navigate(effect.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -56,7 +75,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .padding(top = LARGE_MARGIN)
     ) {
-        ProfileHeader(navController)
+        ProfileHeader(viewModel)
 
         SettingItem(
             title = stringResource(R.string.edit_profile),
@@ -90,15 +109,9 @@ fun ProfileScreen(
             onFirstItemClicked = {},
             onSecondItemClicked = {
                 if (uiState.isUserLoggedIn) {
-                    viewModel.onIntent(
-                        ProfileIntent.ShowDialog(true)
-                    )
+                    viewModel.onIntent(ProfileIntent.ShowDialog(true))
                 } else {
-                    navController.navigate(Screen.LOGIN_SCREEN.route) {
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                    }
+                    viewModel.onIntent(ProfileIntent.Login)
                 }
             }
         )
@@ -106,7 +119,7 @@ fun ProfileScreen(
         AlertDialog(
             isVisible = uiState.isLoginDialogActive,
             title = stringResource(R.string.want_to_logout),
-            description = stringResource(R.string.returned_to_home),
+            description = stringResource(R.string.returned_to_login),
             confirmTitle = stringResource(R.string.logout),
             dismissTitle = stringResource(R.string.cancel),
             icon = Icons.Outlined.Logout,
@@ -118,11 +131,6 @@ fun ProfileScreen(
                     onIntent(ProfileIntent.ShowDialog(false))
                     onIntent(ProfileIntent.Logout)
                 }
-                navController.navigate(Screen.HOME_SCREEN.route) {
-                    popUpTo(0) {
-                        inclusive = true
-                    }
-                }
             }
         )
     }
@@ -130,7 +138,7 @@ fun ProfileScreen(
 
 
 @Composable
-fun ProfileHeader(navController: NavHostController) {
+fun ProfileHeader(viewModel: ProfileViewModel) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,7 +152,7 @@ fun ProfileHeader(navController: NavHostController) {
                 top.linkTo(parent.top, MEDIUM_MARGIN)
             },
             onBackClicked = {
-                navController.popBackStack()
+                viewModel.onIntent(ProfileIntent.GoBack)
             },
             isBackTextVisible = false
         )

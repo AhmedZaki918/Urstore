@@ -15,4 +15,5 @@ sealed class DetailsIntent {
 
     data class ShowDialog(var isActive: Boolean) : DetailsIntent()
     object Login : DetailsIntent()
+    object GoBack : DetailsIntent()
 }

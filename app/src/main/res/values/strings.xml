@@ -76,4 +76,5 @@
     <string name="should_login">Please login to add to cart</string>
     <string name="delete">Delete</string>
     <string name="try_again">Try again</string>
+    <string name="skip">Skip</string>
 </resources>

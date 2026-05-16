@@ -5,6 +5,7 @@ import com.example.urstore.data.local.Constants.CLIENT_ID
 import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -36,12 +37,10 @@ class DetailsViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<UiEffect>()
     val effects = _effects.asSharedFlow()
 
-
     init {
         displayProductSize()
         prepareTokenAndClientId()
     }
-
 
     override fun onIntent(intent: DetailsIntent) {
         when (intent) {
@@ -53,11 +52,14 @@ class DetailsViewModel @Inject constructor(
 
             is DetailsIntent.UpdateQuantity -> updateProductQuantity(intent.operation)
             is DetailsIntent.ShowDialog -> editDialogVisibility(intent.isActive)
-            is DetailsIntent.Login -> {
-                viewModelScope.launch {
-                    _effects.emit(UiEffect.Navigate)
-                }
-            }
+            is DetailsIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
+            is DetailsIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 

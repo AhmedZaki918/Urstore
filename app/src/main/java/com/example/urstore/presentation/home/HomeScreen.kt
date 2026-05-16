@@ -41,7 +41,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.urstore.R
 import com.example.urstore.data.model.categories.CategoriesDto
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
@@ -83,7 +82,7 @@ fun HomeScreen(
                 }
 
                 is UiEffect.Navigate -> {
-                    navController.navigate(route = Screen.LOGIN_SCREEN.route)
+                    navController.navigate(route = effect.route)
                 }
 
                 else -> Unit
@@ -134,10 +133,9 @@ fun HomeScreen(
                             HomeCategoryUi(
                                 categories = uiState.homeCategories,
                                 onItemClicked = { id ->
-                                    viewModel.onIntent(
-                                        HomeIntent.OnCategoryClicked(id)
-                                    )
-                                    navController.navigate(Screen.SEE_ALL_SCREEN.route)
+                                    viewModel.apply {
+                                        onIntent(HomeIntent.OnCategoryClicked(id))
+                                    }
                                 }
                             )
                             PopularTitle()
@@ -147,8 +145,7 @@ fun HomeScreen(
                     popularCoffees(
                         uiState,
                         viewModel,
-                        productSharedViewModel,
-                        navController
+                        productSharedViewModel
                     )
                 }
             }
@@ -188,8 +185,7 @@ fun HomeScreen(
 fun LazyGridScope.popularCoffees(
     uiState: HomeUiState,
     viewModel: HomeViewModel,
-    productSharedViewModel: ProductSharedViewModel,
-    navController: NavHostController
+    productSharedViewModel: ProductSharedViewModel
 ) {
     if (!uiState.popularResponse.isNullOrEmpty()) {
         itemsIndexed(uiState.popularResponse) { index, popularItem ->
@@ -200,7 +196,7 @@ fun LazyGridScope.popularCoffees(
                         productSharedViewModel.onIntent(
                             ProductIntent.OnProductClicked(popularItem)
                         )
-                        navController.navigate(Screen.DETAIL_SCREEN.route)
+                        viewModel.onIntent(HomeIntent.GoToDetails)
                     },
                     onPlusClicked = { product ->
                         viewModel.onIntent(

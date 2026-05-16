@@ -7,4 +7,5 @@ sealed class CartIntent {
     data class ShowDialog(var isActive: Boolean) : CartIntent()
     object DeleteCart : CartIntent()
     object RetryFetchCart : CartIntent()
+    object GoBack : CartIntent()
 }
