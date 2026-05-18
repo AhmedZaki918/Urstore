@@ -4,5 +4,6 @@ sealed class ProfileIntent {
     object Logout : ProfileIntent()
     object Login : ProfileIntent()
     object GoBack : ProfileIntent()
+    object ChangePassword : ProfileIntent()
     data class ShowDialog(var isActive: Boolean) : ProfileIntent()
 }

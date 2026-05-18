@@ -39,6 +39,7 @@ import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
+import com.example.urstore.ui.theme.Lighter_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton

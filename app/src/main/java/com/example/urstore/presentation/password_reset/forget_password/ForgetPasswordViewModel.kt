@@ -3,6 +3,7 @@ package com.example.urstore.presentation.password_reset.forget_password
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
@@ -38,6 +39,14 @@ class ForgetPasswordViewModel @Inject constructor(
                     intent.textFieldType,
                     intent.value
                 )
+
+            is ForgetPasswordIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -59,7 +68,7 @@ class ForgetPasswordViewModel @Inject constructor(
     private fun checkUserInput() {
         viewModelScope.launch {
             if (uiState.value.email.isEmpty()) {
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "Email is required.",
                         actionLabel = ActionLabel.ERROR.value
@@ -78,11 +87,15 @@ class ForgetPasswordViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
-                _effects.emit(UiEffect.NavigateWithOneArg(uiState.value.email))
+                sendEffect(
+                    UiEffect.Navigate(
+                        route = "${Screen.ENTER_CODE_SCREEN.route}/${uiState.value.email}"
+                    )
+                )
 
             } else if (response is Resource.Failure) {
                 updateState(RequestState.ERROR)
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value

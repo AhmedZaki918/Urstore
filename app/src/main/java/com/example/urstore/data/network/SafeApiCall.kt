@@ -55,7 +55,7 @@ interface SafeApiCall {
                             true,
                             null,
                             null,
-                            throwable.message ?: "Unknown Error"
+                            "No internet connection"
                         )
                     }
                 }

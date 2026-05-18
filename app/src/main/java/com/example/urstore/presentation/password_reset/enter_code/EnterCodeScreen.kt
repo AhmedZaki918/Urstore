@@ -47,7 +47,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
@@ -85,12 +84,8 @@ fun EnterCodeScreen(
                     )
                 }
 
-                is UiEffect.NavigateWithTwoArgs<*, *> -> {
-                    navController.navigate(
-                        "${Screen.RESET_PASSWORD_SCREEN.route}/${effect.firstArg}/${effect.secondArg}"
-                    )
-                }
-
+                is UiEffect.Navigate -> navController.navigate(effect.route)
+                is UiEffect.PobBackStack -> navController.popBackStack()
                 else -> Unit
             }
         }
@@ -106,7 +101,7 @@ fun EnterCodeScreen(
             .padding(top = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EnterCodeUi(navController, uiState, viewModel, focusRequesters)
+        EnterCodeUi(uiState, viewModel, focusRequesters)
 
         LinearLoadingIndicator(
             isVisible = uiState.enterCodeState == RequestState.LOADING,
@@ -130,7 +125,6 @@ fun EnterCodeScreen(
 
 @Composable
 fun EnterCodeUi(
-    navController: NavHostController,
     uiState: EnterCodeUiState,
     viewModel: EnterCodeViewModel,
     focusRequesters: List<FocusRequester>
@@ -149,7 +143,7 @@ fun EnterCodeUi(
                 start.linkTo(parent.start, MEDIUM_MARGIN)
             },
             onBackClicked = {
-                navController.popBackStack()
+                viewModel.onIntent(EnterCodeIntent.GoBack)
             },
             isBackTextVisible = false
         )

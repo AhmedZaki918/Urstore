@@ -15,4 +15,5 @@
     <string name="coffee_size">حجم القهوة</string>
     <string name="description">الوصف</string>
     <string name="add_to_cart">اضف الى السلة</string>
+    <string name="search">بحث</string>
 </resources>

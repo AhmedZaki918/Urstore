@@ -33,7 +33,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -67,11 +66,8 @@ fun ForgotPasswordScreen(
                         duration = SnackbarDuration.Short
                     )
 
-                is UiEffect.NavigateWithOneArg<*> ->
-                    navController.navigate(
-                        "${Screen.ENTER_CODE_SCREEN.route}/${effect.arg}"
-                    )
-
+                is UiEffect.Navigate -> navController.navigate(effect.route)
+                is UiEffect.PobBackStack -> navController.popBackStack()
                 else -> Unit
             }
         }
@@ -87,7 +83,7 @@ fun ForgotPasswordScreen(
         Column(
             modifier = Modifier.wrapContentSize()
         ) {
-            ForgotPasswordUi(navController, uiState, viewModel)
+            ForgotPasswordUi(uiState, viewModel)
         }
 
         SnackBar(
@@ -101,7 +97,6 @@ fun ForgotPasswordScreen(
 
 @Composable
 fun ForgotPasswordUi(
-    navController: NavHostController,
     uiState: ForgetPasswordUiState,
     viewModel: ForgetPasswordViewModel
 ) {
@@ -128,7 +123,7 @@ fun ForgotPasswordUi(
                 start.linkTo(parent.start, MEDIUM_MARGIN)
             },
             onBackClicked = {
-                navController.popBackStack()
+                viewModel.onIntent(ForgetPasswordIntent.GoBack)
             },
             isBackTextVisible = false
         )

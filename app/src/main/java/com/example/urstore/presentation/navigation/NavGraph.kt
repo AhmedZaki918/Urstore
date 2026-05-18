@@ -14,12 +14,14 @@ import com.example.urstore.presentation.auth.signup.SignupScreen
 import com.example.urstore.presentation.cart.CartScreen
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
+import com.example.urstore.presentation.home.HomeIntent
 import com.example.urstore.presentation.home.HomeScreen
 import com.example.urstore.presentation.order.OrderScreen
 import com.example.urstore.presentation.password_reset.enter_code.EnterCodeScreen
 import com.example.urstore.presentation.password_reset.forget_password.ForgotPasswordScreen
 import com.example.urstore.presentation.password_reset.reset_password.ResetPasswordScreen
 import com.example.urstore.presentation.profile.ProfileScreen
+import com.example.urstore.presentation.search.SearchScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
 import com.example.urstore.util.ProductSharedViewModel
@@ -36,6 +38,13 @@ fun NavGraph(
     ) {
         composable(route = Screen.LOGIN_SCREEN.route) {
             LoginScreen(navController = navController)
+        }
+
+        composable(route = Screen.SEARCH_SCREEN.route) {
+            SearchScreen(
+                navController = navController,
+                productSharedViewModel = productSharedViewModel
+            )
         }
 
         composable(route = Screen.SIGNUP_SCREEN.route) {
@@ -92,7 +101,7 @@ fun NavGraph(
         }
 
         composable(route = Screen.PROFILE_SCREEN.route) {
-            ProfileScreen( navController = navController)
+            ProfileScreen(navController = navController)
         }
 
         composable(route = Screen.SEE_ALL_SCREEN.route) {

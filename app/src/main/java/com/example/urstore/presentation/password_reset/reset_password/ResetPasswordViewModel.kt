@@ -6,6 +6,7 @@ import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.local.Constants.OTP
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.AuthField
 import com.example.urstore.util.BaseViewModel
@@ -48,6 +49,13 @@ class ResetPasswordViewModel @Inject constructor(
                 updateTextField(intent.textFieldType, intent.value)
 
             is ResetPasswordIntent.ResetPassword -> checkUserInput()
+            is ResetPasswordIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -78,7 +86,7 @@ class ResetPasswordViewModel @Inject constructor(
                 resetPassword()
             } else {
                 updateState(RequestState.ERROR)
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "Password not match",
                         actionLabel = ActionLabel.ERROR.value
@@ -99,11 +107,11 @@ class ResetPasswordViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
-                _effects.emit(UiEffect.NavigateTest)
+                sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
 
             } else if (response is Resource.Failure) {
                 updateState(RequestState.ERROR)
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value

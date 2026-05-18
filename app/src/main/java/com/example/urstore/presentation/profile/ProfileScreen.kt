@@ -86,7 +86,9 @@ fun ProfileScreen(
             firstCaption = "Update your personal information",
             secondCaption = "Update your password",
             onFirstItemClicked = {},
-            onSecondItemClicked = {}
+            onSecondItemClicked = {
+                viewModel.onIntent(ProfileIntent.ChangePassword)
+            }
         )
 
         SettingOneItem(

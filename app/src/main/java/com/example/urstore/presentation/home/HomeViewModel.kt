@@ -11,6 +11,7 @@ import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.presentation.navigation.Screen
+import com.example.urstore.presentation.search.SearchScreen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -65,6 +66,7 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is HomeIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
             is HomeIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
+            is HomeIntent.Search -> sendEffect(UiEffect.Navigate(Screen.SEARCH_SCREEN.route))
         }
     }
 
@@ -142,18 +144,17 @@ class HomeViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateLoadingState(false, item.id)
-
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "Added to cart",
                         actionLabel = ActionLabel.SUCCESS.value
                     )
                 )
 
+
             } else if (response is Resource.Failure) {
                 updateLoadingState(false, item.id)
-
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value

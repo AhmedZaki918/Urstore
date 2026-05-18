@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.AuthRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.RequestState
@@ -43,7 +44,16 @@ class EnterCodeViewModel @Inject constructor(
                 updateOtp(intent.index, intent.value)
                 generateOtp()
             }
+
             is EnterCodeIntent.ResendCode -> sendCode()
+            is EnterCodeIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+        }
+    }
+
+
+    private fun sendEffect(effect: UiEffect) {
+        viewModelScope.launch {
+            _effects.emit(effect)
         }
     }
 
@@ -53,7 +63,7 @@ class EnterCodeViewModel @Inject constructor(
         value: String
     ) {
         viewModelScope.launch {
-            if (uiState.value.enterCodeState == RequestState.ERROR){
+            if (uiState.value.enterCodeState == RequestState.ERROR) {
                 updateEnterCodeState(RequestState.IDLE)
             }
 
@@ -96,13 +106,17 @@ class EnterCodeViewModel @Inject constructor(
             )
 
             if (response is Resource.Success) {
-                _effects.emit(UiEffect.NavigateWithTwoArgs(uiState.value.email, otp))
+                sendEffect(
+                    UiEffect.Navigate(
+                        route = "${Screen.RESET_PASSWORD_SCREEN.route}/${uiState.value.email}/$otp"
+                    )
+                )
                 updateEnterCodeState(RequestState.SUCCESS)
 
             } else if (response is Resource.Failure) {
                 updateEnterCodeState(RequestState.ERROR)
                 clearOtpFields()
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value
@@ -128,7 +142,7 @@ class EnterCodeViewModel @Inject constructor(
             if (response is Resource.Success) {
                 updateEnterCodeState(RequestState.SUCCESS)
                 clearOtpFields()
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = "OTP sent successfully.",
                         actionLabel = ActionLabel.SUCCESS.value
@@ -136,7 +150,7 @@ class EnterCodeViewModel @Inject constructor(
                 )
 
             } else if (response is Resource.Failure) {
-                _effects.emit(
+                sendEffect(
                     UiEffect.ShowSnackbar(
                         message = response.message.orEmpty(),
                         actionLabel = ActionLabel.ERROR.value
@@ -147,7 +161,7 @@ class EnterCodeViewModel @Inject constructor(
         }
     }
 
-    private fun clearOtpFields(){
+    private fun clearOtpFields() {
         _uiState.update {
             it.copy(otpSetup = OtpSetup())
         }

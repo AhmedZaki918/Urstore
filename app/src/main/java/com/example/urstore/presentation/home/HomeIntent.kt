@@ -16,4 +16,5 @@ sealed class HomeIntent {
     data class ShowDialog(var isActive: Boolean) : HomeIntent()
     object GoToDetails : HomeIntent()
     object Login : HomeIntent()
+    object Search : HomeIntent()
 }

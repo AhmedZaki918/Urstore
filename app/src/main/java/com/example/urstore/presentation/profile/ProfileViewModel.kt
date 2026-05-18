@@ -42,6 +42,9 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
             is ProfileIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
             is ProfileIntent.ShowDialog -> editDialogVisibility(intent.isActive)
+            is ProfileIntent.ChangePassword -> sendEffect(
+                UiEffect.Navigate(Screen.FORGOT_PASSWORD_SCREEN.route)
+            )
         }
     }
 

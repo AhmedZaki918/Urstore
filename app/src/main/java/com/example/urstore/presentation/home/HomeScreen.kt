@@ -2,12 +2,17 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,25 +21,29 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Login
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -43,6 +52,7 @@ import com.example.urstore.R
 import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
+import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -54,7 +64,6 @@ import com.example.urstore.util.MyFloatingActionButton
 import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.RequestState
-import com.example.urstore.util.SearchBar
 import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
 import com.example.urstore.util.Title
@@ -129,7 +138,7 @@ fun HomeScreen(
                                 .wrapContentHeight()
                                 .fillMaxWidth()
                         ) {
-                            HomeHeader(uiState)
+                            HomeHeader(uiState, viewModel)
                             HomeCategoryUi(
                                 categories = uiState.homeCategories,
                                 onItemClicked = { id ->
@@ -189,7 +198,7 @@ fun LazyGridScope.popularCoffees(
 ) {
     if (!uiState.popularResponse.isNullOrEmpty()) {
         itemsIndexed(uiState.popularResponse) { index, popularItem ->
-            if (index < 2)
+            if (index < 2){
                 ListItemPopular(
                     currentItem = popularItem,
                     onItemClicked = {
@@ -204,17 +213,20 @@ fun LazyGridScope.popularCoffees(
                         )
                     }
                 )
+            }
         }
     }
 }
 
 
 @Composable
-fun HomeHeader(uiState: HomeUiState) {
-    var searchQuery by remember { mutableStateOf("") }
+fun HomeHeader(
+    uiState: HomeUiState,
+    viewModel: HomeViewModel
+) {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (notificationBtn, profileImage, usernameText, settingsBtn, searchBar, offerImage) = createRefs()
+        val (notificationBtn, profileImage, usernameText, searchBar, offerImage) = createRefs()
 
         MyFloatingActionButton(
             modifier = Modifier.constrainAs(notificationBtn) {
@@ -226,16 +238,7 @@ fun HomeHeader(uiState: HomeUiState) {
             }
         )
 
-        MyFloatingActionButton(
-            modifier = Modifier.constrainAs(settingsBtn) {
-                top.linkTo(notificationBtn.bottom, MEDIUM_MARGIN)
-                end.linkTo(parent.end, MEDIUM_MARGIN)
-            },
-            icon = R.drawable.settings,
-            iconPadding = 11.dp,
-            onClicked = {
-            }
-        )
+
 
 
         Image(
@@ -245,7 +248,7 @@ fun HomeHeader(uiState: HomeUiState) {
                 .constrainAs(profileImage) {
                     start.linkTo(parent.start, MEDIUM_MARGIN)
                     top.linkTo(parent.top, LARGE_MARGIN)
-                }
+                }.padding(bottom = MEDIUM_MARGIN)
         )
 
         Text(
@@ -261,22 +264,48 @@ fun HomeHeader(uiState: HomeUiState) {
         )
 
 
+        // Search bar
+        Card(
+            modifier = Modifier
+                .constrainAs(searchBar) {
+                    top.linkTo(profileImage.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+                .clickable {
+                    viewModel.onIntent(HomeIntent.Search)
+                }
+                .fillMaxWidth()
+                .height(42.dp)
+                .padding(horizontal = MEDIUM_MARGIN),
+            shape = RoundedCornerShape(MEDIUM_MARGIN),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
 
-        SearchBar(
-            modifier = Modifier.constrainAs(searchBar) {
-                top.linkTo(settingsBtn.top)
-                bottom.linkTo(settingsBtn.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(settingsBtn.start)
-            },
-            query = searchQuery,
-            onQueryChange = {
-                searchQuery = it
-            },
-            onSearch = {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Beige.copy(alpha = 0.5f))
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color.Gray
+                )
 
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = stringResource(R.string.search),
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
             }
-        )
+        }
+
+
 
         AsyncImage(
             modifier = Modifier

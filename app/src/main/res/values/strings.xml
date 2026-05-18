@@ -77,4 +77,9 @@
     <string name="delete">Delete</string>
     <string name="try_again">Try again</string>
     <string name="skip">Skip</string>
+    <string name="search">Search</string>
+    <string name="cant_find_search">Can\'t find what you\'re looking for?</string>
+    <string name="try_a_new_search">Try a new search to see results.</string>
+    <string name="search_now">Search now</string>
+    <string name="try_a_different_keyword">Try a different keyword</string>
 </resources>

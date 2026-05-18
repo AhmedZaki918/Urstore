@@ -33,7 +33,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -68,10 +67,8 @@ fun ResetPasswordScreen(
                     )
                 }
 
-                is UiEffect.NavigateTest -> {
-                    navController.navigate(route = Screen.LOGIN_SCREEN.route)
-                }
-
+                is UiEffect.Navigate -> navController.navigate(effect.route)
+                is UiEffect.PobBackStack -> navController.popBackStack()
                 else -> Unit
             }
         }
@@ -88,7 +85,7 @@ fun ResetPasswordScreen(
         Column(
             modifier = Modifier.wrapContentSize()
         ) {
-            ResetPasswordUi(navController, uiState, viewModel)
+            ResetPasswordUi( uiState, viewModel)
         }
         SnackBar(
             hostState = snackbarHostState,
@@ -102,7 +99,6 @@ fun ResetPasswordScreen(
 
 @Composable
 fun ResetPasswordUi(
-    navController: NavHostController,
     uiState: ResetPasswordUiState,
     viewModel: ResetPasswordViewModel
 ) {
@@ -120,7 +116,7 @@ fun ResetPasswordUi(
                 start.linkTo(parent.start, MEDIUM_MARGIN)
             },
             onBackClicked = {
-                navController.popBackStack()
+                viewModel.onIntent(ResetPasswordIntent.GoBack)
             },
             isBackTextVisible = false
         )

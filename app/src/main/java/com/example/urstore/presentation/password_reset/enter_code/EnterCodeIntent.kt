@@ -8,4 +8,5 @@ sealed class EnterCodeIntent {
     ) : EnterCodeIntent()
 
     object ResendCode : EnterCodeIntent()
+    object GoBack : EnterCodeIntent()
 }

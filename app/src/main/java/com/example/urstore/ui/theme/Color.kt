@@ -11,6 +11,7 @@ val Pink40 = Color(0xFF7D5260)
 val Beige = Color(0xFFddd9d0)
 val Light_Beige = Color(0xFFefe9e3)
 val Lighter_Beige = Color(0xFFf6f4f4)
+val Beige_MEDIUM = Color(0xFFf4f1ec)
 
 val Brown = Color(0xFF7c4617)
 val Medium_Brown = Color(0xFF4A3426)
@@ -27,3 +28,5 @@ val Light_Brown = Color(0xFF806b58)
 val Dark_Yellow = Color(0xFFeeb460)
 
 val Very_Light_Beige = Color(0xFFf6f6f5)
+
+val SearchBackground = Color(0xFFf9f8f6)

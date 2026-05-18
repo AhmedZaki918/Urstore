@@ -43,6 +43,13 @@ interface APIService {
     @GET("banner")
     suspend fun offers(): Response<BaseResponse<List<OfferDto>>>
 
+    @GET("products/GetAllDrinks")
+    suspend fun search(
+        @Query("pageIndex") pageIndex: Int,
+        @Query("search") query: String
+    ): Response<BaseResponse<List<DrinksDataDto>>>
+
+
 
     // Authentication apis
     @POST("account/register")

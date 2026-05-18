@@ -9,5 +9,6 @@ sealed class ResetPasswordIntent {
         var value: String
     ) : ResetPasswordIntent()
 
-    data object ResetPassword : ResetPasswordIntent()
+    object ResetPassword : ResetPasswordIntent()
+    object GoBack : ResetPasswordIntent()
 }
