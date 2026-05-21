@@ -104,7 +104,7 @@ class LoginViewModel @Inject constructor(
 
             if (response is Resource.Success) {
                 updateState(RequestState.SUCCESS)
-                authRepo.saveUserData(response.data)
+                authRepo.saveUserByDataStore(response.data)
                 sendEffect(UiEffect.ClearBackStack(Screen.HOME_SCREEN.route))
 
             } else if (response is Resource.Failure) {

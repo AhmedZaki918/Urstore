@@ -2,17 +2,14 @@ package com.example.urstore.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,13 +18,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Login
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -37,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +43,6 @@ import com.example.urstore.R
 import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
-import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -197,6 +187,12 @@ fun LazyGridScope.popularCoffees(
     productSharedViewModel: ProductSharedViewModel
 ) {
     if (!uiState.popularResponse.isNullOrEmpty()) {
+        item(
+            span = { GridItemSpan(maxCurrentLineSpan) }
+        ){
+            Spacer(modifier = Modifier.height(SMALL_MARGIN))
+        }
+
         itemsIndexed(uiState.popularResponse) { index, popularItem ->
             if (index < 2){
                 ListItemPopular(
@@ -226,19 +222,18 @@ fun HomeHeader(
 ) {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (notificationBtn, profileImage, usernameText, searchBar, offerImage) = createRefs()
+        val (searchBtn, profileImage, usernameText, offerImage) = createRefs()
 
         MyFloatingActionButton(
-            modifier = Modifier.constrainAs(notificationBtn) {
+            modifier = Modifier.constrainAs(searchBtn) {
                 top.linkTo(parent.top, EXTRA_LARGE_MARGIN)
                 end.linkTo(parent.end, MEDIUM_MARGIN)
             },
-            icon = R.drawable.bell_icon,
+            icon = R.drawable.search_icon,
             onClicked = {
+                viewModel.onIntent(HomeIntent.Search)
             }
         )
-
-
 
 
         Image(
@@ -264,58 +259,20 @@ fun HomeHeader(
         )
 
 
-        // Search bar
-        Card(
-            modifier = Modifier
-                .constrainAs(searchBar) {
-                    top.linkTo(profileImage.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .clickable {
-                    viewModel.onIntent(HomeIntent.Search)
-                }
-                .fillMaxWidth()
-                .height(42.dp)
-                .padding(horizontal = MEDIUM_MARGIN),
-            shape = RoundedCornerShape(MEDIUM_MARGIN),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Beige.copy(alpha = 0.5f))
-                    .padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = Color.Gray
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = stringResource(R.string.search),
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-            }
-        }
-
-
-
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(offerImage) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(searchBar.bottom)
+                    top.linkTo(searchBtn.bottom)
                 }
-                .padding(horizontal = MEDIUM_MARGIN, vertical = MEDIUM_MARGIN),
+                .padding(
+                    start = MEDIUM_MARGIN,
+                    end = MEDIUM_MARGIN,
+                    top = LARGE_MARGIN,
+                    bottom = MEDIUM_MARGIN
+                ),
             model = uiState.offersResponse?.get(0)?.imageName,
             contentDescription = "offer image",
             contentScale = ContentScale.Crop
@@ -336,6 +293,7 @@ fun HomeCategoryUi(
         Title(
             modifier = Modifier.padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
             id = R.string.category,
+            fontSize = 16.sp
         )
 
         LazyRow(
@@ -373,6 +331,7 @@ fun PopularTitle() {
                 }
                 .padding(start = MEDIUM_MARGIN, top = MEDIUM_MARGIN),
             id = R.string.popular_coffees,
+            fontSize = 16.sp
         )
 
         SubTitle(

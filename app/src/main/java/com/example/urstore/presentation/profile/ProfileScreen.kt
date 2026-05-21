@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
@@ -85,7 +86,9 @@ fun ProfileScreen(
             secondLeadingIcon = Icons.Outlined.Lock,
             firstCaption = "Update your personal information",
             secondCaption = "Update your password",
-            onFirstItemClicked = {},
+            onFirstItemClicked = {
+                viewModel.onIntent(ProfileIntent.EditProfile)
+            },
             onSecondItemClicked = {
                 viewModel.onIntent(ProfileIntent.ChangePassword)
             }
@@ -118,20 +121,25 @@ fun ProfileScreen(
             }
         )
 
+
         AlertDialog(
             isVisible = uiState.isLoginDialogActive,
-            title = stringResource(R.string.want_to_logout),
-            description = stringResource(R.string.returned_to_login),
-            confirmTitle = stringResource(R.string.logout),
+            title = if (uiState.isUserLoggedIn) stringResource(R.string.want_to_logout)
+            else stringResource(R.string.login_to_edit_user),
+            confirmTitle = if (uiState.isUserLoggedIn) stringResource(R.string.logout)
+            else stringResource(R.string.login),
+            icon = if (uiState.isUserLoggedIn) Icons.Outlined.Logout
+            else Icons.Outlined.Login,
             dismissTitle = stringResource(R.string.cancel),
-            icon = Icons.Outlined.Logout,
+            description = stringResource(R.string.returned_to_login),
             onDismiss = {
                 viewModel.onIntent(ProfileIntent.ShowDialog(false))
             },
             onConfirm = {
                 viewModel.apply {
                     onIntent(ProfileIntent.ShowDialog(false))
-                    onIntent(ProfileIntent.Logout)
+                    if (uiState.isUserLoggedIn) onIntent(ProfileIntent.Logout)
+                    else onIntent(ProfileIntent.Login)
                 }
             }
         )

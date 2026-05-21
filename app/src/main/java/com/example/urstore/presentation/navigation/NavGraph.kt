@@ -11,10 +11,10 @@ import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.local.Constants.OTP
 import com.example.urstore.presentation.auth.login.LoginScreen
 import com.example.urstore.presentation.auth.signup.SignupScreen
+import com.example.urstore.presentation.auth.user_updare.EditProfileScreen
 import com.example.urstore.presentation.cart.CartScreen
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
-import com.example.urstore.presentation.home.HomeIntent
 import com.example.urstore.presentation.home.HomeScreen
 import com.example.urstore.presentation.order.OrderScreen
 import com.example.urstore.presentation.password_reset.enter_code.EnterCodeScreen
@@ -49,6 +49,10 @@ fun NavGraph(
 
         composable(route = Screen.SIGNUP_SCREEN.route) {
             SignupScreen(navController = navController)
+        }
+
+        composable(route = Screen.EDIT_PROFILE_SCREEN.route) {
+            EditProfileScreen(navController = navController)
         }
 
         composable(route = Screen.FORGOT_PASSWORD_SCREEN.route) {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.RemoveRedEye
@@ -42,7 +43,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Light_Beige
@@ -142,6 +142,7 @@ fun LoginScreen(
                         LoginIntent.UpdateTextField(AuthField.EMAIL, email)
                     )
                 },
+                label = null,
                 placeholder = "Email Address",
                 leadingIcon = Icons.Outlined.Email,
                 keyboardType = KeyboardType.Email,
@@ -181,7 +182,8 @@ fun LoginScreen(
                     .padding(start = CUSTOM_MARGIN, end = CUSTOM_MARGIN, top = MEDIUM_MARGIN),
                 label = stringResource(R.string.login),
                 onButtonClicked = {
-                    viewModel.onIntent(LoginIntent.Login)                }
+                    viewModel.onIntent(LoginIntent.Login)
+                }
             )
 
             LinearLoadingIndicator(

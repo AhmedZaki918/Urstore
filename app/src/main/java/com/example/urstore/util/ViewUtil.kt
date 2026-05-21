@@ -135,10 +135,11 @@ fun MyFloatingActionButton(
     modifier: Modifier,
     onClicked: () -> Unit,
     icon: Int,
-    iconPadding: Dp = 0.dp
+    iconPadding: Dp = 0.dp,
+    buttonSize: Dp = 45.dp
 ) {
     FloatingActionButton(
-        modifier = modifier.size(45.dp),
+        modifier = modifier.size(buttonSize),
         onClick = onClicked,
         containerColor = Brown,
         contentColor = Color.White,
@@ -151,7 +152,9 @@ fun MyFloatingActionButton(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
-            modifier = Modifier.padding(iconPadding),
+            modifier = Modifier
+                .padding(iconPadding)
+                .size(21.dp),
         )
     }
 }
@@ -198,13 +201,17 @@ fun CircleButton(
 fun TextFieldShopApp(
     modifier: Modifier = Modifier,
     input: String,
+    label: @Composable (() -> Unit)? = null,
     onInputChange: (String) -> Unit,
     placeholder: String,
+    readOnly: Boolean = false,
     leadingIcon: ImageVector,
+    trailingIcon: @Composable (() -> Unit)? = null,
     keyboardType: KeyboardType,
     topPadding: Dp = SMALL_MARGIN
 ) {
     TextField(
+        label = label,
         value = input,
         onValueChange = onInputChange,
         placeholder = { Text(placeholder) },
@@ -214,6 +221,8 @@ fun TextFieldShopApp(
                 contentDescription = null
             )
         },
+        readOnly = readOnly,
+        trailingIcon = trailingIcon,
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Off_White,
@@ -711,7 +720,9 @@ fun SnackBar(
 fun CircleWithIcon(
     circleColor: Color,
     icon: ImageVector,
-    iconTint: Color
+    iconTint: Color,
+    iconSize : Dp = 23.dp,
+    contentPadding : Dp = VERY_SMALL_MARGIN
 ) {
     Box(
         modifier = Modifier
@@ -722,8 +733,8 @@ fun CircleWithIcon(
     ) {
         Icon(
             modifier = Modifier
-                .size(23.dp)
-                .padding(VERY_SMALL_MARGIN),
+                .size(iconSize)
+                .padding(contentPadding),
             imageVector = icon,
             contentDescription = "",
             tint = iconTint

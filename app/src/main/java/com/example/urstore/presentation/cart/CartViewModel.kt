@@ -5,7 +5,6 @@ import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState

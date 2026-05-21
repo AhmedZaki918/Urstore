@@ -10,9 +10,14 @@ object Constants {
     const val EXIST_IN_CART = "exist_in_cart"
     const val BASE_URL = "https://restaurant.arrowtecheg.com/api/"
 
+    // Data Store fields
     const val PREFERENCE_NAME = "shop_preferences"
     val F_NAME_KEY = stringPreferencesKey(name = "first_name")
     val L_NAME_KEY = stringPreferencesKey(name = "last_name")
+    val DISPLAY_NAME = stringPreferencesKey(name = "display_name")
+    val PHONE = stringPreferencesKey(name = "phone")
+    val ADDRESS = stringPreferencesKey("address")
+    val EMAIL = stringPreferencesKey("email")
     val TOKEN = stringPreferencesKey(name = "token")
     val CLIENT_ID = stringPreferencesKey(name = "client_id")
 }

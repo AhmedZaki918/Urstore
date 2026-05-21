@@ -2,20 +2,22 @@ package com.example.urstore.data.network
 
 import com.example.urstore.data.model.auth.login.LoginDto
 import com.example.urstore.data.model.auth.login.LoginRequest
-import com.example.urstore.data.model.auth.register.RegisterDto
-import com.example.urstore.data.model.auth.register.RegisterRequest
-import com.example.urstore.data.model.cart.DeleteCartDto
-import com.example.urstore.data.model.cart.add.AddCartDto
-import com.example.urstore.data.model.cart.add.AddCartRequest
-import com.example.urstore.data.model.cart.get.CartDto
-import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.model.auth.password_reset.ForgetPasswordDto
 import com.example.urstore.data.model.auth.password_reset.ForgetPasswordRequest
 import com.example.urstore.data.model.auth.password_reset.ResetPasswordDto
 import com.example.urstore.data.model.auth.password_reset.ResetPasswordRequest
 import com.example.urstore.data.model.auth.password_reset.VerifyOtpDto
 import com.example.urstore.data.model.auth.password_reset.VerifyOtpRequest
+import com.example.urstore.data.model.auth.register.RegisterDto
+import com.example.urstore.data.model.auth.register.RegisterRequest
+import com.example.urstore.data.model.auth.update_user.UpdateUserDto
+import com.example.urstore.data.model.auth.update_user.UpdateUserRequest
+import com.example.urstore.data.model.cart.DeleteCartDto
+import com.example.urstore.data.model.cart.add.AddCartDto
+import com.example.urstore.data.model.cart.add.AddCartRequest
+import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.model.categories.CategoriesDto
+import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.model.offer.OfferDto
 import com.example.urstore.util.BaseResponse
 import retrofit2.Response
@@ -50,7 +52,6 @@ interface APIService {
     ): Response<BaseResponse<List<DrinksDataDto>>>
 
 
-
     // Authentication apis
     @POST("account/register")
     suspend fun register(
@@ -76,6 +77,12 @@ interface APIService {
     suspend fun resetPassword(
         @Body body: ResetPasswordRequest
     ): Response<BaseResponse<ResetPasswordDto>>
+
+    @POST("account/update_client")
+    suspend fun updateUser(
+        @Header("Authorization") token: String,
+        @Body body: UpdateUserRequest
+    ): Response<BaseResponse<UpdateUserDto>>
 
 
     // Cart apis

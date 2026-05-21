@@ -45,6 +45,14 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.ChangePassword -> sendEffect(
                 UiEffect.Navigate(Screen.FORGOT_PASSWORD_SCREEN.route)
             )
+
+            is ProfileIntent.EditProfile -> {
+                if (uiState.value.isUserLoggedIn){
+                    sendEffect(UiEffect.Navigate(Screen.EDIT_PROFILE_SCREEN.route))
+                } else {
+                    editDialogVisibility(true)
+                }
+            }
         }
     }
 

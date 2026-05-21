@@ -2,8 +2,7 @@ package com.example.urstore.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.CLIENT_ID
-import com.example.urstore.data.local.Constants.F_NAME_KEY
-import com.example.urstore.data.local.Constants.L_NAME_KEY
+import com.example.urstore.data.local.Constants.DISPLAY_NAME
 import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.data.model.drinks.DrinksDataDto
@@ -11,7 +10,6 @@ import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
 import com.example.urstore.data.repository.HomeRepo
 import com.example.urstore.presentation.navigation.Screen
-import com.example.urstore.presentation.search.SearchScreen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -208,30 +206,11 @@ class HomeViewModel @Inject constructor(
 
     private fun getUserData() {
         viewModelScope.launch {
-            val firstName = async {
-                dataStore.readString(F_NAME_KEY).collectLatest { value ->
-                    if (value == "") {
-                        _uiState.update {
-                            it.copy(firstName = "Guest")
-                        }
-                    } else {
-                        _uiState.update {
-                            it.copy(firstName = value)
-                        }
-                    }
+            dataStore.readString(DISPLAY_NAME).collectLatest { value ->
+                _uiState.update {
+                    it.copy(firstName = if (value == "") "Guest" else value)
                 }
             }
-
-            val lastName = async {
-                dataStore.readString(L_NAME_KEY).collectLatest { value ->
-                    _uiState.update {
-                        it.copy(lastName = value)
-                    }
-                }
-            }
-
-            firstName.await()
-            lastName.await()
         }
     }
 }
