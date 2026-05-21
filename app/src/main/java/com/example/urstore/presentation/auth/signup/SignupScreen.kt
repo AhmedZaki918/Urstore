@@ -124,6 +124,7 @@ fun SignupScreen(
                         SignupIntent.UpdateTextField(AuthField.NAME, fullName)
                     )
                 },
+                label = null,
                 placeholder = stringResource(R.string.full_name),
                 leadingIcon = Icons.Outlined.Person,
                 keyboardType = KeyboardType.Text,
@@ -137,6 +138,7 @@ fun SignupScreen(
                         SignupIntent.UpdateTextField(AuthField.EMAIL, email)
                     )
                 },
+                label = null,
                 placeholder = stringResource(R.string.email_address),
                 leadingIcon = Icons.Outlined.Email,
                 keyboardType = KeyboardType.Email
@@ -149,6 +151,7 @@ fun SignupScreen(
                         SignupIntent.UpdateTextField(AuthField.PHONE, phoneNumber)
                     )
                 },
+                label = null,
                 placeholder = stringResource(R.string.phone_number),
                 leadingIcon = Icons.Outlined.Phone,
                 keyboardType = KeyboardType.Phone
@@ -161,6 +164,7 @@ fun SignupScreen(
                         SignupIntent.UpdateTextField(AuthField.ADDRESS, address)
                     )
                 },
+                label = null,
                 placeholder = stringResource(R.string.address),
                 leadingIcon = Icons.Outlined.LocationOn,
                 keyboardType = KeyboardType.Text

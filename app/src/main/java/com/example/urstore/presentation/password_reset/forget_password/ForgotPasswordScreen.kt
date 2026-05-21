@@ -175,6 +175,7 @@ fun ForgotPasswordUi(
                 end.linkTo(parent.end)
             },
             input = uiState.email,
+            label = null,
             onInputChange = { email ->
                 viewModel.onIntent(
                     ForgetPasswordIntent.UpdateTextField(
