@@ -13,6 +13,7 @@ import com.example.urstore.presentation.auth.login.LoginScreen
 import com.example.urstore.presentation.auth.signup.SignupScreen
 import com.example.urstore.presentation.auth.user_updare.EditProfileScreen
 import com.example.urstore.presentation.cart.CartScreen
+import com.example.urstore.presentation.checkout.CheckoutScreen
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
@@ -94,6 +95,10 @@ fun NavGraph(
 
         composable(route = Screen.CART_SCREEN.route) {
             CartScreen(navController = navController)
+        }
+
+        composable(route = Screen.CHECKOUT_SCREEN.route) {
+            CheckoutScreen()
         }
 
         composable(route = Screen.WISHLIST_SCREEN.route) {

@@ -2,6 +2,7 @@ package com.example.urstore.ui.theme
 
 import androidx.compose.ui.unit.dp
 
+val TINY_MARGIN = 1.dp
 val VERY_SMALL_MARGIN = 4.dp
 val SMALL_MARGIN = 8.dp
 val MEDIUM_MARGIN = 16.dp

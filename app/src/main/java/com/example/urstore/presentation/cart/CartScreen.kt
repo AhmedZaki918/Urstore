@@ -68,6 +68,8 @@ fun CartScreen(
         viewModel.effects.collect { effect ->
             if (effect is UiEffect.PobBackStack) {
                 navController.popBackStack()
+            } else if (effect is UiEffect.Navigate){
+                navController.navigate(effect.route)
             }
         }
     }
@@ -149,7 +151,11 @@ fun CartItems(
                         )
                     }
                 }
-                CheckoutSection(uiState)
+                CheckoutSection(
+                    uiState = uiState,
+                    onCheckoutPressed = {
+                        viewModel.onIntent(CartIntent.GoToCheckout)
+                    })
 
             } else {
                 EmptyCartUi()
@@ -239,7 +245,10 @@ fun CartHeader(
 
 
 @Composable
-fun CheckoutSection(uiState: CartUiState) {
+fun CheckoutSection(
+    uiState: CartUiState,
+    onCheckoutPressed: () -> Unit
+) {
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (discountRow, checkoutColumn) = createRefs()
@@ -338,7 +347,9 @@ fun CheckoutSection(uiState: CartUiState) {
                         start = MEDIUM_MARGIN,
                         end = MEDIUM_MARGIN
                     ),
-                onButtonClicked = {},
+                onButtonClicked = {
+                    onCheckoutPressed()
+                },
                 label = stringResource(R.string.proceed_to_checkout)
             )
         }

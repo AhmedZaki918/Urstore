@@ -146,7 +146,7 @@ fun ListItemCart(
                     text = "-",
                     onButtonClicked = {
                         currentItem.count?.let { count ->
-                            if (count > 1){
+                            if (count > 1) {
                                 onDecreaseClicked(currentItem.cartId)
                             }
                         }

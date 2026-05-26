@@ -5,6 +5,7 @@ import com.example.urstore.data.local.Constants.TOKEN
 import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
 import com.example.urstore.util.RequestState
@@ -45,6 +46,7 @@ class CartViewModel @Inject constructor(
             is CartIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is CartIntent.RetryFetchCart -> fetchCart()
             is CartIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+            is CartIntent.GoToCheckout -> sendEffect(UiEffect.Navigate(Screen.CHECKOUT_SCREEN.route))
         }
     }
 

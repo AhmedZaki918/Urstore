@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.House
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,6 +47,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -104,7 +106,8 @@ fun ButtonShopApp(
     label: String,
     isVisible: Boolean = true,
     isButtonClickable: Boolean = true,
-    onButtonClicked: () -> Unit
+    onButtonClicked: () -> Unit,
+    textFontSize: TextUnit = 16.sp
 ) {
     if (isVisible) {
         Button(
@@ -123,7 +126,7 @@ fun ButtonShopApp(
             Text(
                 modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
                 text = label,
-                fontSize = 16.sp
+                fontSize = textFontSize
             )
         }
     }
@@ -194,6 +197,49 @@ fun CircleButton(
             )
         }
     }
+}
+
+
+@Composable
+fun TextFieldCustom(
+    modifier: Modifier = Modifier,
+    input: String,
+    label: @Composable (() -> Unit)? = null,
+    onInputChange: (String) -> Unit,
+    placeholder: String,
+    readOnly: Boolean = false,
+    leadingIcon: ImageVector,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    keyboardType: KeyboardType,
+    topPadding: Dp = SMALL_MARGIN
+) {
+    OutlinedTextField(
+        label = label,
+        value = input,
+        onValueChange = onInputChange,
+        placeholder = { Text(placeholder,fontSize = 12.sp) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = Color.Gray
+            )
+        },
+        readOnly = readOnly,
+        trailingIcon = trailingIcon,
+        shape = RoundedCornerShape(16.dp),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor =  Color.White,
+            focusedIndicatorColor = Color.Gray.copy(alpha = 0.5f),
+            unfocusedIndicatorColor = Color.Gray.copy(alpha = 0.5f)
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(0.dp, RoundedCornerShape(VERY_SMALL_MARGIN))
+            .padding(top = topPadding),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
+    )
 }
 
 
@@ -520,7 +566,8 @@ fun SubTitle(
 fun QtyButton(
     isVisible: Boolean = true,
     text: String,
-    onButtonClicked: () -> Unit
+    onButtonClicked: () -> Unit,
+    fontSize: TextUnit = 18.sp
 ) {
     if (isVisible) {
         Text(
@@ -529,7 +576,7 @@ fun QtyButton(
             },
             text = text,
             fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
+            fontSize = fontSize
         )
     }
 }
@@ -721,8 +768,8 @@ fun CircleWithIcon(
     circleColor: Color,
     icon: ImageVector,
     iconTint: Color,
-    iconSize : Dp = 23.dp,
-    contentPadding : Dp = VERY_SMALL_MARGIN
+    iconSize: Dp = 23.dp,
+    contentPadding: Dp = VERY_SMALL_MARGIN
 ) {
     Box(
         modifier = Modifier
@@ -1059,6 +1106,85 @@ fun SettingOneItem(
                         checked = it
                     }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun EditTextAlertDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    isVisible: Boolean,
+    confirmTitle: String,
+    dismissTitle: String,
+    onValueChanged: (String) -> Unit,
+    newInput: String
+) {
+    if (isVisible) {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = "Edit Address",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(SMALL_MARGIN))
+
+
+
+                    TextFieldCustom(
+                        input = newInput,
+                        onInputChange = { address ->
+                            onValueChanged(address)
+                        },
+                        label = null,
+                        placeholder = "Your delivery address",
+                        leadingIcon = Icons.Outlined.House,
+                        keyboardType = KeyboardType.Text,
+                        topPadding = SMALL_MARGIN
+                    )
+
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = MEDIUM_MARGIN)
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(dismissTitle)
+                        }
+
+                        Spacer(modifier = Modifier.width(SMALL_MARGIN))
+
+                        Button(
+                            onClick = onConfirm,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Brown
+                            )
+                        ) {
+                            Text(confirmTitle)
+                        }
+                    }
+                }
             }
         }
     }

@@ -20,6 +20,7 @@
     <string name="apply">Apply</string>
     <string name="subtotal">Subtotal</string>
     <string name="delivery">Delivery</string>
+    <string name="delivery_fee">Delivery Fee</string>
     <string name="total_tax">Total Tax</string>
     <string name="total">Total</string>
     <string name="proceed_to_checkout">Proceed to Checkout</string>
@@ -85,4 +86,19 @@
     <string name="try_a_new_search">Try a new search to see results.</string>
     <string name="search_now">Search now</string>
     <string name="try_a_different_keyword">Try a different keyword</string>
+    <string name="checkout">Checkout</string>
+    <string name="caption_checkout">Review your order, delivery details and payment</string>
+    <string name="ur_order">Your Order</string>
+    <string name="items">items</string>
+    <string name="edit_cart">Edit Cart</string>
+    <string name="delivery_details">1. Delivery Details</string>
+    <string name="secure_payment">Secure Payment</string>
+    <string name="your_payment_is_safe">Your payment is safe</string>
+    <string name="fast_delivery">Fast Delivery</string>
+    <string name="time_your_door">On-time to your door</string>
+    <string name="_24_7_support">24/7 Support</string>
+    <string name="here_to_help">We\'re here to help</string>
+    <string name="place_order">Place Order</string>
+    <string name="encrypted_payment"><![CDATA[Secure & Encrypted Payment]]></string>
+    <string name="_2_payment_methods">2. Payment Methods</string>
 </resources>

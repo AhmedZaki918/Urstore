@@ -8,4 +8,5 @@ sealed class CartIntent {
     object DeleteCart : CartIntent()
     object RetryFetchCart : CartIntent()
     object GoBack : CartIntent()
+    object GoToCheckout :CartIntent()
 }

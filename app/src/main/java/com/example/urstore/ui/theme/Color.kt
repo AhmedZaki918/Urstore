@@ -14,6 +14,7 @@ val Lighter_Beige = Color(0xFFf6f4f4)
 val Beige_MEDIUM = Color(0xFFf4f1ec)
 
 val Brown = Color(0xFF7c4617)
+val Lighter_Brown = Color(0xFFf6f2ef)
 val Medium_Brown = Color(0xFF4A3426)
 val Black = Color(0xFF000000)
 
