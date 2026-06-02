@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,17 +19,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Money
-import androidx.compose.material.icons.filled.SafetyCheck
-import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material.icons.outlined.DeliveryDining
-import androidx.compose.material.icons.outlined.SafetyCheck
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.SupportAgent
 import androidx.compose.material3.Card
@@ -39,13 +36,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -57,9 +53,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.urstore.R
+import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.ui.theme.Brown
-import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Lighter_Brown
@@ -70,18 +68,32 @@ import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.Very_Light_Beige
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.CartSharedViewModel
 import com.example.urstore.util.EditTextAlertDialog
+import com.example.urstore.util.PaymentMethods
+import com.example.urstore.util.UiEffect
+import com.example.urstore.util.currentDate
+import com.example.urstore.util.currentTime
+import com.example.urstore.util.timePlusAnHour
 
 @Composable
-fun CheckoutScreen() {
+fun CheckoutScreen(
+    viewModel: CheckoutViewModel = hiltViewModel(),
+    cartSharedVM: CartSharedViewModel,
+    navController: NavHostController
+) {
+    val cart = cartSharedVM.cartItems.collectAsState().value
+    val uiState = viewModel.uiState.collectAsState().value
 
-    var isDialogActive by remember {
-        mutableStateOf(false)
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            if (effect is UiEffect.PobBackStack) {
+                navController.popBackStack()
+            }
+        }
     }
 
-    var address by remember {
-        mutableStateOf("")
-    }
 
     Column(
         modifier = Modifier
@@ -90,7 +102,6 @@ fun CheckoutScreen() {
             .background(Very_Light_Beige)
             .padding(top = EXTRA_LARGE_MARGIN)
     ) {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,43 +109,63 @@ fun CheckoutScreen() {
             contentPadding = PaddingValues(bottom = SMALL_MARGIN)
         ) {
             item {
-                CheckoutHeader()
+                CheckoutHeader {
+                    viewModel.onIntent(CheckoutIntent.GoBack)
+                }
+
                 OrderHeader(
-                    itemsCount = 2,
-                    onEditClicked = {}
+                    itemsCount = cart.shoppingCartList.size,
+                    onEditClicked = {
+                        viewModel.onIntent(CheckoutIntent.EditCart)
+                    }
                 )
             }
 
-            items(2) {
-                ListItemCheckout()
+            itemsIndexed(cart.shoppingCartList) { index, item ->
+                ListItemCheckout(
+                    currentItem = item,
+                    isLastItem = cart.shoppingCartList.size - 1 == index
+                )
             }
 
             item {
-                OrderFooter()
-                DeliveryDetails{
-                    isDialogActive = true
-                }
-                PaymentMethods()
+                OrderFooter(cart)
+                DeliveryDetails(
+                    onChangeClicked = {
+                        viewModel.onIntent(CheckoutIntent.ShowDialog(true))
+                    },
+                    uiState = uiState
+                )
+                PaymentMethods(
+                    uiState = uiState,
+                    onPaymentClicked = { payment ->
+                        viewModel.onIntent(CheckoutIntent.ChangePayment(payment))
+                    }
+                )
             }
         }
 
         EditTextAlertDialog(
-            isVisible = isDialogActive,
-            newInput = address,
-            confirmTitle = "Save",
-            dismissTitle = "Cancel",
-            onValueChanged = {
-                address = it
+            isVisible = uiState.isDialogActive,
+            newInput = uiState.deliveryAddress,
+            confirmTitle = stringResource(R.string.save),
+            dismissTitle = stringResource(R.string.cancel),
+            onValueChanged = { address ->
+                viewModel.onIntent(CheckoutIntent.ChangeAddress(address))
             },
             onConfirm = {
-                isDialogActive = false
+                if (uiState.deliveryAddress.isNotEmpty()) {
+                    viewModel.onIntent(CheckoutIntent.SaveAddress)
+                    viewModel.onIntent(CheckoutIntent.ShowDialog(false))
+                }
             },
             onDismiss = {
-                isDialogActive = false
+                viewModel.onIntent(CheckoutIntent.CancelAddress)
+                viewModel.onIntent(CheckoutIntent.ShowDialog(false))
             }
         )
 
-        PlaceOrder()
+        PlaceOrder(cart.totalAmount)
         CheckoutFooter()
     }
 }
@@ -142,7 +173,7 @@ fun CheckoutScreen() {
 
 @Composable
 fun CheckoutHeader(
-    onBackClicked: () -> Unit = {}
+    onBackClicked: () -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -218,7 +249,7 @@ fun OrderHeader(
                 .fillMaxWidth()
                 .padding(horizontal = MEDIUM_MARGIN)
         ) {
-            val (orderText, itemsCountText, editCartRow) = createRefs()
+            val (orderText, itemsCountText, editCartText, arrowIcon) = createRefs()
 
             Text(
                 modifier = Modifier
@@ -246,15 +277,32 @@ fun OrderHeader(
 
             Text(
                 modifier = Modifier
-                    .constrainAs(editCartRow) {
+                    .constrainAs(editCartText) {
                         top.linkTo(orderText.top)
                         bottom.linkTo(orderText.bottom)
                         end.linkTo(parent.end, MEDIUM_MARGIN)
                     }
-                    .padding(top = SMALL_MARGIN),
+                    .padding(top = SMALL_MARGIN)
+                    .clickable {
+                        onEditClicked()
+                    },
                 text = stringResource(R.string.edit_cart),
                 color = Brown,
                 fontSize = 12.sp
+            )
+
+            Icon(
+                modifier = Modifier
+                    .constrainAs(arrowIcon) {
+                        start.linkTo(editCartText.end)
+                        top.linkTo(editCartText.top)
+                        bottom.linkTo(editCartText.bottom)
+                    }
+                    .size(22.dp)
+                    .padding(top = SMALL_MARGIN),
+                imageVector = Icons.Default.ArrowForwardIos,
+                contentDescription = "",
+                tint = Brown.copy(alpha = 0.8f)
             )
         }
     }
@@ -262,7 +310,7 @@ fun OrderHeader(
 
 
 @Composable
-fun OrderFooter() {
+fun OrderFooter(cart: CartDto) {
 
     Card(
         modifier = Modifier
@@ -293,7 +341,7 @@ fun OrderFooter() {
 
             CheckoutFeesItem(
                 stringResource(R.string.subtotal),
-                "$90.00",
+                "$${cart.totalAmount}",
                 0.dp
             )
 
@@ -305,7 +353,7 @@ fun OrderFooter() {
 
             CheckoutFeesItem(
                 stringResource(R.string.total),
-                "$95.00",
+                "$${(cart.totalAmount?.plus(5.00))}",
                 SMALL_MARGIN,
                 color = Color.Black,
                 fontSize = 14.sp,
@@ -353,7 +401,8 @@ fun CheckoutFeesItem(
 
 @Composable
 fun DeliveryDetails(
-    onChangeClicked: () -> Unit
+    onChangeClicked: () -> Unit,
+    uiState: CheckoutUiState
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -442,7 +491,7 @@ fun DeliveryDetails(
             ) {
                 Text(
                     modifier = Modifier.wrapContentSize(),
-                    text = "Address",
+                    text = stringResource(R.string.address),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
@@ -451,7 +500,7 @@ fun DeliveryDetails(
                     modifier = Modifier
                         .wrapContentSize()
                         .padding(top = SMALL_MARGIN),
-                    text = "10th of Ramadan City",
+                    text = uiState.deliveryAddress,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -463,7 +512,7 @@ fun DeliveryDetails(
                         .clickable {
                             onChangeClicked()
                         },
-                    text = "Change",
+                    text = stringResource(R.string.change),
                     color = Brown,
                     fontSize = 12.sp
                 )
@@ -489,7 +538,7 @@ fun DeliveryDetails(
                     modifier = Modifier
                         .wrapContentSize()
                         .padding(top = SMALL_MARGIN),
-                    text = "10:00 AM - 12.00 PM",
+                    text = "${currentTime()} - ${timePlusAnHour()}",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -498,7 +547,7 @@ fun DeliveryDetails(
                     modifier = Modifier
                         .wrapContentSize()
                         .padding(top = VERY_SMALL_MARGIN),
-                    text = "Oct 24,2026",
+                    text = currentDate(),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -509,7 +558,10 @@ fun DeliveryDetails(
 
 
 @Composable
-fun PaymentMethods() {
+fun PaymentMethods(
+    uiState: CheckoutUiState,
+    onPaymentClicked: (String) -> Unit
+) {
     ConstraintLayout(
         modifier = Modifier
             .wrapContentSize()
@@ -561,11 +613,24 @@ fun PaymentMethods() {
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (visaIcon, mastercardIcon, visaRadioBtn, mastercardRadioBtn, visaText,
-                mastercardText, lineDivider, secondLineDivider, cashRadioBtn, cashIcon, cashText) = createRefs()
+                mastercardText, lineDivider, secondLineDivider, cashRadioBtn, cashIcon, cashText,
+                defaultSurface
+            ) = createRefs()
 
 
-            var selectedOption by remember {
-                mutableStateOf("Visa")
+            Surface(
+                modifier = Modifier.constrainAs(defaultSurface){
+                    end.linkTo(parent.end,MEDIUM_MARGIN)
+                    top.linkTo(parent.top,SMALL_MARGIN)
+                },
+                shape = RoundedCornerShape(SMALL_MARGIN),
+                color = Color(0xFFE8F5E9)
+            ) {
+                Text(
+                    text = stringResource(R.string._default),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    fontSize = 11.sp
+                )
             }
 
 
@@ -576,9 +641,9 @@ fun PaymentMethods() {
                         top.linkTo(parent.top)
                     }
                     .size(40.dp),
-                selected = selectedOption == "Visa",
+                selected = uiState.paymentMethods == PaymentMethods.VISA.value,
                 onClick = {
-                    selectedOption = "Visa"
+                    onPaymentClicked(PaymentMethods.VISA.value)
                 },
                 colors = RadioButtonDefaults.colors(
                     selectedColor = Brown,
@@ -631,9 +696,9 @@ fun PaymentMethods() {
                         top.linkTo(lineDivider.bottom)
                     }
                     .size(40.dp),
-                selected = selectedOption == "Mastercard",
+                selected = uiState.paymentMethods == PaymentMethods.MASTERCARD.value,
                 onClick = {
-                    selectedOption = "Mastercard"
+                    onPaymentClicked(PaymentMethods.MASTERCARD.value)
                 },
                 colors = RadioButtonDefaults.colors(
                     selectedColor = Brown,
@@ -685,9 +750,9 @@ fun PaymentMethods() {
                         top.linkTo(secondLineDivider.bottom)
                     }
                     .size(40.dp),
-                selected = selectedOption == "Cash-on-delivery",
+                selected = uiState.paymentMethods == PaymentMethods.CASH.value,
                 onClick = {
-                    selectedOption = "Cash-on-delivery"
+                    onPaymentClicked(PaymentMethods.CASH.value)
                 },
                 colors = RadioButtonDefaults.colors(
                     selectedColor = Brown,
@@ -806,7 +871,7 @@ fun RowScope.InfoItem(
 
 
 @Composable
-fun PlaceOrder() {
+fun PlaceOrder(totalAmount: Int?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -862,7 +927,12 @@ fun PlaceOrder() {
             modifier = Modifier
                 .weight(1f)
                 .wrapContentSize()
-                .padding(vertical = SMALL_MARGIN, horizontal = SMALL_MARGIN),
+                .padding(
+                    top = SMALL_MARGIN,
+                    bottom = SMALL_MARGIN,
+                    start = SMALL_MARGIN,
+                    end = MEDIUM_MARGIN
+                ),
             colors = CardDefaults.cardColors(containerColor = Lighter_Brown),
             shape = RoundedCornerShape(SMALL_MARGIN)
         ) {
@@ -924,7 +994,7 @@ fun PlaceOrder() {
                     Text(
                         modifier = Modifier.wrapContentSize(),
                         color = Color.Gray,
-                        text = "$90.00",
+                        text = "$$totalAmount",
                         fontSize = 12.sp
                     )
 
@@ -941,7 +1011,7 @@ fun PlaceOrder() {
                         modifier = Modifier
                             .wrapContentSize()
                             .padding(top = VERY_SMALL_MARGIN),
-                        text = "$95.00",
+                        text = "$${(totalAmount?.plus(5.00))}",
                         color = Brown,
                         fontSize = 14.sp
                     )

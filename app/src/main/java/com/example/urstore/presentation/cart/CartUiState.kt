@@ -1,6 +1,5 @@
 package com.example.urstore.presentation.cart
 
-import com.example.urstore.data.model.cart.ItemQuantity
 import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.util.RequestState
 

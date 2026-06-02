@@ -101,4 +101,7 @@
     <string name="place_order">Place Order</string>
     <string name="encrypted_payment"><![CDATA[Secure & Encrypted Payment]]></string>
     <string name="_2_payment_methods">2. Payment Methods</string>
+    <string name="change">Change</string>
+    <string name="save">Save</string>
+    <string name="_default">Default</string>
 </resources>

@@ -50,6 +50,8 @@ import com.example.urstore.ui.theme.Very_Light_Beige
 import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.CartIntentSharedVM
+import com.example.urstore.util.CartSharedViewModel
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.RequestState
@@ -60,6 +62,7 @@ import com.example.urstore.util.UiEffect
 @Composable
 fun CartScreen(
     viewModel: CartViewModel = hiltViewModel(),
+    cartSharedVM: CartSharedViewModel,
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -68,7 +71,7 @@ fun CartScreen(
         viewModel.effects.collect { effect ->
             if (effect is UiEffect.PobBackStack) {
                 navController.popBackStack()
-            } else if (effect is UiEffect.Navigate){
+            } else if (effect is UiEffect.Navigate) {
                 navController.navigate(effect.route)
             }
         }
@@ -92,7 +95,7 @@ fun CartScreen(
             }
         )
 
-        CartItems(uiState, viewModel)
+        CartItems(uiState, viewModel, cartSharedVM)
 
         AlertDialog(
             isVisible = uiState.isCartDialogActive,
@@ -118,7 +121,8 @@ fun CartScreen(
 @Composable
 fun CartItems(
     uiState: CartUiState,
-    viewModel: CartViewModel
+    viewModel: CartViewModel,
+    cartSharedVM: CartSharedViewModel
 ) {
     when (uiState.cartState) {
 
@@ -154,6 +158,7 @@ fun CartItems(
                 CheckoutSection(
                     uiState = uiState,
                     onCheckoutPressed = {
+                        cartSharedVM.onIntent(CartIntentSharedVM.SaveCartItems(uiState.cartResponse))
                         viewModel.onIntent(CartIntent.GoToCheckout)
                     })
 

@@ -25,6 +25,7 @@ import com.example.urstore.presentation.profile.ProfileScreen
 import com.example.urstore.presentation.search.SearchScreen
 import com.example.urstore.presentation.see_all.SeeAllScreen
 import com.example.urstore.presentation.wishlist.WishlistScreen
+import com.example.urstore.util.CartSharedViewModel
 import com.example.urstore.util.ProductSharedViewModel
 
 @Composable
@@ -32,6 +33,7 @@ fun NavGraph(
     productSharedViewModel: ProductSharedViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
+    val cartSharedViewModel: CartSharedViewModel = hiltViewModel()
 
     NavHost(
         navController = navController,
@@ -94,11 +96,16 @@ fun NavGraph(
         }
 
         composable(route = Screen.CART_SCREEN.route) {
-            CartScreen(navController = navController)
+            CartScreen(
+                navController = navController,
+                cartSharedVM = cartSharedViewModel
+            )
         }
 
         composable(route = Screen.CHECKOUT_SCREEN.route) {
-            CheckoutScreen()
+            CheckoutScreen(
+                navController = navController,
+                cartSharedVM = cartSharedViewModel)
         }
 
         composable(route = Screen.WISHLIST_SCREEN.route) {

@@ -109,6 +109,11 @@ class AuthRepo @Inject constructor(
     }
 
 
+    suspend fun saveUserByDataStore(address: String) {
+        dataStore.writeString(ADDRESS, address)
+    }
+
+
     fun returnFirstName(fullName: String): String {
         return if (fullName.contains(' ')) {
             fullName.substringBefore(" ")

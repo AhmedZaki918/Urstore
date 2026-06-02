@@ -47,7 +47,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -98,7 +97,31 @@ import com.example.urstore.ui.theme.Off_White
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
+
+fun currentDate(): String {
+    val formattedDate = SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH)
+        .format(Date())
+    return formattedDate
+}
+
+
+fun currentTime() : String {
+    val formatter = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+    val time = formatter.format(Date())
+    return time
+}
+
+fun timePlusAnHour() : String {
+    val formatter = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.HOUR_OF_DAY, 1)
+    return formatter.format(calendar.time)
+}
 
 @Composable
 fun ButtonShopApp(
@@ -217,7 +240,7 @@ fun TextFieldCustom(
         label = label,
         value = input,
         onValueChange = onInputChange,
-        placeholder = { Text(placeholder,fontSize = 12.sp) },
+        placeholder = { Text(placeholder, fontSize = 12.sp) },
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
@@ -230,7 +253,7 @@ fun TextFieldCustom(
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
-            unfocusedContainerColor =  Color.White,
+            unfocusedContainerColor = Color.White,
             focusedIndicatorColor = Color.Gray.copy(alpha = 0.5f),
             unfocusedIndicatorColor = Color.Gray.copy(alpha = 0.5f)
         ),
