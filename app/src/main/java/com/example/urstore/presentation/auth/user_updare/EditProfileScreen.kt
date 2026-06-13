@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -124,7 +126,10 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
 
             CircleWithIcon(
-                circleColor = Beige.copy(alpha = 0.5f),
+                modifier =  Modifier
+                    .padding(end = SMALL_MARGIN)
+                    .wrapContentSize()
+                    .background(color = Beige.copy(alpha = 0.5f), shape = CircleShape),
                 icon = Icons.Outlined.Person,
                 iconTint = Brown,
                 iconSize = 60.dp,

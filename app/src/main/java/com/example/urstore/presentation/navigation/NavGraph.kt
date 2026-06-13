@@ -17,7 +17,8 @@ import com.example.urstore.presentation.checkout.CheckoutScreen
 import com.example.urstore.presentation.details.DetailsScreen
 import com.example.urstore.presentation.details.DetailsViewModel
 import com.example.urstore.presentation.home.HomeScreen
-import com.example.urstore.presentation.order.OrderScreen
+import com.example.urstore.presentation.order.details.OrderDetails
+import com.example.urstore.presentation.order.orders.OrderScreen
 import com.example.urstore.presentation.password_reset.enter_code.EnterCodeScreen
 import com.example.urstore.presentation.password_reset.forget_password.ForgotPasswordScreen
 import com.example.urstore.presentation.password_reset.reset_password.ResetPasswordScreen
@@ -105,7 +106,8 @@ fun NavGraph(
         composable(route = Screen.CHECKOUT_SCREEN.route) {
             CheckoutScreen(
                 navController = navController,
-                cartSharedVM = cartSharedViewModel)
+                cartSharedVM = cartSharedViewModel
+            )
         }
 
         composable(route = Screen.WISHLIST_SCREEN.route) {
@@ -114,6 +116,10 @@ fun NavGraph(
 
         composable(route = Screen.ORDER_SCREEN.route) {
             OrderScreen()
+        }
+
+        composable(route = Screen.ORDER_DETAILS.route) {
+            OrderDetails()
         }
 
         composable(route = Screen.PROFILE_SCREEN.route) {

@@ -15,8 +15,11 @@ val Beige_MEDIUM = Color(0xFFf4f1ec)
 
 val Brown = Color(0xFF7c4617)
 val Lighter_Brown = Color(0xFFf6f2ef)
+val Cacy = Color(0xFFf7efdc)
+
 val Medium_Brown = Color(0xFF4A3426)
 val Black = Color(0xFF000000)
+val Green = Color(0xFF46763c)
 
 
 val White = Color(0xFFFFFFFF)
@@ -31,3 +34,6 @@ val Dark_Yellow = Color(0xFFeeb460)
 val Very_Light_Beige = Color(0xFFf6f6f5)
 
 val SearchBackground = Color(0xFFf9f8f6)
+
+// #faf6f3 watch color
+// #e6e6e6 gray color

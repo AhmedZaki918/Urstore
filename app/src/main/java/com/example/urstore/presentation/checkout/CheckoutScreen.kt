@@ -57,6 +57,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.cart.get.CartDto
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -69,6 +70,7 @@ import com.example.urstore.ui.theme.Very_Light_Beige
 import com.example.urstore.util.BackButton
 import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.CartSharedViewModel
+import com.example.urstore.util.CheckoutFeesItem
 import com.example.urstore.util.EditTextAlertDialog
 import com.example.urstore.util.PaymentMethods
 import com.example.urstore.util.UiEffect
@@ -165,7 +167,12 @@ fun CheckoutScreen(
             }
         )
 
-        PlaceOrder(cart.totalAmount)
+        PlaceOrder(
+            cart.totalAmount,
+            onPlaceOrderClicked = {
+                navController.navigate(Screen.ORDER_DETAILS.route)
+            }
+        )
         CheckoutFooter()
     }
 }
@@ -360,41 +367,6 @@ fun OrderFooter(cart: CartDto) {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-
-@Composable
-fun CheckoutFeesItem(
-    title: String,
-    value: String,
-    paddingTop: Dp,
-    color: Color = Color.Gray,
-    fontSize: TextUnit = 12.sp,
-    fontWeight: FontWeight? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(top = paddingTop),
-        Arrangement.SpaceBetween
-    ) {
-        Text(
-            modifier = Modifier.padding(start = MEDIUM_MARGIN),
-            text = title,
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight
-        )
-
-        Text(
-            modifier = Modifier.padding(end = MEDIUM_MARGIN),
-            text = value,
-            color = color,
-            fontSize = fontSize,
-            fontWeight = fontWeight
-        )
     }
 }
 
@@ -619,9 +591,9 @@ fun PaymentMethods(
 
 
             Surface(
-                modifier = Modifier.constrainAs(defaultSurface){
-                    end.linkTo(parent.end,MEDIUM_MARGIN)
-                    top.linkTo(parent.top,SMALL_MARGIN)
+                modifier = Modifier.constrainAs(defaultSurface) {
+                    end.linkTo(parent.end, MEDIUM_MARGIN)
+                    top.linkTo(parent.top, SMALL_MARGIN)
                 },
                 shape = RoundedCornerShape(SMALL_MARGIN),
                 color = Color(0xFFE8F5E9)
@@ -871,7 +843,10 @@ fun RowScope.InfoItem(
 
 
 @Composable
-fun PlaceOrder(totalAmount: Int?) {
+fun PlaceOrder(
+    totalAmount: Int?,
+    onPlaceOrderClicked: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -889,7 +864,9 @@ fun PlaceOrder(totalAmount: Int?) {
                     .fillMaxWidth()
                     .height(45.dp)
                     .padding(top = SMALL_MARGIN, start = MEDIUM_MARGIN),
-                onButtonClicked = {},
+                onButtonClicked = {
+                    onPlaceOrderClicked()
+                },
                 label = stringResource(R.string.place_order),
                 textFontSize = 14.sp
             )

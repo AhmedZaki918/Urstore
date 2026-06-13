@@ -1,4 +1,4 @@
-package com.example.urstore.presentation.order
+package com.example.urstore.presentation.order.orders
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues

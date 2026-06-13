@@ -85,6 +85,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
 import com.example.urstore.data.model.drinks.ProductSize
+import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -130,7 +131,8 @@ fun ButtonShopApp(
     isVisible: Boolean = true,
     isButtonClickable: Boolean = true,
     onButtonClicked: () -> Unit,
-    textFontSize: TextUnit = 16.sp
+    textFontSize: TextUnit = 16.sp,
+    roundedCornerSize : Dp = LARGE_MARGIN
 ) {
     if (isVisible) {
         Button(
@@ -139,7 +141,7 @@ fun ButtonShopApp(
                     onButtonClicked()
                 }
             },
-            shape = RoundedCornerShape(LARGE_MARGIN),
+            shape = RoundedCornerShape(roundedCornerSize),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isButtonClickable) Brown else Brown.copy(alpha = 0.7f),
                 contentColor = Color.White
@@ -745,7 +747,10 @@ fun SnackBar(
             if (data.visuals.actionLabel == ActionLabel.SUCCESS.value) {
                 Row(modifier = Modifier.wrapContentWidth()) {
                     CircleWithIcon(
-                        circleColor = Brown,
+                        modifier =  Modifier
+                            .padding(end = SMALL_MARGIN)
+                            .wrapContentSize()
+                            .background(color = Brown, shape = CircleShape),
                         icon = Icons.Default.Done,
                         iconTint = Color.White
                     )
@@ -785,20 +790,51 @@ fun SnackBar(
     }
 }
 
+@Composable
+fun CheckoutFeesItem(
+    title: String,
+    value: String,
+    paddingTop: Dp,
+    color: Color = Color.Gray,
+    fontSize: TextUnit = 12.sp,
+    fontWeight: FontWeight? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(top = paddingTop),
+        Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier.padding(start = MEDIUM_MARGIN),
+            text = title,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight
+        )
+
+        Text(
+            modifier = Modifier.padding(end = MEDIUM_MARGIN),
+            text = value,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight
+        )
+    }
+}
+
 
 @Composable
 fun CircleWithIcon(
-    circleColor: Color,
+    modifier: Modifier,
     icon: ImageVector,
     iconTint: Color,
     iconSize: Dp = 23.dp,
     contentPadding: Dp = VERY_SMALL_MARGIN
 ) {
     Box(
-        modifier = Modifier
-            .padding(end = SMALL_MARGIN)
-            .wrapContentSize()
-            .background(color = circleColor, shape = CircleShape),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Icon(
