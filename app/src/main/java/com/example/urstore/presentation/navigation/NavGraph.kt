@@ -115,7 +115,7 @@ fun NavGraph(
         }
 
         composable(route = Screen.ORDER_SCREEN.route) {
-            OrderScreen()
+            OrderScreen(navController = navController)
         }
 
         composable(route = Screen.ORDER_DETAILS.route) {

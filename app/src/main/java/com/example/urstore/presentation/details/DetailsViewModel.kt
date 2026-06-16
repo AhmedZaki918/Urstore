@@ -95,12 +95,9 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    productSize = it.productSize.map { size ->
-                        if (size.id == sizeId) {
-                            size.copy(isPressed = true)
-                        } else {
-                            size.copy(isPressed = false)
-                        }
+                    productSize = it.productSize.map { item ->
+                        if (item.id == sizeId) item.copy(isPressed = true)
+                        else item.copy(isPressed = false)
                     })
             }
         }

@@ -34,6 +34,3 @@ val Dark_Yellow = Color(0xFFeeb460)
 val Very_Light_Beige = Color(0xFFf6f6f5)
 
 val SearchBackground = Color(0xFFf9f8f6)
-
-// #faf6f3 watch color
-// #e6e6e6 gray color

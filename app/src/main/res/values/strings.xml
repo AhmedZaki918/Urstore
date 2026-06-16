@@ -121,4 +121,6 @@
     <string name="contact_support">Contact Support</string>
     <string name="cancel_order">Cancel Order</string>
     <string name="back_to_home">Back to Home</string>
+    <string name="all_orders">All Orders</string>
+    <string name="track_orders">View and track all your orders</string>
 </resources>
