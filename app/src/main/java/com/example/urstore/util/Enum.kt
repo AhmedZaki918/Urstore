@@ -35,5 +35,13 @@ enum class PaymentMethods(val value: String) {
 enum class DeliveryTimeline(val value: String) {
     PREPARING("preparing"),
     ON_THE_WAY("on_way"),
-    DELIVERED("delivered")
+    DELIVERED("delivered"),
+    CANCELLED("cancelled")
+}
+
+enum class OrdersStatus(val value: String) {
+    ALL_ORDERS("all_orders"),
+    ONGOING("on_going"),
+    COMPLETED("completed"),
+    CANCELLED("cancelled")
 }

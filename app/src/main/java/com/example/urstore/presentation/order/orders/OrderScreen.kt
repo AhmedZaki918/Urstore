@@ -8,13 +8,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SupportAgent
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,9 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.orders.OrderState
-import com.example.urstore.presentation.details.DetailsIntent
-import com.example.urstore.presentation.details.DetailsViewModel
-import com.example.urstore.presentation.home.HomeViewModel
+import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Cacy
@@ -43,6 +50,7 @@ import com.example.urstore.ui.theme.MEDIUM_MARGIN
 import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.Very_Light_Beige
+import com.example.urstore.util.BackButton
 
 @Composable
 fun OrderScreen(
@@ -55,6 +63,7 @@ fun OrderScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .background(Very_Light_Beige)
             .padding(top = LARGE_MARGIN)
     ) {
@@ -70,12 +79,16 @@ fun OrderScreen(
 
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 80.dp)
+                .fillMaxSize()
+                .weight(1f),
+            contentPadding = PaddingValues(bottom = MEDIUM_MARGIN)
         ) {
-
-
+            items(uiState.ordersSorted) { item ->
+                ListItemOrders(item)
+            }
         }
+
+        OrdersFooter()
     }
 }
 
@@ -87,7 +100,19 @@ fun OrdersHeader() {
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        val (titleText, captionText) = createRefs()
+        val (backButton,titleText, captionText) = createRefs()
+
+        BackButton(
+            modifier = Modifier
+                .constrainAs(backButton) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+                .padding(start = MEDIUM_MARGIN),
+            onBackClicked = {
+            }
+        )
+
 
         Text(
             modifier = Modifier
@@ -188,6 +213,56 @@ fun StatusItemUi(
                 },
             text = currentItem.title,
             textAlign = TextAlign.Center,
+            fontSize = 12.sp
+        )
+    }
+}
+
+
+@Composable
+fun OrdersFooter() {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(Color.White)
+            .padding(top = SMALL_MARGIN, end = MEDIUM_MARGIN)
+    ) {
+        val (helpIcon, helpText, supportText) = createRefs()
+
+
+        Text(
+            modifier = Modifier
+                .constrainAs(helpText) {
+                    top.linkTo(parent.top)
+                    start.linkTo(helpIcon.end,VERY_SMALL_MARGIN)
+                }
+                .padding(end = VERY_SMALL_MARGIN),
+            text = "Need help with your order?",
+            color = Color.LightGray,
+            fontSize = 12.sp
+        )
+
+        Icon(
+            modifier = Modifier
+                .constrainAs(helpIcon) {
+                   start.linkTo(parent.start,BIG_MARGIN)
+                    top.linkTo(helpText.top)
+                    bottom.linkTo(helpText.bottom)
+                }
+                .size(20.dp),
+            imageVector = Icons.Outlined.SupportAgent,
+            contentDescription = "",
+            tint = Color.Black
+        )
+
+        Text(
+            modifier = Modifier.constrainAs(supportText) {
+                start.linkTo(helpText.end, VERY_SMALL_MARGIN)
+                top.linkTo(parent.top)
+            },
+            text = "Contact Support",
+            color = Brown,
             fontSize = 12.sp
         )
     }

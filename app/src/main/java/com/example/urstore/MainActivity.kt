@@ -91,7 +91,6 @@ fun BottomBar(navController: NavHostController) {
     bottomBarState = when (currentDestination?.route) {
         Screen.HOME_SCREEN.route -> true
         Screen.WISHLIST_SCREEN.route -> true
-        Screen.ORDER_SCREEN.route -> true
         Screen.PROFILE_SCREEN.route -> true
         else -> false
     }
