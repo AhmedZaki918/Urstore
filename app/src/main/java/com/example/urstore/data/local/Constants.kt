@@ -9,6 +9,7 @@ object Constants {
     const val ADDED_TO_CART = "added_to_cart"
     const val EXIST_IN_CART = "exist_in_cart"
     const val BASE_URL = "https://restaurant.arrowtecheg.com/api/"
+    const val BEARER = "Bearer"
 
     // Data Store fields
     const val PREFERENCE_NAME = "shop_preferences"

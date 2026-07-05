@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,12 +37,16 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -55,7 +60,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.data.model.cart.get.CartDto
-import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
@@ -70,7 +74,10 @@ import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.CartSharedViewModel
 import com.example.urstore.util.CheckoutFeesItem
 import com.example.urstore.util.EditTextAlertDialog
+import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.PaymentMethods
+import com.example.urstore.util.RequestState
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.UiEffect
 import com.example.urstore.util.currentDate
 import com.example.urstore.util.currentTime
@@ -84,94 +91,123 @@ fun CheckoutScreen(
 ) {
     val cart = cartSharedVM.cartItems.collectAsState().value
     val uiState = viewModel.uiState.collectAsState().value
+    val snackbarHostState = remember { SnackbarHostState() }
 
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
-            if (effect is UiEffect.PobBackStack) {
-                navController.popBackStack()
+            when (effect) {
+                is UiEffect.PobBackStack -> navController.popBackStack()
+                is UiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                is UiEffect.ClearBackStack -> {
+                    navController.navigate(effect.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                }
+
+                else -> Unit
             }
         }
     }
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-            .background(Very_Light_Beige)
-            .padding(top = EXTRA_LARGE_MARGIN)
-    ) {
-        LazyColumn(
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentPadding = PaddingValues(bottom = SMALL_MARGIN)
+                .fillMaxSize()
+                .navigationBarsPadding()
+                .background(Very_Light_Beige)
+                .padding(top = EXTRA_LARGE_MARGIN)
         ) {
-            item {
-                CheckoutHeader {
-                    viewModel.onIntent(CheckoutIntent.GoBack)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentPadding = PaddingValues(bottom = SMALL_MARGIN)
+            ) {
+                item {
+                    CheckoutHeader {
+                        viewModel.onIntent(CheckoutIntent.GoBack)
+                    }
+
+                    OrderHeader(
+                        itemsCount = cart.shoppingCartList.size,
+                        onEditClicked = {
+                            viewModel.onIntent(CheckoutIntent.EditCart)
+                        }
+                    )
                 }
 
-                OrderHeader(
-                    itemsCount = cart.shoppingCartList.size,
-                    onEditClicked = {
-                        viewModel.onIntent(CheckoutIntent.EditCart)
+                itemsIndexed(cart.shoppingCartList) { index, item ->
+                    ListItemCheckout(
+                        currentItem = item,
+                        isLastItem = cart.shoppingCartList.size - 1 == index
+                    )
+                }
+
+                item {
+                    OrderFooter(cart)
+                    DeliveryDetails(
+                        onChangeClicked = {
+                            viewModel.onIntent(CheckoutIntent.ShowDialog(true))
+                        },
+                        uiState = uiState
+                    )
+                    PaymentMethods(
+                        uiState = uiState,
+                        onPaymentClicked = { payment ->
+                            viewModel.onIntent(CheckoutIntent.ChangePayment(payment))
+                        }
+                    )
+                }
+            }
+
+            EditTextAlertDialog(
+                isVisible = uiState.isDialogActive,
+                newInput = uiState.deliveryAddress,
+                confirmTitle = stringResource(R.string.save),
+                dismissTitle = stringResource(R.string.cancel),
+                onValueChanged = { address ->
+                    viewModel.onIntent(CheckoutIntent.ChangeAddress(address))
+                },
+                onConfirm = {
+                    if (uiState.deliveryAddress.isNotEmpty()) {
+                        viewModel.onIntent(CheckoutIntent.SaveAddress)
+                        viewModel.onIntent(CheckoutIntent.ShowDialog(false))
                     }
-                )
-            }
-
-            itemsIndexed(cart.shoppingCartList) { index, item ->
-                ListItemCheckout(
-                    currentItem = item,
-                    isLastItem = cart.shoppingCartList.size - 1 == index
-                )
-            }
-
-            item {
-                OrderFooter(cart)
-                DeliveryDetails(
-                    onChangeClicked = {
-                        viewModel.onIntent(CheckoutIntent.ShowDialog(true))
-                    },
-                    uiState = uiState
-                )
-                PaymentMethods(
-                    uiState = uiState,
-                    onPaymentClicked = { payment ->
-                        viewModel.onIntent(CheckoutIntent.ChangePayment(payment))
-                    }
-                )
-            }
-        }
-
-        EditTextAlertDialog(
-            isVisible = uiState.isDialogActive,
-            newInput = uiState.deliveryAddress,
-            confirmTitle = stringResource(R.string.save),
-            dismissTitle = stringResource(R.string.cancel),
-            onValueChanged = { address ->
-                viewModel.onIntent(CheckoutIntent.ChangeAddress(address))
-            },
-            onConfirm = {
-                if (uiState.deliveryAddress.isNotEmpty()) {
-                    viewModel.onIntent(CheckoutIntent.SaveAddress)
+                },
+                onDismiss = {
+                    viewModel.onIntent(CheckoutIntent.CancelAddress)
                     viewModel.onIntent(CheckoutIntent.ShowDialog(false))
                 }
-            },
-            onDismiss = {
-                viewModel.onIntent(CheckoutIntent.CancelAddress)
-                viewModel.onIntent(CheckoutIntent.ShowDialog(false))
-            }
-        )
+            )
 
-        PlaceOrder(
-            cart.totalAmount,
-            onPlaceOrderClicked = {
-                navController.navigate(Screen.ORDER_DETAILS.route)
-            }
+            PlaceOrder(
+                uiState = uiState.placeOrderState,
+                totalAmount = cart.totalAmount,
+                onPlaceOrderClicked = {
+                    viewModel.onIntent(CheckoutIntent.PlaceOrder)
+                }
+            )
+            CheckoutFooter()
+        }
+
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 120.dp)
         )
-        CheckoutFooter()
     }
 }
 
@@ -842,8 +878,9 @@ fun RowScope.InfoItem(
 
 @Composable
 fun PlaceOrder(
+    uiState: RequestState,
     totalAmount: Int?,
-    onPlaceOrderClicked: () -> Unit
+    onPlaceOrderClicked: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -858,6 +895,7 @@ fun PlaceOrder(
                 .weight(1f)
         ) {
             ButtonShopApp(
+                isVisible = uiState != RequestState.LOADING,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(45.dp)
@@ -868,6 +906,13 @@ fun PlaceOrder(
                 label = stringResource(R.string.place_order),
                 textFontSize = 14.sp
             )
+
+            LinearLoadingIndicator(
+                isVisible = uiState == RequestState.LOADING,
+                modifier =  Modifier.fillMaxWidth()
+            )
+
+
             Spacer(modifier = Modifier.height(SMALL_MARGIN))
 
             Row(

@@ -19,6 +19,8 @@ import com.example.urstore.data.model.cart.get.CartDto
 import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.model.offer.OfferDto
+import com.example.urstore.data.model.orders.PlaceOrderRequest
+import com.example.urstore.data.model.orders.PlaceOrderResponse
 import com.example.urstore.util.BaseResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -119,4 +121,12 @@ interface APIService {
         @Path("id") cartId: Int,
         @Header("Authorization") token: String
     ): Response<BaseResponse<CartDto>>
+
+
+    // Orders apis
+    @POST("DrinkOrders")
+    suspend fun placeOrder(
+        @Header("Authorization") token: String,
+        @Body body: PlaceOrderRequest
+    ): Response<BaseResponse<PlaceOrderResponse>>
 }

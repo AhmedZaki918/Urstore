@@ -2,6 +2,7 @@ package com.example.urstore.presentation.order.details
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -47,7 +48,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import com.example.urstore.R
+import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -72,7 +75,7 @@ import com.example.urstore.util.currentTime
 import com.example.urstore.util.timePlusAnHour
 
 @Composable
-fun OrderDetails() {
+fun OrderDetails(navController: NavHostController) {
 
     Column(
         modifier = Modifier
@@ -92,10 +95,10 @@ fun OrderDetails() {
                 OrderConfirmed()
                 OrderTimeLine(DeliveryTimeline.PREPARING.value)
                 DeliveryInfo()
-                OrderItemsHeader(2)
+                OrderItemsHeader(1)
             }
 
-            items(2) {
+            items(1) {
                 ListItemOrder()
             }
 
@@ -105,7 +108,7 @@ fun OrderDetails() {
             }
         }
 
-        NeedHelp()
+        NeedHelp(navController)
     }
 }
 
@@ -819,7 +822,7 @@ fun RowScope.Line(color: Color) {
 
 
 @Composable
-fun NeedHelp() {
+fun NeedHelp(navController: NavHostController) {
     Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
     Card(
         modifier = Modifier
@@ -910,7 +913,13 @@ fun NeedHelp() {
     Spacer(modifier = Modifier.height(SMALL_MARGIN))
 
     Text(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable{
+            navController.navigate(Screen.HOME_SCREEN.route) {
+                popUpTo(0) {
+                    inclusive = true
+                }
+            }
+        },
         textAlign = TextAlign.Center,
         text = stringResource(R.string.back_to_home),
         fontSize = 14.sp,

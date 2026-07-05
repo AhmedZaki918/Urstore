@@ -22,14 +22,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.House
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -70,7 +68,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -84,8 +81,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.urstore.R
+import com.example.urstore.data.local.Constants.BEARER
 import com.example.urstore.data.model.drinks.ProductSize
-import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
@@ -359,52 +356,11 @@ fun TextFieldShopApp(
     )
 }
 
-@Composable
-fun SearchBar(
-    query: String,
-    modifier: Modifier,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit
-) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        placeholder = {
-            Text(stringResource(R.string.search_anything))
-        },
-        shape = RoundedCornerShape(LARGE_MARGIN),
-        singleLine = true,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon"
-            )
-        },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Clear"
-                    )
-                }
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = { onSearch() }
-        )
-    )
-}
-
 
 @Composable
 fun OfferBanner(
     modifier: Modifier,
-    onBannerClicked: () -> Unit,
+    onBannerClicked: () -> Unit = {},
     image: Int,
     title: String,
     description: String,
@@ -1325,4 +1281,8 @@ fun AlertDialog(
             }
         }
     }
+}
+
+fun generateToken(token : String): String{
+    return "$BEARER $token"
 }

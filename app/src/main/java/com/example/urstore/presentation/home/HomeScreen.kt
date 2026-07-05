@@ -43,6 +43,7 @@ import com.example.urstore.R
 import com.example.urstore.data.model.categories.CategoriesDto
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Black
+import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -51,6 +52,7 @@ import com.example.urstore.util.AlertDialog
 import com.example.urstore.util.ErrorUi
 import com.example.urstore.util.LinearLoadingIndicator
 import com.example.urstore.util.MyFloatingActionButton
+import com.example.urstore.util.OfferBanner
 import com.example.urstore.util.ProductIntent
 import com.example.urstore.util.ProductSharedViewModel
 import com.example.urstore.util.RequestState
@@ -258,8 +260,8 @@ fun HomeHeader(
                 }
         )
 
-
-        AsyncImage(
+        //  This offer banner {placeholder} is temporary
+        OfferBanner(
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(offerImage) {
@@ -268,15 +270,35 @@ fun HomeHeader(
                     top.linkTo(searchBtn.bottom)
                 }
                 .padding(
-                    start = MEDIUM_MARGIN,
-                    end = MEDIUM_MARGIN,
-                    top = LARGE_MARGIN,
+                    start = SMALL_MARGIN,
+                    end = SMALL_MARGIN,
+                    top = CUSTOM_MARGIN,
                     bottom = MEDIUM_MARGIN
                 ),
-            model = uiState.offersResponse?.get(0)?.imageName,
-            contentDescription = "offer image",
-            contentScale = ContentScale.Crop
+            image = R.drawable.cup,
+            title = "Coffee Order Time 8:00 am - 3:00 pm",
+            description = "Buy one, Get one for Free",
+            buttonText = stringResource(R.string.order_now)
         )
+
+//        AsyncImage(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .constrainAs(offerImage) {
+//                    start.linkTo(parent.start)
+//                    end.linkTo(parent.end)
+//                    top.linkTo(searchBtn.bottom)
+//                }
+//                .padding(
+//                    start = MEDIUM_MARGIN,
+//                    end = MEDIUM_MARGIN,
+//                    top = LARGE_MARGIN,
+//                    bottom = MEDIUM_MARGIN
+//                ),
+//            model = uiState.offersResponse?.get(0)?.imageName,
+//            contentDescription = "offer image",
+//            contentScale = ContentScale.Crop
+//        )
     }
 }
 
