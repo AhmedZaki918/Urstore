@@ -86,15 +86,26 @@ class CheckoutViewModel @Inject constructor(
                 )
 
                 if (response is Resource.Success) {
+                    _uiState.update {
+                        it.copy(
+                            placeOrderResponse = response.data
+                        )
+                    }
                     updateOrderState(RequestState.SUCCESS)
-                    sendEffect(UiEffect.ClearBackStack(Screen.ORDER_DETAILS.route))
+                    sendEffect(
+                        UiEffect.ClearBackStack(
+                            route = "${Screen.ORDER_DETAILS.route}/${uiState.value.placeOrderResponse?.orderNumber}"
+                        )
+                    )
 
                 } else if (response is Resource.Failure) {
                     updateOrderState(RequestState.ERROR)
-                    sendEffect(UiEffect.ShowSnackbar(
-                        message = response.message.toString(),
-                        actionLabel = ActionLabel.ERROR.value
-                    ))
+                    sendEffect(
+                        UiEffect.ShowSnackbar(
+                            message = response.message.toString(),
+                            actionLabel = ActionLabel.ERROR.value
+                        )
+                    )
                 }
             }
         }

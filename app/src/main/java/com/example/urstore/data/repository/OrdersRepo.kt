@@ -11,6 +11,13 @@ class OrdersRepo @Inject constructor(
     private val api: APIService
 ) : SafeApiCall {
 
+    suspend fun orderDetails(orderId: Int?, token: String) = safeApiCall {
+        api.orderDetails(
+            orderId = orderId ?: 0,
+            token = generateToken(token)
+        )
+    }
+
     suspend fun placeOrder(
         token: String,
         userId: String,

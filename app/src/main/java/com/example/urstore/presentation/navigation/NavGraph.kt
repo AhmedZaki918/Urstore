@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
+import com.example.urstore.data.local.Constants.ORDER_ID
 import com.example.urstore.data.local.Constants.OTP
 import com.example.urstore.presentation.auth.login.LoginScreen
 import com.example.urstore.presentation.auth.signup.SignupScreen
@@ -118,8 +119,16 @@ fun NavGraph(
             OrderScreen(navController = navController)
         }
 
-        composable(route = Screen.ORDER_DETAILS.route) {
-            OrderDetails(navController)
+
+        composable(
+            route = "${Screen.ORDER_DETAILS.route}/{$ORDER_ID}",
+            arguments = listOf(
+                navArgument(ORDER_ID) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            OrderDetails(navController = navController)
         }
 
         composable(route = Screen.PROFILE_SCREEN.route) {

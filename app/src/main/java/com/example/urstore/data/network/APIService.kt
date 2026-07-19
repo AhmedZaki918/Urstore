@@ -21,6 +21,7 @@ import com.example.urstore.data.model.drinks.DrinksDataDto
 import com.example.urstore.data.model.offer.OfferDto
 import com.example.urstore.data.model.orders.PlaceOrderRequest
 import com.example.urstore.data.model.orders.PlaceOrderResponse
+import com.example.urstore.data.model.orders.details.OrderDetailsResponse
 import com.example.urstore.util.BaseResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -129,4 +130,10 @@ interface APIService {
         @Header("Authorization") token: String,
         @Body body: PlaceOrderRequest
     ): Response<BaseResponse<PlaceOrderResponse>>
+
+    @GET("DrinkOrders/GetOrderById/{id}")
+    suspend fun orderDetails(
+        @Path("id") orderId: Int,
+        @Header("Authorization") token: String
+    ): Response<BaseResponse<OrderDetailsResponse>>
 }

@@ -29,7 +29,7 @@ import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 
 @Composable
-fun ListItemOrder() {
+fun ListItemOrder(currentItem : com.example.urstore.data.model.orders.details.ShoppingCart) {
 
     Card(
         modifier = Modifier
@@ -46,8 +46,8 @@ fun ListItemOrder() {
             val (productImage, titleText, unitPriceText, captionText, lineDivider, qtyText) = createRefs()
 
 
-            Image(
-                painter = painterResource(R.drawable.drink_1),
+            AsyncImage(
+                model = currentItem.imageName,
                 modifier = Modifier
                     .constrainAs(productImage) {
                         start.linkTo(parent.start, SMALL_MARGIN)
@@ -58,7 +58,6 @@ fun ListItemOrder() {
                     .size(60.dp),
                 contentDescription = ""
             )
-
 
 
                 HorizontalDivider(
@@ -80,7 +79,7 @@ fun ListItemOrder() {
                     top.linkTo(productImage.top, CUSTOM_MARGIN)
                     start.linkTo(productImage.end, SMALL_MARGIN)
                 },
-                text = "Pumpkin Latte",
+                text = currentItem.itemName.toString(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )
@@ -105,7 +104,7 @@ fun ListItemOrder() {
                 },
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                text = "$55.00"
+                text = "${currentItem.itemPrice}"
             )
 
 
@@ -115,7 +114,7 @@ fun ListItemOrder() {
                     end.linkTo(parent.end, 70.dp)
                 },
                 fontSize = 12.sp,
-                text = "Qty. 1",
+                text = "Qty. ${currentItem.count}",
                 color = Color.Gray
             )
         }

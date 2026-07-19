@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.presentation.navigation.Screen
@@ -70,12 +73,21 @@ import com.example.urstore.util.ButtonShopApp
 import com.example.urstore.util.CheckoutFeesItem
 import com.example.urstore.util.CircleWithIcon
 import com.example.urstore.util.DeliveryTimeline
+import com.example.urstore.util.ErrorUi
+import com.example.urstore.util.LinearLoadingIndicator
+import com.example.urstore.util.RequestState
 import com.example.urstore.util.currentDate
 import com.example.urstore.util.currentTime
 import com.example.urstore.util.timePlusAnHour
 
+
 @Composable
-fun OrderDetails(navController: NavHostController) {
+fun OrderDetails(
+    viewModel: OrderDetailsViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+
 
     Column(
         modifier = Modifier
@@ -90,25 +102,58 @@ fun OrderDetails(navController: NavHostController) {
                 .weight(1f),
             contentPadding = PaddingValues(bottom = SMALL_MARGIN)
         ) {
+
             item {
                 OrderDetailsHeader {}
-                OrderConfirmed()
-                OrderTimeLine(DeliveryTimeline.PREPARING.value)
-                DeliveryInfo()
-                OrderItemsHeader(1)
             }
 
-            items(1) {
-                ListItemOrder()
-            }
+            when (uiState.orderDetailsState) {
+                RequestState.LOADING -> {
+                    item {
+                        LinearLoadingIndicator(
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
 
-            item {
-                OrderItemsFooter()
-                PaymentMethod()
+                RequestState.SUCCESS -> {
+                    item {
+                        OrderConfirmed(uiState.orderDetailsResponse?.orderNumber)
+                        OrderTimeLine(DeliveryTimeline.PREPARING.value)
+                        DeliveryInfo(address = uiState.orderDetailsResponse?.clientAddress)
+                        OrderItemsHeader(uiState.orderDetailsResponse?.shoppingCartList?.size)
+                    }
+
+                    items(uiState.orderDetailsResponse!!.shoppingCartList) {
+                        ListItemOrder(it)
+                    }
+
+
+                    item {
+                        OrderItemsFooter(uiState.orderDetailsResponse.orderTotal)
+                        PaymentMethod(uiState.orderDetailsResponse.orderTotal)
+                    }
+
+                }
+
+                RequestState.ERROR -> {
+                    item {
+                        ErrorUi(
+                            modifier = Modifier.fillMaxSize(),
+                            retry = {
+
+                            })
+                    }
+                }
+
+                else -> Unit
             }
         }
 
-        NeedHelp(navController)
+        NeedHelp(
+            isVisible = (uiState.orderDetailsState == RequestState.SUCCESS),
+            navController = navController
+        )
     }
 }
 
@@ -278,6 +323,7 @@ fun OrderTimeLine(timelineState: String) {
 
 @Composable
 fun DeliveryInfo(
+    address: String?,
     onChangeClicked: () -> Unit = {}
 ) {
     Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
@@ -367,7 +413,7 @@ fun DeliveryInfo(
                         modifier = Modifier
                             .wrapContentSize()
                             .padding(top = VERY_SMALL_MARGIN),
-                        text = "10th of Ramadan City",
+                        text = address.toString(),
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
@@ -426,7 +472,7 @@ fun DeliveryInfo(
 
 
 @Composable
-fun PaymentMethod() {
+fun PaymentMethod(orderTotal: String?) {
     Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
     Card(
         modifier = Modifier
@@ -531,7 +577,7 @@ fun PaymentMethod() {
                             top.linkTo(parent.top)
                         }
                         .padding(end = MEDIUM_MARGIN),
-                    text = "$115.00",
+                    text = "$${(orderTotal?.toInt()?.plus(5.00))}",
                     fontSize = 14.sp,
                 )
             }
@@ -542,7 +588,7 @@ fun PaymentMethod() {
 
 
 @Composable
-fun OrderConfirmed() {
+fun OrderConfirmed(orderNumber: Int?) {
     Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
     Card(
         modifier = Modifier
@@ -598,7 +644,7 @@ fun OrderConfirmed() {
                     end.linkTo(parent.end, MEDIUM_MARGIN)
                     top.linkTo(titleText.top, VERY_SMALL_MARGIN)
                 },
-                text = "${stringResource(R.string.order_id)}123874 ",
+                text = "${stringResource(R.string.order_id)}${orderNumber}3374",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -619,7 +665,7 @@ fun OrderConfirmed() {
 
 
 @Composable
-fun OrderItemsFooter() {
+fun OrderItemsFooter(orderTotal: String?) {
 
     Card(
         modifier = Modifier
@@ -650,7 +696,7 @@ fun OrderItemsFooter() {
 
             CheckoutFeesItem(
                 stringResource(R.string.subtotal),
-                "$110.00",
+                "$orderTotal",
                 0.dp
             )
 
@@ -662,7 +708,7 @@ fun OrderItemsFooter() {
 
             CheckoutFeesItem(
                 stringResource(R.string.total),
-                "$115.00",
+                "$${(orderTotal?.toInt()?.plus(5.00))}",
                 SMALL_MARGIN,
                 color = Color.Black,
                 fontSize = 14.sp,
@@ -673,7 +719,7 @@ fun OrderItemsFooter() {
 }
 
 @Composable
-fun OrderItemsHeader(itemsCount: Int) {
+fun OrderItemsHeader(itemsCount: Int?) {
     Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
 
     Card(
@@ -822,110 +868,122 @@ fun RowScope.Line(color: Color) {
 
 
 @Composable
-fun NeedHelp(navController: NavHostController) {
-    Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = MEDIUM_MARGIN),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = VERY_SMALL_MARGIN
-        )
-    ) {
-        ConstraintLayout(
+fun NeedHelp(
+    isVisible: Boolean,
+    navController: NavHostController
+) {
+    if (isVisible) {
+        Spacer(modifier = Modifier.height(VERY_SMALL_MARGIN))
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .padding(horizontal = MEDIUM_MARGIN),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = VERY_SMALL_MARGIN
+            )
         ) {
-            val (helpIcon, helpText, helpCaptionText, supportBtn) = createRefs()
-
-
-            Icon(
+            ConstraintLayout(
                 modifier = Modifier
-                    .constrainAs(helpIcon) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                    }
-                    .size(27.dp)
-                    .padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
-                imageVector = Icons.Outlined.SupportAgent,
-                contentDescription = "",
-                tint = Color.Black
-            )
-
-            Text(
-                modifier = Modifier.constrainAs(helpText) {
-                    top.linkTo(helpIcon.top,SMALL_MARGIN)
-                    start.linkTo(helpIcon.end, SMALL_MARGIN)
-                },
-                text = stringResource(R.string.need_help),
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
-
-            Text(
-                modifier = Modifier.constrainAs(helpCaptionText) {
-                    top.linkTo(helpText.bottom)
-                    start.linkTo(helpText.start)
-                },
-                color = Color.Gray,
-                text = stringResource(R.string.help_caption),
-                fontSize = 11.sp
-            )
-
-            OutlinedButton(
-                modifier = Modifier.constrainAs(supportBtn) {
-                    end.linkTo(parent.end,MEDIUM_MARGIN)
-                    top.linkTo(parent.top)
-                }.defaultMinSize(
-                        minWidth = 1.dp,
-                        minHeight = 1.dp
-                    ),
-                onClick = { },
-                border = BorderStroke(0.3.dp, Brown),
-                shape = RoundedCornerShape(SMALL_MARGIN),
-                contentPadding = PaddingValues(horizontal = SMALL_MARGIN, vertical = VERY_SMALL_MARGIN),
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                Text(
-                    fontSize = 12.sp,
-                    text = stringResource(R.string.contact_support),
-                    color = Brown
+                val (helpIcon, helpText, helpCaptionText, supportBtn) = createRefs()
+
+
+                Icon(
+                    modifier = Modifier
+                        .constrainAs(helpIcon) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                        }
+                        .size(27.dp)
+                        .padding(start = MEDIUM_MARGIN, top = SMALL_MARGIN),
+                    imageVector = Icons.Outlined.SupportAgent,
+                    contentDescription = "",
+                    tint = Color.Black
                 )
-            }
-        }
-    }
 
-    Spacer(modifier = Modifier.height(SMALL_MARGIN))
+                Text(
+                    modifier = Modifier.constrainAs(helpText) {
+                        top.linkTo(helpIcon.top, SMALL_MARGIN)
+                        start.linkTo(helpIcon.end, SMALL_MARGIN)
+                    },
+                    text = stringResource(R.string.need_help),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
 
-    ButtonShopApp(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MEDIUM_MARGIN),
-        label = stringResource(R.string.cancel_order),
-        onButtonClicked = {},
-        textFontSize = 14.sp,
-        roundedCornerSize = SMALL_MARGIN
-    )
+                Text(
+                    modifier = Modifier.constrainAs(helpCaptionText) {
+                        top.linkTo(helpText.bottom)
+                        start.linkTo(helpText.start)
+                    },
+                    color = Color.Gray,
+                    text = stringResource(R.string.help_caption),
+                    fontSize = 11.sp
+                )
 
-    Spacer(modifier = Modifier.height(SMALL_MARGIN))
-
-    Text(
-        modifier = Modifier.fillMaxWidth().clickable{
-            navController.navigate(Screen.HOME_SCREEN.route) {
-                popUpTo(0) {
-                    inclusive = true
+                OutlinedButton(
+                    modifier = Modifier
+                        .constrainAs(supportBtn) {
+                            end.linkTo(parent.end, MEDIUM_MARGIN)
+                            top.linkTo(parent.top)
+                        }
+                        .defaultMinSize(
+                            minWidth = 1.dp,
+                            minHeight = 1.dp
+                        ),
+                    onClick = { },
+                    border = BorderStroke(0.3.dp, Brown),
+                    shape = RoundedCornerShape(SMALL_MARGIN),
+                    contentPadding = PaddingValues(
+                        horizontal = SMALL_MARGIN,
+                        vertical = VERY_SMALL_MARGIN
+                    ),
+                ) {
+                    Text(
+                        fontSize = 12.sp,
+                        text = stringResource(R.string.contact_support),
+                        color = Brown
+                    )
                 }
             }
-        },
-        textAlign = TextAlign.Center,
-        text = stringResource(R.string.back_to_home),
-        fontSize = 14.sp,
-        color = Brown
-    )
-    Spacer(modifier = Modifier.height(SMALL_MARGIN))
+        }
+
+        Spacer(modifier = Modifier.height(SMALL_MARGIN))
+
+        ButtonShopApp(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MEDIUM_MARGIN),
+            label = stringResource(R.string.cancel_order),
+            onButtonClicked = {},
+            textFontSize = 14.sp,
+            roundedCornerSize = SMALL_MARGIN
+        )
+
+        Spacer(modifier = Modifier.height(SMALL_MARGIN))
+
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate(Screen.HOME_SCREEN.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                },
+            textAlign = TextAlign.Center,
+            text = stringResource(R.string.back_to_home),
+            fontSize = 14.sp,
+            color = Brown
+        )
+        Spacer(modifier = Modifier.height(SMALL_MARGIN))
+    }
 }
 
 
