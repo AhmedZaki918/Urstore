@@ -220,7 +220,7 @@ fun SearchResults(
                                             item
                                         )
                                     )
-                                    viewModel.onIntent(SearchIntent.GoToDetails)
+                                    viewModel.onIntent(SearchIntent.GoToDetails(item.id))
                                 },
                                 onPlusClicked = { product ->
                                     viewModel.onIntent(

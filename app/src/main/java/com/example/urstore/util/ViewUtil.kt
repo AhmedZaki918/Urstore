@@ -129,7 +129,8 @@ fun ButtonShopApp(
     isButtonClickable: Boolean = true,
     onButtonClicked: () -> Unit,
     textFontSize: TextUnit = 16.sp,
-    roundedCornerSize : Dp = LARGE_MARGIN
+    roundedCornerSize : Dp = LARGE_MARGIN,
+    contentPadding : Dp = CUSTOM_MARGIN
 ) {
     if (isVisible) {
         Button(
@@ -146,7 +147,7 @@ fun ButtonShopApp(
             modifier = modifier
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = CUSTOM_MARGIN),
+                modifier = Modifier.padding(horizontal = contentPadding),
                 text = label,
                 fontSize = textFontSize
             )

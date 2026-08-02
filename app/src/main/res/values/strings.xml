@@ -8,6 +8,7 @@
     <string name="cart">Cart</string>
     <string name="remove">Remove All</string>
     <string name="wishlist">Wishlist</string>
+    <string name="favorite">Favorite</string>
     <string name="my_order">My Order</string>
     <string name="profile">Profile</string>
     <string name="popular_coffees">Popular Coffees</string>

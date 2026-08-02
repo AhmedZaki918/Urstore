@@ -66,7 +66,9 @@ class SearchViewModel @Inject constructor(
 
             is SearchIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is SearchIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
-            is SearchIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
+            is SearchIntent.GoToDetails -> {
+                sendEffect(UiEffect.Navigate("${Screen.DETAIL_SCREEN.route}/${intent.id}"))
+            }
             is SearchIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
         }
     }

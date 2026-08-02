@@ -41,6 +41,7 @@ import com.example.urstore.presentation.navigation.NavGraph
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.ui.theme.Black
 import com.example.urstore.ui.theme.Brown
+import com.example.urstore.ui.theme.Cacy
 import com.example.urstore.ui.theme.Dark_Yellow
 import com.example.urstore.ui.theme.White
 import dagger.hilt.android.AndroidEntryPoint
@@ -103,7 +104,7 @@ fun BottomBar(navController: NavHostController) {
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .height(72.dp),
-                containerColor = White,
+                containerColor = Cacy.copy(alpha = 0.7f),
                 contentColor = Black,
             ) {
                 screens.forEach { screen ->

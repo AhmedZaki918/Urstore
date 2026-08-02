@@ -20,15 +20,27 @@ class WishlistViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WishlistUiState())
     val uiState: StateFlow<WishlistUiState> = _uiState.asStateFlow()
 
-    override fun onIntent(intent: WishlistIntent) {
-        if (intent is WishlistIntent.RemoveItem) {
-            removeItem(intent.item)
-        }
-    }
-
     init {
         displayAllWishlist()
     }
+
+    override fun onIntent(intent: WishlistIntent) {
+        if (intent is WishlistIntent.RemoveItem) {
+            removeItem(intent.item)
+        } else if (intent is WishlistIntent.DeleteAll) {
+            deleteAll()
+        }
+    }
+
+    private fun deleteAll() {
+        viewModelScope.launch {
+            wishlistRepo.deleteAll()
+            _uiState.update {
+                it.copy(drinks = emptyList())
+            }
+        }
+    }
+
 
     private fun removeItem(item: CoffeeEntity) {
         viewModelScope.launch {

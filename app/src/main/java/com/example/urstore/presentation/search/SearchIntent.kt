@@ -15,6 +15,6 @@ sealed class SearchIntent {
 
     data class ShowDialog(var isActive: Boolean) : SearchIntent()
     object Login : SearchIntent()
-    object GoToDetails : SearchIntent()
+    data class GoToDetails(val id : Int) : SearchIntent()
     object GoBack : SearchIntent()
 }

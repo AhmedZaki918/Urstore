@@ -43,4 +43,8 @@ class WishlistRepo @Inject constructor(
     suspend fun delete(coffee: CoffeeEntity) {
         coffeeDao.delete(coffee)
     }
+
+    suspend fun deleteAll(){
+        coffeeDao.deleteAll()
+    }
 }
