@@ -20,4 +20,7 @@ interface CoffeeDao {
 
     @Query("DELETE FROM $DATABASE_TABLE")
     suspend fun deleteAll()
+
+    @Query("SELECT EXISTS(SELECT 1 FROM $DATABASE_TABLE WHERE id = :id)")
+    suspend fun isCoffeeExists(id: Int): Boolean
 }

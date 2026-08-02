@@ -57,7 +57,9 @@ class SeeAllViewModel @Inject constructor(
 
             is SeeAllIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is SeeAllIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
-            is SeeAllIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
+            is SeeAllIntent.GoToDetails -> {
+                sendEffect(UiEffect.Navigate("${Screen.DETAIL_SCREEN.route}/${intent.id}"))
+            }
             is SeeAllIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
         }
     }

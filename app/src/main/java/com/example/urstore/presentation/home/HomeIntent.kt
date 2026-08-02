@@ -14,7 +14,7 @@ sealed class HomeIntent {
     object RetryHome : HomeIntent()
 
     data class ShowDialog(var isActive: Boolean) : HomeIntent()
-    object GoToDetails : HomeIntent()
+    data class GoToDetails(val id : Int) : HomeIntent()
     object Login : HomeIntent()
     object Search : HomeIntent()
 }

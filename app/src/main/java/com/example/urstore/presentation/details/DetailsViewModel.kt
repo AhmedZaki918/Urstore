@@ -1,10 +1,14 @@
 package com.example.urstore.presentation.details
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.CLIENT_ID
+import com.example.urstore.data.local.Constants.PRODUCT_ID
 import com.example.urstore.data.local.Constants.TOKEN
+import com.example.urstore.data.model.drinks.ItemDetails
 import com.example.urstore.data.network.Resource
 import com.example.urstore.data.repository.CartRepo
+import com.example.urstore.data.repository.WishlistRepo
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.ActionLabel
 import com.example.urstore.util.BaseViewModel
@@ -27,8 +31,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val cartRepo: CartRepo,
-    private val dataStore: DataStoreRepo
+    private val dataStore: DataStoreRepo,
+    private val wishlistRepo: WishlistRepo
 ) : BaseViewModel<DetailsIntent>() {
 
     private val _uiState = MutableStateFlow(DetailsUiState())
@@ -38,6 +44,9 @@ class DetailsViewModel @Inject constructor(
     val effects = _effects.asSharedFlow()
 
     init {
+        savedStateHandle.get<Int>(PRODUCT_ID)?.let {
+            isCoffeeSaved(id = it)
+        }
         displayProductSize()
         prepareTokenAndClientId()
     }
@@ -54,12 +63,39 @@ class DetailsViewModel @Inject constructor(
             is DetailsIntent.ShowDialog -> editDialogVisibility(intent.isActive)
             is DetailsIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
             is DetailsIntent.GoBack -> sendEffect(UiEffect.PobBackStack)
+            is DetailsIntent.AddToWishlist -> addToWishlist(intent.coffee)
         }
     }
 
     private fun sendEffect(effect: UiEffect) {
         viewModelScope.launch {
             _effects.emit(effect)
+        }
+    }
+
+    private fun addToWishlist(coffee: ItemDetails) {
+        viewModelScope.launch {
+            if (wishlistRepo.isItemSaved(coffee.id)){
+                wishlistRepo.delete(coffee)
+                _uiState.update {
+                    it.copy(isItemOnWishlist = false)
+                }
+            } else {
+                wishlistRepo.addToWishlist(coffee)
+                _uiState.update {
+                    it.copy(isItemOnWishlist = true)
+                }
+            }
+        }
+    }
+
+    private fun isCoffeeSaved(id: Int) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isItemOnWishlist = wishlistRepo.isItemSaved(id)
+                )
+            }
         }
     }
 

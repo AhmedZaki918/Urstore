@@ -10,5 +10,6 @@ data class DetailsUiState(
     val clientId : String = "",
     val token : String = "",
     var isLoginDialogActive: Boolean = false,
-    var isUserLoggedIn: Boolean = false
+    var isUserLoggedIn: Boolean = false,
+    var isItemOnWishlist : Boolean = false
 )

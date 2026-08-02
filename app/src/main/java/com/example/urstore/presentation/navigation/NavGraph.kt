@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.urstore.data.local.Constants.EMAIL_ADDRESS
 import com.example.urstore.data.local.Constants.ORDER_ID
 import com.example.urstore.data.local.Constants.OTP
+import com.example.urstore.data.local.Constants.PRODUCT_ID
 import com.example.urstore.presentation.auth.login.LoginScreen
 import com.example.urstore.presentation.auth.signup.SignupScreen
 import com.example.urstore.presentation.auth.user_updare.EditProfileScreen
@@ -112,7 +113,7 @@ fun NavGraph(
         }
 
         composable(route = Screen.WISHLIST_SCREEN.route) {
-            WishlistScreen()
+            WishlistScreen(navController = navController)
         }
 
         composable(route = Screen.ORDER_SCREEN.route) {
@@ -143,7 +144,12 @@ fun NavGraph(
         }
 
         composable(
-            route = Screen.DETAIL_SCREEN.route
+            route = "${Screen.DETAIL_SCREEN.route}/{$PRODUCT_ID}",
+            arguments = listOf(
+                navArgument(PRODUCT_ID) {
+                    type = NavType.IntType
+                }
+            )
         ) {
             val viewModel: DetailsViewModel = hiltViewModel()
             DetailsScreen(

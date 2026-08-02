@@ -203,7 +203,7 @@ fun LazyGridScope.popularCoffees(
                         productSharedViewModel.onIntent(
                             ProductIntent.OnProductClicked(popularItem)
                         )
-                        viewModel.onIntent(HomeIntent.GoToDetails)
+                        viewModel.onIntent(HomeIntent.GoToDetails(popularItem.id))
                     },
                     onPlusClicked = { product ->
                         viewModel.onIntent(

@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import com.example.urstore.data.model.drinks.ItemDetails
 import com.example.urstore.data.model.drinks.ProductSize
 import com.example.urstore.ui.theme.BIG_MARGIN
 import com.example.urstore.ui.theme.Black
+import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -104,8 +106,14 @@ fun DetailsScreen(
                 .verticalScroll(scrollState)
         ) {
             DetailsHeader(
-                navController,
-                product
+                uiState = uiState,
+                onWishlistClicked = {
+                    detailsViewModel.onIntent(
+                        DetailsIntent.AddToWishlist(product)
+                    )
+                },
+                navController = navController,
+                productDetails = product
             )
             ProductSizeBar(
                 uiState.productSize,
@@ -167,8 +175,10 @@ fun DetailsScreen(
 
 @Composable
 fun DetailsHeader(
+    onWishlistClicked: () -> Unit,
     navController: NavHostController,
-    productDetails: ItemDetails
+    productDetails: ItemDetails,
+    uiState: DetailsUiState
 ) {
 
     ConstraintLayout(
@@ -195,10 +205,12 @@ fun DetailsHeader(
                 end.linkTo(parent.end, MEDIUM_MARGIN)
             },
             onClick = {
-
+                onWishlistClicked()
             }) {
             Icon(
-                imageVector = Icons.Outlined.FavoriteBorder,
+                imageVector = if (uiState.isItemOnWishlist) Icons.Outlined.Favorite
+                else Icons.Outlined.FavoriteBorder,
+                tint =  Brown,
                 contentDescription = ""
             )
         }

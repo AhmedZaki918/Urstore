@@ -62,7 +62,10 @@ class HomeViewModel @Inject constructor(
 
             is HomeIntent.RetryHome -> loadHomeData()
             is HomeIntent.ShowDialog -> editDialogVisibility(intent.isActive)
-            is HomeIntent.GoToDetails -> sendEffect(UiEffect.Navigate(Screen.DETAIL_SCREEN.route))
+            is HomeIntent.GoToDetails -> {
+                sendEffect(UiEffect.Navigate("${Screen.DETAIL_SCREEN.route}/${intent.id}"))
+            }
+
             is HomeIntent.Login -> sendEffect(UiEffect.Navigate(Screen.LOGIN_SCREEN.route))
             is HomeIntent.Search -> sendEffect(UiEffect.Navigate(Screen.SEARCH_SCREEN.route))
         }

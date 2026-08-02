@@ -165,7 +165,7 @@ fun LazyGridScope.seeAllContent(
                         currentItem = item,
                         onItemClicked = {
                             productSharedViewModel.onIntent(ProductIntent.OnProductClicked(item))
-                            viewModel.onIntent(SeeAllIntent.GoToDetails)
+                            viewModel.onIntent(SeeAllIntent.GoToDetails(item.id))
                         },
                         onPlusClicked = { product ->
                             viewModel.onIntent(
