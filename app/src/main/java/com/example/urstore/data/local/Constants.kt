@@ -12,6 +12,10 @@ object Constants {
     const val BASE_URL = "https://restaurant.arrowtecheg.com/api/"
     const val BEARER = "Bearer"
 
+    // Room
+    const val DATABASE_TABLE = "coffee_table"
+    const val DATABASE_NAME = "coffee_database"
+
     // Data Store fields
     const val PREFERENCE_NAME = "shop_preferences"
     val F_NAME_KEY = stringPreferencesKey(name = "first_name")
