@@ -2,6 +2,7 @@ package com.example.urstore.presentation.profile
 
 import androidx.lifecycle.viewModelScope
 import com.example.urstore.data.local.Constants.TOKEN
+import com.example.urstore.data.repository.WishlistRepo
 import com.example.urstore.presentation.navigation.Screen
 import com.example.urstore.util.BaseViewModel
 import com.example.urstore.util.DataStoreRepo
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val dataStore: DataStoreRepo
+    private val dataStore: DataStoreRepo,
+    private val wishlistRepo: WishlistRepo
 ) : BaseViewModel<ProfileIntent>() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -67,6 +69,7 @@ class ProfileViewModel @Inject constructor(
     private fun clearUserData() {
         viewModelScope.launch {
             dataStore.clearAllData()
+            wishlistRepo.deleteAll()
         }
     }
 

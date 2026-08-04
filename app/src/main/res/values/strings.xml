@@ -78,6 +78,7 @@
     <string name="otp_6_digits">OTP must be 6 digits.</string>
     <string name="r_you_sure_delete_cart">Are you sure you want to delete?</string>
     <string name="cart_delete_warning">All cart items will be deleted.</string>
+    <string name="wishlist_delete_warning">All wishlist items will be deleted.</string>
     <string name="should_login">Please login to add to cart</string>
     <string name="delete">Delete</string>
     <string name="try_again">Try again</string>

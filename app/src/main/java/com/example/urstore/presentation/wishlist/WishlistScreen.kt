@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +14,15 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -31,10 +36,12 @@ import androidx.navigation.NavHostController
 import com.example.urstore.R
 import com.example.urstore.ui.theme.Beige
 import com.example.urstore.ui.theme.Brown
-import com.example.urstore.ui.theme.LARGE_MARGIN
+import com.example.urstore.ui.theme.Cacy
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
-import com.example.urstore.util.BackButton
+import com.example.urstore.util.AlertDialog
+import com.example.urstore.util.SnackBar
 import com.example.urstore.util.SubTitle
+import com.example.urstore.util.UiEffect
 
 @Composable
 fun WishlistScreen(
@@ -42,37 +49,86 @@ fun WishlistScreen(
     navController: NavHostController
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is UiEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.actionLabel,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Beige),
+            .background(Beige)
+            .padding(bottom = 120.dp)
     ) {
-        WishlistHeader(
-            isFavoriteNotEmpty = uiState.drinks.isNotEmpty(),
-            onDeleteClicked = {
-                viewModel.onIntent(WishlistIntent.DeleteAll)
+        Column(modifier = Modifier.fillMaxSize()) {
+
+            WishlistHeader(
+                isFavoriteNotEmpty = uiState.drinks.isNotEmpty(),
+                onDeleteClicked = {
+                    viewModel.onIntent(WishlistIntent.ShowDialog(true))
+                }
+            )
+
+            Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
+
+            if (uiState.drinks.isNotEmpty()) {
+                LazyColumn {
+                    items(uiState.drinks) {
+                        ListItemWishlist(
+                            currentItem = it,
+                            onRemoveClicked = { item ->
+                                viewModel.onIntent(WishlistIntent.RemoveItem(item))
+                            },
+                            onAddToCart = { id ->
+                                viewModel.onIntent(WishlistIntent.AddToCart(id))
+                            }
+                        )
+                    }
+                }
+            } else {
+                EmptyFavoriteUi()
+            }
+        }
+
+        AlertDialog(
+            isVisible = uiState.isDialogActive,
+            title = stringResource(R.string.r_you_sure_delete_cart),
+            description = stringResource(R.string.wishlist_delete_warning),
+            confirmTitle = stringResource(R.string.delete),
+            dismissTitle = stringResource(R.string.cancel),
+            icon = Icons.Outlined.Delete,
+            onDismiss = {
+                viewModel.onIntent(WishlistIntent.ShowDialog(false))
+            },
+            onConfirm = {
+                viewModel.apply {
+                    onIntent(WishlistIntent.ShowDialog(false))
+                    onIntent(WishlistIntent.DeleteAll)
+                }
             }
         )
 
-        Spacer(modifier = Modifier.height(MEDIUM_MARGIN))
-
-        if (uiState.drinks.isNotEmpty()) {
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 80.dp)
-            ) {
-                items(uiState.drinks) {
-                    ListItemWishlist(
-                        currentItem = it,
-                        onRemoveClicked = { item ->
-                            viewModel.onIntent(WishlistIntent.RemoveItem(item))
-                        }
-                    )
-                }
-            }
-        } else {
-            EmptyFavoriteUi()
-        }
+        SnackBar(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 30.dp),
+            containerColor = Cacy
+        )
     }
 }
 

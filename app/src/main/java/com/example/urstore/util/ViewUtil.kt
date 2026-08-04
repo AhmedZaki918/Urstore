@@ -123,6 +123,40 @@ fun timePlusAnHour() : String {
 
 @Composable
 fun ButtonShopApp(
+    modifier: Modifier,
+    label: String,
+    isVisible: Boolean = true,
+    isButtonClickable: Boolean = true,
+    onButtonClicked: () -> Unit,
+    textFontSize: TextUnit = 16.sp,
+    roundedCornerSize : Dp = SMALL_MARGIN,
+    height : Dp,
+    contentPadding : Dp = 0.dp
+) {
+    if (isVisible) {
+        Button(
+            onClick = {
+                if (isButtonClickable) {
+                    onButtonClicked()
+                }
+            },
+            shape = RoundedCornerShape(roundedCornerSize),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isButtonClickable) Brown else Brown.copy(alpha = 0.7f),
+                contentColor = Color.White
+            ),
+            modifier = modifier.wrapContentWidth().height(height)
+        ) {
+            Text(
+                text = label,
+                fontSize = textFontSize
+            )
+        }
+    }
+}
+
+@Composable
+fun ButtonShopApp(
     modifier: Modifier = Modifier.wrapContentWidth(),
     label: String,
     isVisible: Boolean = true,
@@ -640,6 +674,7 @@ fun BackButton(
 fun LinearLoadingIndicator(
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
+    linearIndicatorWidth : Float = 0.25f
 ) {
     if (isVisible) {
         Box(
@@ -648,7 +683,7 @@ fun LinearLoadingIndicator(
         ) {
             LinearProgressIndicator(
                 color = Brown,
-                modifier = Modifier.fillMaxWidth(0.25f)
+                modifier = Modifier.fillMaxWidth(linearIndicatorWidth)
             )
         }
     }
@@ -678,7 +713,8 @@ fun CircularLoadingIndicator(
 @Composable
 fun SnackBar(
     hostState: SnackbarHostState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerColor : Color = Off_White
 ) {
     SnackbarHost(
         hostState = hostState,
@@ -686,7 +722,7 @@ fun SnackBar(
             .padding(MEDIUM_MARGIN)
     ) { data ->
         Snackbar(
-            containerColor = Off_White,
+            containerColor = containerColor,
             contentColor = Medium_Brown,
             action = {
                 IconButton(onClick = {

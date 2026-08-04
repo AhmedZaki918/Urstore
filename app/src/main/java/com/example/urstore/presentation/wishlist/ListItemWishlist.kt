@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -35,6 +36,7 @@ import com.example.urstore.ui.theme.Brown
 import com.example.urstore.ui.theme.CUSTOM_MARGIN
 import com.example.urstore.ui.theme.Cacy
 import com.example.urstore.ui.theme.Dark_Yellow
+import com.example.urstore.ui.theme.EXTRA_LARGE_MARGIN
 import com.example.urstore.ui.theme.LARGE_MARGIN
 import com.example.urstore.ui.theme.Light_Brown
 import com.example.urstore.ui.theme.MEDIUM_MARGIN
@@ -43,13 +45,15 @@ import com.example.urstore.ui.theme.SMALL_MARGIN
 import com.example.urstore.ui.theme.VERY_SMALL_MARGIN
 import com.example.urstore.ui.theme.White
 import com.example.urstore.util.ButtonShopApp
+import com.example.urstore.util.CircularLoadingIndicator
+import com.example.urstore.util.LinearLoadingIndicator
 
 
 @Composable
 fun ListItemWishlist(
     currentItem: CoffeeEntity,
     onRemoveClicked: (CoffeeEntity) -> Unit,
-    onAddToCart: () -> Unit = {}
+    onAddToCart: (Int) -> Unit
 ) {
 
     Card(
@@ -61,11 +65,12 @@ fun ListItemWishlist(
     ) {
         ConstraintLayout(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(140.dp)
                 .background(Cacy)
         ) {
             val (productImage, titleText, priceText, deleteButton,
-                captionText, ratingImage, ratingText,addToCartBtn) = createRefs()
+                captionText, ratingImage, ratingText,addToCartBtn,loading) = createRefs()
 
 
             AsyncImage(
@@ -151,19 +156,30 @@ fun ListItemWishlist(
                 fontWeight = FontWeight.Bold
             )
 
+            LinearLoadingIndicator(
+                isVisible = currentItem.isLoading,
+                modifier = Modifier.constrainAs(loading) {
+                    end.linkTo(parent.end,MEDIUM_MARGIN)
+                    top.linkTo(priceText.top)
+                    bottom.linkTo(priceText.bottom)
+                },
+                linearIndicatorWidth = 0.2f
+            )
+
             ButtonShopApp(
+                isVisible = !currentItem.isLoading,
                 modifier = Modifier.constrainAs(addToCartBtn){
                     end.linkTo(parent.end,MEDIUM_MARGIN)
                     top.linkTo(priceText.top)
                     bottom.linkTo(priceText.bottom)
-                }.padding(bottom = SMALL_MARGIN),
+                },
                 textFontSize = 12.sp,
                 onButtonClicked = {
-                    onAddToCart()
+                    onAddToCart(currentItem.id)
                 },
                 label = stringResource(R.string.add_to_cart),
                 roundedCornerSize = MEDIUM_MARGIN,
-                contentPadding = 0.dp
+                height = 35.dp
             )
         }
     }

@@ -80,11 +80,26 @@ class DetailsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(isItemOnWishlist = false)
                 }
+
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Removed from wishlist",
+                        actionLabel = ActionLabel.SUCCESS.value
+                    )
+                )
+
             } else {
                 wishlistRepo.addToWishlist(coffee)
                 _uiState.update {
                     it.copy(isItemOnWishlist = true)
                 }
+
+                _effects.emit(
+                    UiEffect.ShowSnackbar(
+                        message = "Added to wishlist",
+                        actionLabel = ActionLabel.SUCCESS.value
+                    )
+                )
             }
         }
     }

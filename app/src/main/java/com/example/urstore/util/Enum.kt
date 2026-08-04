@@ -26,6 +26,7 @@ enum class QuantityOperation(val value: String) {
     MINUS("minus")
 }
 
+
 enum class PaymentMethods(val value: String) {
     VISA("visa"),
     MASTERCARD("mastercard"),

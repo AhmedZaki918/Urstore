@@ -12,5 +12,6 @@ data class CoffeeEntity(
     @ColumnInfo(name = "caption") val caption : String,
     @ColumnInfo(name = "item_image") val itemImage : String,
     @ColumnInfo(name = "rating") val rating : Double,
-    @ColumnInfo(name = "price") val price : Int
+    @ColumnInfo(name = "price") val price : Int,
+    val isLoading : Boolean = false
 )
